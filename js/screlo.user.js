@@ -36,7 +36,7 @@ function hCss() {
 }
 
 function addCss() {
-	$('head').append('<link rel="stylesheet" href="https://raw.githubusercontent.com/thomas-fab/screlo/master/css/screlo.css" type="text/css" />');
+	$('head').append('<link rel="stylesheet" href="https://rawgit.com/thomas-fab/screlo/master/css/screlo.css" type="text/css" />'); // TODO: mettre l'url rawgit dans une variable
 }
 
 // Reference copier
