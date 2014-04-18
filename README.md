@@ -80,7 +80,7 @@ Si une mise à jour ne s'applique pas tout de suite :
 * ajouter les notes de lecture au test de reference biblio
 * etendre les tests a d'autres vues quand c'est possible (index, table des matières...)
 * completer la whitelist des styles
-* etendre la Whitelist a d'autres elements que les <p>
+* etendre la Whitelist a d'autres elements que les p
 * completer la blackList des arborescences
 * ameliorer position titre illus/légende/crédits
 * revoir le test : if ($('#notes p:not(".notesbaspage")')) => matche trop souvent ?
