@@ -1,4 +1,5 @@
-span.paranumber {cursor: pointer;} span.paranumber:hover {background-color: yellow;}
+span.paranumber {cursor: pointer;} 
+span.paranumber:hover {background-color: yellow;}
 #docAuthor span.familyName {border: 3px green solid;}
 #relecture_buttons {background-color: transparent; border: none; padding: 6px; margin-bottom: 6px; color: #000; text-align: right;}
 #relecture_buttons a {opacity: .7; margin-left: 6px;}
@@ -20,4 +21,4 @@ ul#liste_erreurs {margin-bottom: 20px;}
 ul#liste_erreurs li {margin: 10px 0;}
 [data-warning] {border-left: 4px solid red;}
 [data-warning]:before {display: block; position: absolute; left: 722px; content:"!"; border-radius: 4px; padding: 4px; color: #FFF; background-color: orange; font-weight: bold; font-size: 20px; min-width: 20px; text-align: center;}
-[data-warning]:hover:before {display: block; position: absolute; left: 722px; min-width: 160px; content:attr(data-warning); border-radius: 4px; padding: 4px; color: #FFF; background-color: orange; font-size: 10px;}'
+[data-warning]:hover:before {display: block; position: absolute; left: 722px; min-width: 160px; content:attr(data-warning); border-radius: 4px; padding: 4px; color: #FFF; background-color: orange; font-size: 10px;}

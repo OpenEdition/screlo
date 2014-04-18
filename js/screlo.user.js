@@ -36,8 +36,7 @@ function hCss() {
 }
 
 function addCss() {
-    var el = $('<link rel="stylesheet" type="text/css" href="https://raw.githubusercontent.com/thomas-fab/screlo/master/css/screlo.css" media="screen" />');
-	$('head').append(el);
+	$('head').append('<link rel="stylesheet" href="https://raw.githubusercontent.com/thomas-fab/screlo/master/css/screlo.css" type="text/css" />');
 }
 
 // Reference copier
