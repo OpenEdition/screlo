@@ -8,7 +8,7 @@ ScReLo
 - **Pour Firefox :** https://addons.mozilla.org/fr/firefox/addon/greasemonkey/
 - **Pour Chrome :** Tampermonkey ? A tester : https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=fr
 
-Étape 2 : ouvrir l'URL https://github.com/thomas-fab/scresi/raw/master/js/screlo.user.js avec le navigateur.
+Étape 2 : ouvrir l'URL https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js avec le navigateur.
 
 Étape 3 : accepter l'installation du script.
 
