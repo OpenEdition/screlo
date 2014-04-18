@@ -70,7 +70,7 @@ Si une mise à jour ne s'applique pas tout de suite :
 * lien vers le rechargement de l'article (recupere l'id parent)
 * titre contenant la string "Annexe" ou "Bilbiographie" dans le bloc normal
 * quand une mef locale acceptée par otx (genre bold) est présente sur tout un element display:block => c'est probablement un intertitre raté
-* images en wmf, du type : p > <img id="img-5.wmf" alt="Image 5.wmf" src="docannexe/image/776/img-5.wmf">
+* images en wmf, du type : p > img id="img-5.wmf" alt="Image 5.wmf" src="docannexe/image/776/img-5.wmf"
 * paragraphes "Normal" qui commencent par /- / ou /[0-9]\./ ou /[0-9]\)/ => probablement des listes ratées
 * description auteur entre parenthèses
 * résumé qui commence par résumé (et autres trucs du genre)
