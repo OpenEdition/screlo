@@ -22,3 +22,14 @@ ul#liste_erreurs li {margin: 10px 0;}
 [data-warning] {border-left: 4px solid red;}
 [data-warning]:before {display: block; position: absolute; left: 722px; content:"!"; border-radius: 4px; padding: 4px; color: #FFF; background-color: orange; font-weight: bold; font-size: 20px; min-width: 20px; text-align: center;}
 [data-warning]:hover:before {display: block; position: absolute; left: 722px; min-width: 160px; content:attr(data-warning); border-radius: 4px; padding: 4px; color: #FFF; background-color: orange; font-size: 10px;}
+
+// Headers
+#text h1.texte:before, #toc .tocSection1:before {content: "h1"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
+#text h2.texte:before, #toc .tocSection2:before {content: "h2"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
+#text h3.texte:before, #toc .tocSection3:before {content: "h3"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
+#text h4.texte:before, #toc .tocSection4:before {content: "h4"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
+#text h5.texte:before, #toc .tocSection5:before {content: "h5"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
+#text h6.texte:before, #toc .tocSection6:before {content: "h6"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
+#text h7.texte:before, #toc .tocSection7:before {content: "h7"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
+#text h8.texte:before, #toc .tocSection8:before {content: "h8"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
+#text h9.texte:before, #toc .tocSection9:before {content: "h9"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;}

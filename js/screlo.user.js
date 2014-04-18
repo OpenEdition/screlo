@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.04.18
+// @version     14.04.18.2
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -22,19 +22,7 @@ function setContexte() {
     return contexte;
 }
 
-// Injection de CSS
-function hCss() {
-    var i,
-        min = 1,
-        max = 9,
-        res = '';
-    
-    for(i = min; i <= 9; i++){
-        res += '#text h' + i + '.texte:before, #toc .tocSection' + i + ':before {content: "h' + i + '"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} \n'
-    }
-    return res;
-}
-
+// Injection d'une feuille de style
 function addCss() {
 	$('head').append('<link rel="stylesheet" href="https://rawgit.com/thomas-fab/screlo/master/css/screlo.css" type="text/css" />'); // TODO: mettre l'url rawgit dans une variable
 }
