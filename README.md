@@ -18,6 +18,13 @@ ScReLo
 
 Le script s’exécute automatiquement au chargement de la page quand GreaseMonkey est activé.
 
+## Forcer les mises à jour
+
+Si une mise à jour ne s'applique pas tout de suite :
+
+* vider le cache du navigateur
+* réinstaller
+
 ## Fonctionnalités 
 
 ### Vérifications
