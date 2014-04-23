@@ -23,6 +23,20 @@ ul#liste_erreurs li {margin: 10px 0;}
 [data-warning]:before {display: block; position: absolute; left: 722px; content:"!"; border-radius: 4px; padding: 4px; color: #FFF; background-color: orange; font-weight: bold; font-size: 20px; min-width: 20px; text-align: center;}
 [data-warning]:hover:before {display: block; position: absolute; left: 722px; min-width: 160px; content:attr(data-warning); border-radius: 4px; padding: 4px; color: #FFF; background-color: orange; font-size: 10px;}
 
+#acces_rapide { 
+	clear: none;
+    float: left;
+    font-size: 14px;
+    margin: 5px 0 0;
+}
+#acces_rapide #id_acces {
+	background: #DFDFDF;
+    border: none;
+    margin-right: 10px;
+    padding: 3px;
+    width: 50px;
+}
+
 /* Headers */
 #text h1.texte:before, #toc .tocSection1:before {content: "h1"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
 #text h2.texte:before, #toc .tocSection2:before {content: "h2"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
