@@ -54,6 +54,7 @@ Si une mise à jour ne s'applique pas tout de suite :
 * referenceCopier
 * exécution automatique du debugger
 * inspecteur de classes des paragraphes (à améliorer) 
+* acces rapide par l'id
 		
 ### Idees d'ajouts
 	
