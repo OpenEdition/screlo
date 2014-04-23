@@ -89,7 +89,9 @@ function retournerUrl (quoi) {
     } else if (quoi === "editer") {
        // http://lodel.revues.org/10/corela/lodel/edition/index.php?do=view&id=1504
        h = 'http://' + window.location.host + a + '/lodel/edition/index.php?do=view&id=' + b;   
-    }
+    } else if (typeof quoi === 'string') {
+		h = 'http://' + window.location.host + a + quoi;   
+	}
 
     return h;   
 }
@@ -107,7 +109,15 @@ function setRelectureBox() {
 	});
 	
 	// Boutons
-	$('<div id="relecture_buttons"><a title="Document source" href="' + retournerUrl('doc') + '"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/master/css/MS-Office-Word-icon.png" alt ="Document source"/><a title="Editer" href="' + retournerUrl('editer') + '"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/master/css/Edit-icon.png" alt="Editer" /></a></div>').appendTo('#relecture_box');
+	$('<div id="relecture_buttons"><form id="acces_rapide"><input type="text" id="id_acces"></input><input type="submit" value="go"></form><a title="Document source" href="' + retournerUrl('doc') + '"><img src="http://icons.iconarchive.com/icons/visualpharm/icons8-metro-style/32/MS-Office-Word-icon.png" alt ="Document source"/><a title="Editer" href="' + retournerUrl('editer') + '"><img src="http://icons.iconarchive.com/icons/pixelkit/gentle-edges/32/Edit-icon.png" alt="Editer" /></a></div>').appendTo('#relecture_box');
+	
+	$( "#acces_rapide" ).submit(function( event ) {
+		event.preventDefault();
+		var idAcces = $('input#id_acces').val();
+		if (typeof idAcces === 'string') {
+			window.location.href = retournerUrl(idAcces);
+		}
+	});
 }
 
 // Colorer les liens dans le texte pour mieux les voir
