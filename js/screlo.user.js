@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.04.23.1
+// @version     14.04.24.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -379,11 +379,16 @@ if (window.jQuery) {
 					return contexte.isTexte;
 				},
 				action : function () {
+					var e = false;
 					$('#notes > p > a[id^=ftn]').each( function(index) {
 						if($(this).text() != index + 1) {
-							return new Erreur('Incohérence dans la numérotation des notes', 'warning');
+							e = true;
+							return false;
 						}
 					});
+					if (e) {
+						return new Erreur('Incohérence dans la numérotation des notes', 'warning');
+					}
 				}
 			},
 
