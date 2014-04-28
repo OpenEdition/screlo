@@ -3,11 +3,13 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.04.24.1
+// @version     14.04.28.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
 // ==/UserScript==
+
+var branch = 'master';
 
 function Erreur(message, type) {
     this.type = typeof type !== 'undefined' ? type : 'danger';
@@ -24,7 +26,7 @@ function setContexte() {
 
 // Injection d'une feuille de style
 function addCss() {
-	$('head').append('<link rel="stylesheet" href="https://rawgit.com/thomas-fab/screlo/master/css/screlo.css" type="text/css" />'); // TODO: mettre l'url rawgit dans une variable
+	$('head').append('<link rel="stylesheet" href="https://rawgit.com/thomas-fab/screlo/' + branch + '/css/screlo.css" type="text/css" />');
 }
 
 // Reference copier
@@ -76,19 +78,19 @@ function debugStylage() {
 }
 
 // Barre d'outils/erreurs
-function retournerUrl (quoi) {
+function retournerUrl(quoi) {
     var h = location.href,
         p = location.pathname,
         a = p.replace(/[^/]+$/g, ''),
         b = p.match(/(\d+)$/g);
     if (quoi === "doc") {
-       h = 'http://' + window.location.host + a + '/lodel/edition/index.php?do=download&type=source&id=' + b;
+       h = 'http://' + window.location.host + a + 'lodel/edition/index.php?do=download&type=source&id=' + b;
     } else if (quoi === "otx") {
         // FIXME: Ne pas encore uitiliser il faut choper id parent
         // http://lodel.revues.org/10/corela/lodel/edition/oochargement.php?identity=1504&idparent=833&reload=1
     } else if (quoi === "editer") {
        // http://lodel.revues.org/10/corela/lodel/edition/index.php?do=view&id=1504
-       h = 'http://' + window.location.host + a + '/lodel/edition/index.php?do=view&id=' + b;   
+       h = 'http://' + window.location.host + a + 'lodel/edition/index.php?do=view&id=' + b;   
     } else if (typeof quoi === 'string') {
 		h = 'http://' + window.location.host + a + quoi;   
 	}
@@ -109,7 +111,18 @@ function setRelectureBox() {
 	});
 	
 	// Boutons
-	$('<div id="relecture_buttons"><form id="acces_rapide"><input type="text" id="id_acces"></input><input type="submit" value="go"></form><a title="Document source" href="' + retournerUrl('doc') + '"><img src="http://icons.iconarchive.com/icons/visualpharm/icons8-metro-style/32/MS-Office-Word-icon.png" alt ="Document source"/><a title="Editer" href="' + retournerUrl('editer') + '"><img src="http://icons.iconarchive.com/icons/pixelkit/gentle-edges/32/Edit-icon.png" alt="Editer" /></a></div>').appendTo('#relecture_box');
+	$('<div id="relecture_buttons"><form id="acces_rapide"><input type="text" id="id_acces"></input><input type="submit" value="go"/></form><a title="Version" href="#" id="version_popup"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/about.png" alt ="Version"/></a><a title="Document source" href="' + retournerUrl('doc') + '"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/docsource.png" alt ="Document source"/></a><a title="Editer" href="' + retournerUrl('editer') + '"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/edit.png" alt="Editer" /></a></div>').appendTo('#relecture_box');
+	
+	// Fonctions
+	$( "#version_popup" ).click(function( event ) {
+		event.preventDefault();
+		var msg = 'ScReLo (' + branch + ') version ' + GM_info.script.version + '\nUne mise à jour est peut-être disponible. Forcer la mise à jour ?',
+			mettreAJour = false;
+		mettreAJour = confirm(msg);
+		if (mettreAJour) {
+			window.location.href = 'https://rawgit.com/thomas-fab/screlo/' + branch  + '/js/screlo.user.js';
+		}
+	});
 	
 	$( "#acces_rapide" ).submit(function( event ) {
 		event.preventDefault();
@@ -118,6 +131,7 @@ function setRelectureBox() {
 			window.location.href = retournerUrl(idAcces);
 		}
 	});
+	
 }
 
 // Colorer les liens dans le texte pour mieux les voir
