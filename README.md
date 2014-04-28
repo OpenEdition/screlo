@@ -3,27 +3,24 @@ ScReLo
 
 ## Installation
 
-Étape 1 : installer le plugin GreaseMonkey sur votre navigateur
+Étape 1 : installer un plugin permettant d'installer des scripts utilisateur sur le navigateur :
 
-- **Pour Firefox :** https://addons.mozilla.org/fr/firefox/addon/greasemonkey/
-- **Pour Chrome :** Tampermonkey ? A tester : https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=fr
+- **Pour Firefox :** GreaseMonkey https://addons.mozilla.org/fr/firefox/addon/greasemonkey/
+- **Pour Chrome :** Tampermonkey https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=fr
 
 Étape 2 : ouvrir l'URL https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js avec le navigateur.
 
 Étape 3 : accepter l'installation du script.
 
-Étape 4 : dans le Gestionnaire de modules complémentaires > User Scripts > double-cliquer sur le nom du script > activer les mises à jour automatiques.
-
 ## Utilisation
 
-Le script s’exécute automatiquement au chargement de la page quand GreaseMonkey est activé.
+Le script s’exécute automatiquement au chargement de la page quand les scripts utilisateur sont activés.
+
+Pour rétablir un affichage normal de la page, désactiver les scripts utilisateur et recharger la page.
 
 ## Forcer les mises à jour
 
-Si une mise à jour ne s'applique pas tout de suite :
-
-* vider le cache du navigateur
-* réinstaller
+Normalement les mises à jour sont automatiques. Pour forcer une mise à jour, utiliser le bouton "Version". 
 
 ## Fonctionnalités 
 
@@ -40,10 +37,9 @@ Si une mise à jour ne s'applique pas tout de suite :
 * paragraphes qui commencent par une minuscule
 * styles de paragraphes inconnus (whitelist)
 * numérotation des notes de bas de page
-* arborescences interdites (type ul > h1)
+* arborescences interdites (type ul > h1) = à compléter
 * si legendeillustration ^= "Fig" alors c'est que c'est surement un titreillustration
 * appel de note dans le titre
-	   
     
 ### Autres (outils)
        
@@ -55,37 +51,4 @@ Si une mise à jour ne s'applique pas tout de suite :
 * exécution automatique du debugger
 * inspecteur de classes des paragraphes (à améliorer) 
 * acces rapide par l'id
-		
-### Idees d'ajouts
-	
-* ajouter des tests de validation du contenu des metadonnes/elements (ex: auteur tout en cap = pas bien)
-* titreillustration sans illus
-* "Document sans titre"
-* Auteur sans nom/prenom
-* illus sans titre mais avec legendeillustration
-* Pas de date de publication papier	
-* controler la hierarchie des titres (ex: h2 sans h1)
-* tester les mots clés (points, tirets, etc.)
-* liens hypertextes dans les titres
-* note de bas de page dans le resume
-* lien vers le rechargement de l'article (recupere l'id parent)
-* titre contenant la string "Annexe" ou "Bilbiographie" dans le bloc normal
-* quand une mef locale acceptée par otx (genre bold) est présente sur tout un element display:block => c'est probablement un intertitre raté
-* images en wmf, du type : p > img id="img-5.wmf" alt="Image 5.wmf" src="docannexe/image/776/img-5.wmf"
-* paragraphes "Normal" qui commencent par /- / ou /[0-9]\./ ou /[0-9]\)/ => probablement des listes ratées
-* description auteur entre parenthèses
-* résumé qui commence par résumé (et autres trucs du genre)
-
-## Todo
-		
-* ajouter les notes de lecture au test de reference biblio
-* etendre les tests a d'autres vues quand c'est possible (index, table des matières...)
-* completer la whitelist des styles
-* etendre la Whitelist a d'autres elements que les p
-* completer la blackList des arborescences
-* ameliorer position titre illus/légende/crédits
-* revoir le test : if ($('#notes p:not(".notesbaspage")')) => matche trop souvent ?
-* FIXME: le test de la reference electro ne fonctionne que si la page est affichée en français
-* FIXME: exclure les § sans retrait du test de la minuscule initiale
-* FIXME: signalement impossible quand plusieurs erreurs sur un meme element => probleme avec ::before {content} => ajouter direct dans le DOM
-* separer en plusieurs scripts (outils/relecture) ?
+* version + forcer la mise à jour
