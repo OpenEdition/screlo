@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.04.28.1
+// @version     14.04.30.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -311,6 +311,20 @@ if (window.jQuery) {
 					var titre = $('h1#docTitle');
 					if (titre.find('br').length > 0) {
 						return new Erreur('Retour à la ligne dans le titre');
+					}
+				}
+			},
+			
+			// Br dans les intertitres
+			{
+				condition : function () {
+					return contexte.isTexte;
+				},
+				action : function () {
+					var l = $('.texte:header br').length;
+					
+					if (l > 0) {
+						return new Erreur('Intertitre contenant un retour à la ligne (' + l + ')'); // TODO: ajouter un marqueur
 					}
 				}
 			},
