@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.04.30.1
+// @version     14.05.05.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -20,6 +20,8 @@ function Erreur(message, type) {
 function setContexte() {
     var contexte = new Array();
 	contexte.isTexte = $('body').hasClass('textes');
+	contexte.isCompterendu = $("body").hasClass("compterendu");
+	contexte.isNotedelecture = $("body").hasClass("notedelecture");
 	contexte.admin = ($('#lodel-container').length !== 0);
     return contexte;
 }
@@ -240,16 +242,14 @@ if (window.jQuery) {
 				}
 			},			
 
-			// Compterendus sans reference
+			// Compterendu/notedelecture sans reference
 			{	
 				condition : function () {
-					return contexte.isTexte;
+					return contexte.isTexte && (contexte.isCompterendu || contexte.isNotedelecture);
 				},
 				action : function () {
-					// TODO: faire aussi les notes de lecture
-					// TODO: gerer correctement la condition compterendu (var contexte)
-					if ($("body").hasClass("compterendu") && $("#docReference").length === 0) {
-						return new Erreur('Pas de référence pour ce compte rendu',  'danger');
+					if ($("#docReference").length === 0) {
+						return new Erreur('Pas de référence de l\'oeuvre',  'danger');
 					}
 				}
 			},
