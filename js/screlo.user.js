@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.05.05.1
+// @version     14.05.06.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -352,19 +352,18 @@ if (window.jQuery) {
 				}
 			},
 				
-			// Paragraphes qui commencent par une minuscule (sauf paragraphes sans retrait)
+			// Paragraphes qui commencent par une minuscule (sauf paragraphes sans retrait et citations)
 			{
 				condition : function () {
 					return contexte.isTexte;
 				},
 				action : function () {
-					// TODO: exclure les § SR
 					var compteur = 0;
 					
 					// NOTE: les span paranumber fichent le bazar, il faut les virer (dans un clone) 
 					// FIXME: certains elements (ex : citations) nont pas de paranumber, inutile de checher a le sortir
 					// TODO: en faire une fonction pour réutiliser
-					$('#text > .text > *').each( function() {
+					$('#text > .text > *:not(.citation,.paragraphesansretrait)').each( function() {
 						var clone = $(this).clone(); // TODO: c'est peut-etre pas ideal niveau perf, a verifier. Peut-etre mieux de recuperer les textNodes après chaque span.paranumber ?
 						clone.find('span.paranumber').remove();
 						var string = clone.text();
