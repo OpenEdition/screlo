@@ -72,78 +72,17 @@
     opacity: 1;
 }
 
-/* Marqueurs avec pseudo-elements */
+/* Marqueurs */
 
-.warning-police:before {
+span.screlo-marqueur {
     font-weight: normal;
     font-family: sans-serif;
     font-size: 11px;
     display: inline;
-    content: "Police";
     background-color: red;
     color: white;
     padding: 3px;
-    border-radius: 4px;
-}
-.warning-titreillustration:before {
-    font-weight: normal;
-    font-family: sans-serif;
-    font-size: 11px;
-    display: inline;
-    content: "Repositionner ce titre";
-    background-color: orange;
-    color: white;
-    padding: 3px;
-    border-radius: 4px;
-}
-.warning-hponctuation:after {
-    font-weight: normal;
-    font-family: sans-serif;
-    font-size: 11px;
-    display: inline;
-    content: "Ponctuation finale";
-    background-color: orange;
-    color: white;
-    padding: 3px;
-    border-radius: 4px;
-}
-.warning-firstletter:before {
-    font-weight: normal;
-    font-family: sans-serif;
-    font-size: 11px;
-    display: inline;
-    content: "Minuscule";
-    background-color: orange;
-    color: white;
-    padding: 3px;
-    border-radius: 4px;
-}
-.warning-styleincconu:before {
-    font-weight: normal;
-    font-family: sans-serif;
-    font-size: 11px;
-    display: inline;
-    position: relative;
-    content: "Style inconnu";
-    background-color: orange;
-    color: white;
-    padding: 3px;
-    border-radius: 4px;
-}
-.warning-titreillusenlegende:before {
-    font-weight: normal;
-    font-family: sans-serif;
-    font-size: 11px;
-    display: inline;
-    position: relative;
-    content: "Titre plutôt que légende";
-    background-color: orange;
-    color: white;
-    padding: 3px;
-    border-radius: 4px;
-}
-.warning-tree {
-    border: 4px solid blue;
+    border-radius: 4px;   
 }
 
 /* ReferenceCopier */
