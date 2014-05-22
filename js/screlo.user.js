@@ -3,13 +3,15 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.05.06.1
+// @version     14.05.22.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
 // ==/UserScript==
 
-var branch = 'master';
+var branch = 'master'; // TODO: revoir la gestion branch test qui ne fonctionne pas (car édition nécessaire après merge)
+
+/* ----- Fin de l'entete ----- */
 
 function Erreur(message, type) {
     this.type = typeof type !== 'undefined' ? type : 'danger';
@@ -141,6 +143,22 @@ function colorerLiens() {
     $('#main p a[href]:not(.footnotecall):not(.FootnoteSymbol)').css('background-color','lightblue');
 }
 
+// Ajouter marqueur (signaler les erreurs dans le texte)
+function ajouterMarqueur(element, message, type, after) {
+    var type = typeof type !== 'undefined' ? type : 'danger';
+
+    if (element.nodeType === 1 && message){
+        var span = $('<span class="screlo-marqueur"></span>').addClass(type).text(message);
+        if (!after) {
+            span.prependTo(element);
+        } else {
+            span.appendTo(element);    
+        }
+    } else {
+        console.log('Erreur de parametre de ajouterMarqueur()'); // TODO: throw new Error
+    }
+}
+
 // Afficher
 function afficherRelecture(tests) {
 	var condition,
@@ -229,6 +247,7 @@ if (window.jQuery) {
 			},
 				
 			// Date de publication electronique
+            // NOTE: provient du numéro !
 			{
 				condition : function () {
 					return contexte.isTexte;
@@ -263,7 +282,7 @@ if (window.jQuery) {
 					var el = $('#content [style*="Symbol"], #content [style*="symbol"]');
 					if (el.length !== 0) {						
 						el.each(function() {
-							$(this).addClass('warning-police');
+                            ajouterMarqueur(this, "Symbol");
 						});
 						return new Erreur('Police "Symbol" utilisée (' + el.length + ')');
 					}
@@ -279,7 +298,7 @@ if (window.jQuery) {
 					var el = $('#content [style*="Wingdings"], #content [style*="wingdings"]');
 					if (el.length !== 0) {
 						el.each(function() {
-							$(this).addClass('warning-police');
+                            ajouterMarqueur(this, "Wingdings");
 						});
 						return new Erreur('Police "Wingdings" utilisée (' + el.length + ')');
 					}
@@ -295,7 +314,7 @@ if (window.jQuery) {
 					var el = $('#content [style*="Webdings"], #content [style*="webdings"]');
 					if (el.length !== 0) {
 						el.each(function() {
-							$(this).addClass('warning-police');
+                            ajouterMarqueur(this, "Webdings");
 						});
 						return new Erreur('Police "Webdings" utilisée (' + el.length + ')');
 					}
@@ -342,7 +361,7 @@ if (window.jQuery) {
 					$('table + .titreillustration, img + .titreillustration, div.textIcon + .titreillustration').each( function() {
 						if($(this).next('.titreillustration').length === 0) {
 							compteur++;
-							$(this).addClass('warning-titreillustration');
+                            ajouterMarqueur(this, "Repositionner ce titre");
 						}
 					});
 					
@@ -368,7 +387,7 @@ if (window.jQuery) {
 						clone.find('span.paranumber').remove();
 						var string = clone.text();
 						if (string.match(/^[a-z]/)) {
-							$(this).addClass('warning-firstletter');
+                            ajouterMarqueur(this, "Minuscule", "warning");
 							compteur++;
 						}
 					});
@@ -389,7 +408,7 @@ if (window.jQuery) {
 					var compteur = 0; //TODO: l'ideal serait de compter par style et de faire une enumération des styles en alerte avec le nb à chaque fois 
 					$('#text > .text p').each( function() { //TODO : pour l'instant p uniqument, mais pourquoi pas plus ? >> sinon utiliser attr() plutôt que is().
 						if (!$(this).is(textWhitelist)) {
-							$(this).addClass('warning-styleincconu'); //TODO: pour un message : .attr('data-warning', 'Style inconnu : ' + $(this).attr('class'))
+                            ajouterMarqueur(this, 'Style inconnu : ' + $(this).attr('class'));
 							compteur++;
 						}
 					});
@@ -430,7 +449,7 @@ if (window.jQuery) {
 					
 					$(blackList).each( function() {
 						compteur++;
-						$(this).addClass('warning-tree');
+                        ajouterMarqueur(this, "Arborescence interdite");
 					});
 					
 					if(compteur > 0) {
@@ -450,7 +469,7 @@ if (window.jQuery) {
 					$('.texte:header').each( function() {
 						if( $(this).text().match(/[\.:;=]$/) ) {
 							compteur++;
-							$(this).addClass('warning-hponctuation');
+                            ajouterMarqueur(this, "Ponctuation", "danger", true);
 						}
 					});
 					
@@ -484,7 +503,7 @@ if (window.jQuery) {
 				}			
 			},
 			
-			// Ponctuation à la fin des intertitres
+			// Titre d'illustration en légende
 			{
 				condition : function () {
 					return contexte.isTexte;
@@ -495,7 +514,7 @@ if (window.jQuery) {
 					$('.legendeillustration').each( function() {
 						if( $(this).text().match(/^(fig|tabl)/i) ) {
 							compteur++;
-							$(this).addClass('warning-titreillusenlegende');
+                            ajouterMarqueur(this, "Titre plutôt que légende", "warning");
 						}
 					});
 					

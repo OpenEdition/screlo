@@ -1,49 +1,180 @@
-span.paranumber {cursor: pointer;} 
-span.paranumber:hover {background-color: yellow;}
-#docAuthor span.familyName {border: 3px green solid;}
-#relecture_buttons {background-color: transparent; border: none; padding: 6px; margin-bottom: 6px; color: #000; text-align: right;}
-#relecture_buttons a {opacity: .7; margin-left: 6px;}
-#relecture_buttons a:hover, #relecture_buttons a:focus {opacity: 1;}
-.warning-police:before {font-weight: normal; font-family: sans-serif; font-size: 11px; display: inline; content: "Police"; background-color: red; color: white; padding: 3px; border-radius: 4px;}
-.warning-titreillustration:before {font-weight: normal; font-family: sans-serif; font-size: 11px; display: inline; content: "Repositionner ce titre"; background-color: orange; color: white; padding: 3px; border-radius: 4px;}
-.warning-hponctuation:after {font-weight: normal; font-family: sans-serif; font-size: 11px; display: inline; content: "Ponctuation finale"; background-color: orange; color: white; padding: 3px; border-radius: 4px;}
-.warning-firstletter:before {font-weight: normal; font-family: sans-serif; font-size: 11px; display: inline; content: "Minuscule"; background-color: orange; color: white; padding: 3px; border-radius: 4px;}
-.warning-styleincconu:before {font-weight: normal; font-family: sans-serif; font-size: 11px; display: inline; position: relative; content: "Style inconnu"; background-color: orange; color: white; padding: 3px; border-radius: 4px;}
-.warning-titreillusenlegende:before {font-weight: normal; font-family: sans-serif; font-size: 11px; display: inline; position: relative; content: "Titre plutôt que légende"; background-color: orange; color: white; padding: 3px; border-radius: 4px;}
-.warning-tree {border: 4px solid blue;}
-#class_inspector {background-color: #FFF; border: 2px solid #000; padding: 6px; margin-bottom: 6px; color: #000; min-height: 18px;}
-#relecture_box {position: fixed; width: 240px; bottom: 10px; right: 30px; background: #FFF; color: #C00; border: 1px solid #CCC; padding: 10px; z-index: 200;}
-#relecture_box li {border-radius: 4px; padding: 6px 12px; color: #FFF; background-color: #333; border: 1px solid transparent;}
-#relecture_box li.danger {background-color: #d2322d; border-color: #ac2925;}
-#relecture_box li.warning {background-color: #ed9c28; border-color: #d58512;}
-#reference-copier {position: fixed; bottom: 10px; left: -100px; background-color: #E3E3E3; width: 10px;}
-ul#liste_erreurs {margin-bottom: 20px;}
-ul#liste_erreurs li {margin: 10px 0;}
-[data-warning] {border-left: 4px solid red;}
-[data-warning]:before {display: block; position: absolute; left: 722px; content:"!"; border-radius: 4px; padding: 4px; color: #FFF; background-color: orange; font-weight: bold; font-size: 20px; min-width: 20px; text-align: center;}
-[data-warning]:hover:before {display: block; position: absolute; left: 722px; min-width: 160px; content:attr(data-warning); border-radius: 4px; padding: 4px; color: #FFF; background-color: orange; font-size: 10px;}
+/* ScReLo - https://github.com/thomas-fab/screlo */
 
-#acces_rapide { 
-	clear: none;
+/* Div mère #relecture_box et messages d'erreur */
+
+#relecture_box {
+    position: fixed;
+    width: 240px;
+    bottom: 10px;
+    right: 30px;
+    background: #FFF;
+    color: #C00;
+    border: 1px solid #CCC;
+    padding: 10px;
+    z-index: 200;
+}
+#relecture_box li {
+    border-radius: 4px;
+    padding: 6px 12px;
+    color: #FFF;
+    background-color: #333;
+    border: 1px solid transparent;
+}
+
+/* Inspecteur de styles */
+
+#class_inspector {
+    background-color: #FFF;
+    border: 2px solid #000;
+    padding: 6px;
+    margin-bottom: 6px;
+    color: #000;
+    min-height: 18px;
+}
+
+/* Input d'acces rapide et barre de raccourcis */
+
+#acces_rapide {
+    clear: none;
     float: left;
     font-size: 14px;
     margin: 5px 0 0;
 }
 #acces_rapide #id_acces {
-	background: #DFDFDF;
+    background: #DFDFDF;
     border: none;
     margin-right: 10px;
     padding: 3px;
     width: 50px;
 }
+#relecture_buttons {
+    background-color: transparent;
+    border: none;
+    padding: 6px;
+    margin-bottom: 6px;
+    color: #000;
+    text-align: right;
+}
+#relecture_buttons a {
+    opacity: .7;
+    margin-left: 6px;
+}
+#relecture_buttons a:hover,
+#relecture_buttons a:focus {
+    opacity: 1;
+}
 
-/* Headers */
-#text h1.texte:before, #toc .tocSection1:before {content: "h1"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
-#text h2.texte:before, #toc .tocSection2:before {content: "h2"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
-#text h3.texte:before, #toc .tocSection3:before {content: "h3"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
-#text h4.texte:before, #toc .tocSection4:before {content: "h4"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
-#text h5.texte:before, #toc .tocSection5:before {content: "h5"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
-#text h6.texte:before, #toc .tocSection6:before {content: "h6"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
-#text h7.texte:before, #toc .tocSection7:before {content: "h7"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
-#text h8.texte:before, #toc .tocSection8:before {content: "h8"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;} 
-#text h9.texte:before, #toc .tocSection9:before {content: "h9"; background-color: #000; color: #FFF; margin-right: 10px; padding: 0 4px;}
+/* Marqueurs */
+
+span.screlo-marqueur {
+    font-weight: normal;
+    font-family: sans-serif;
+    font-size: 11px;
+    display: inline;
+    background-color: #aaa;
+    color: white;
+    padding: 3px;
+    border-radius: 4px;   
+}
+
+/* Niveaux d'erreurs */
+
+#relecture_box li.danger, span.screlo-marqueur.danger {
+    background-color: #d2322d;
+    border-color: #ac2925;
+}
+#relecture_box li.warning, span.screlo-marqueur.warning {
+    background-color: #ed9c28;
+    border-color: #d58512;
+}
+
+/* ReferenceCopier */
+
+span.paranumber {
+    cursor: pointer;
+}
+span.paranumber:hover {
+    background-color: yellow;
+}
+#reference-copier {
+    position: fixed;
+    bottom: 10px;
+    left: -100px;
+    background-color: #E3E3E3;
+    width: 10px;
+}
+ul#liste_erreurs {
+    margin-bottom: 20px;
+}
+ul#liste_erreurs li {
+    margin: 10px 0;
+}
+
+/* Repérer le nom de famille de l'auteur */
+
+#docAuthor span.familyName {
+    border: 3px green solid;
+}
+
+/* Niveau des headers explicite */
+
+#text h1.texte:before,
+#toc .tocSection1:before,
+#text h2.texte:before,
+#toc .tocSection2:before,
+#text h3.texte:before,
+#toc .tocSection3:before,
+#text h4.texte:before,
+#toc .tocSection4:before,
+#text h5.texte:before,
+#toc .tocSection5:before,
+#text h6.texte:before,
+#toc .tocSection6:before,
+#text h7.texte:before,
+#toc .tocSection7:before,
+#text h8.texte:before,
+#toc .tocSection8:before,
+#text h9.texte:before,
+#toc .tocSection9:before {
+    background-color: #000;
+    color: #FFF;
+    margin-right: 10px;
+    padding: 0 4px;
+}
+
+#text h1.texte:before,
+#toc .tocSection1:before {
+    content: "h1";
+}
+#text h2.texte:before,
+#toc .tocSection2:before {
+    content: "h2";
+}
+#text h3.texte:before,
+#toc .tocSection3:before {
+    content: "h3";
+}
+#text h4.texte:before,
+#toc .tocSection4:before {
+    content: "h4";
+}
+#text h5.texte:before,
+#toc .tocSection5:before {
+    content: "h5";
+}
+#text h6.texte:before,
+#toc .tocSection6:before {
+    content: "h6";
+}
+#text h7.texte:before,
+#toc .tocSection7:before {
+    content: "h7";
+}
+#text h8.texte:before,
+#toc .tocSection8:before {
+    content: "h8";
+}
+#text h9.texte:before,
+#toc .tocSection9:before {
+    content: "h9";
+}
