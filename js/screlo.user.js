@@ -3,13 +3,13 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.05.20.1
+// @version     14.05.22.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
 // ==/UserScript==
 
-var branch = 'dev';
+var branch = 'master'; // TODO: revoir la gestion branch test qui ne fonctionne pas (car édition nécessaire après merge)
 
 /* ----- Fin de l'entete ----- */
 
@@ -387,7 +387,7 @@ if (window.jQuery) {
 						clone.find('span.paranumber').remove();
 						var string = clone.text();
 						if (string.match(/^[a-z]/)) {
-                            ajouterMarqueur(this, "Minuscule");
+                            ajouterMarqueur(this, "Minuscule", "warning");
 							compteur++;
 						}
 					});
@@ -514,7 +514,7 @@ if (window.jQuery) {
 					$('.legendeillustration').each( function() {
 						if( $(this).text().match(/^(fig|tabl)/i) ) {
 							compteur++;
-                            ajouterMarqueur(this, "Titre plutôt que légende");
+                            ajouterMarqueur(this, "Titre plutôt que légende", "warning");
 						}
 					});
 					

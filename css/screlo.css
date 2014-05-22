@@ -20,14 +20,6 @@
     background-color: #333;
     border: 1px solid transparent;
 }
-#relecture_box li.danger {
-    background-color: #d2322d;
-    border-color: #ac2925;
-}
-#relecture_box li.warning {
-    background-color: #ed9c28;
-    border-color: #d58512;
-}
 
 /* Inspecteur de styles */
 
@@ -79,10 +71,21 @@ span.screlo-marqueur {
     font-family: sans-serif;
     font-size: 11px;
     display: inline;
-    background-color: red;
+    background-color: #aaa;
     color: white;
     padding: 3px;
     border-radius: 4px;   
+}
+
+/* Niveaux d'erreurs */
+
+#relecture_box li.danger, span.screlo-marqueur.danger {
+    background-color: #d2322d;
+    border-color: #ac2925;
+}
+#relecture_box li.warning, span.screlo-marqueur.warning {
+    background-color: #ed9c28;
+    border-color: #d58512;
 }
 
 /* ReferenceCopier */
