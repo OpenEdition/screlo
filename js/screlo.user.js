@@ -1,9 +1,9 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name        screlo
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.05.22.1
+// @version     14.06.03.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -467,7 +467,7 @@ if (window.jQuery) {
 					var compteur = 0;
 					
 					$('.texte:header').each( function() {
-						if( $(this).text().match(/[\.:;=]$/) ) {
+						if( $(this).text().trim().match(/[\.:;=]$/) ) {
 							compteur++;
                             ajouterMarqueur(this, "Ponctuation", "danger", true);
 						}
