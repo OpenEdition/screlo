@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.06.03.1
+// @version     14.06.17.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -47,6 +47,33 @@ function refCopier () {
     }, function() {
 		$('#reference-copier').blur();
     });
+}
+
+// Fixer le menu de navigation pour boucler sur tous les éléments
+function fixNav() {
+    function addNav(dirClass, url) {
+        $('.navEntities').append($('<a></a>').addClass(dirClass).attr('href', url).css('border','2px green solid'));
+    }
+
+    var currentId = location.pathname.match(/(\d+)$/g)[0], //TODO: passer en contexte
+        tocUrl = $('.navEntities .goContents').attr('href'),
+        result =  $("<div></div>").load( tocUrl + " #main", function() {
+            var toc = $(this).find('ul.summary li.textes a').map( function() {
+                return $(this).attr('href');
+            }).get(),
+                i = $.inArray(currentId, toc);
+
+            if (i !== -1) {
+                $('.navEntities a.goPrev, .navEntities a.goNext').remove();
+                if (i !== 0) {
+                    addNav('goPrev', toc[i-1]);
+                } 
+                if (i+1 !== toc.length) {
+                    addNav('goNext', toc[i+1]);
+                }
+                $('<span></span>').css({'float': 'left', 'margin': '2px 5px'}).text(Number(i+1) + '/' + Number(toc.length)).prependTo('.navEntities');
+            }
+        });   
 }
 
 // Bookmarklet debugger 
@@ -533,6 +560,9 @@ if (window.jQuery) {
 		
 		// CSS
 		addCss();
+            
+        // Fixer la nav
+        fixNav();
 			   
 		// References para
 		refCopier();
