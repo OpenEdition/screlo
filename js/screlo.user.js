@@ -1,4 +1,4 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name        screlo
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
@@ -9,7 +9,7 @@
 // @grant       none
 // ==/UserScript==
 
-var branch = 'master'; // TODO: revoir la gestion branch test qui ne fonctionne pas (car édition nécessaire après merge)
+var branch = 'master';
 
 /* ----- Fin de l'entete ----- */
 
@@ -24,6 +24,8 @@ function setContexte() {
 	contexte.isTexte = $('body').hasClass('textes');
 	contexte.isCompterendu = $("body").hasClass("compterendu");
 	contexte.isNotedelecture = $("body").hasClass("notedelecture");
+    contexte.isInformations = $("body").hasClass("informations");
+    contexte.isActualite = $("body").hasClass("actualite");
 	contexte.admin = ($('#lodel-container').length !== 0);
     return contexte;
 }
@@ -208,7 +210,7 @@ if (window.jQuery) {
 			// Pas d'auteur ou auteur pas valide
 			{
 				condition : function () {
-					return contexte.isTexte;
+                    return contexte.isTexte && !contexte.isActualite && !contexte.isInformations;
 				},
 				action : function () {
 					var champAuteur = $('#docAuthor');
@@ -223,7 +225,7 @@ if (window.jQuery) {
 			// Pas de facsimile
 			{
 				condition : function () {
-					return contexte.isTexte;
+                    return contexte.isTexte;
 				},
 				action : function () {
 					if($('#wDownload.facsimile').length === 0){
@@ -404,7 +406,7 @@ if (window.jQuery) {
 					return contexte.isTexte;
 				},
 				action : function () {
-					var textWhitelist = "p.remerciements, p.texte, p.paragraphesansretrait, p.creditillustration, p.epigraphe, p.citation, p.citationbis, p.citationter, p.titreillustration, p.legendeillustration, p.question, p.reponse, p.separateur";
+                    var textWhitelist = "p.remerciements, p.texte, p.paragraphesansretrait, p.creditillustration, p.epigraphe, p.citation, p.citationbis, p.citationter, p.titreillustration, p.legendeillustration, p.question, p.reponse, p.separateur, p.encadre";
 					var compteur = 0; //TODO: l'ideal serait de compter par style et de faire une enumération des styles en alerte avec le nb à chaque fois 
 					$('#text > .text p').each( function() { //TODO : pour l'instant p uniqument, mais pourquoi pas plus ? >> sinon utiliser attr() plutôt que is().
 						if (!$(this).is(textWhitelist)) {
