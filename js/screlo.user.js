@@ -54,26 +54,29 @@ function fixNav() {
     function addNav(dirClass, url) {
         $('.navEntities').append($('<a></a>').addClass(dirClass).attr('href', url).css('border','2px green solid'));
     }
+    
+    if ($('.navEntities .goContents').length !== 0) {
 
-    var currentId = location.pathname.match(/(\d+)$/g)[0], //TODO: passer en contexte
-        tocUrl = $('.navEntities .goContents').attr('href'),
-        result =  $("<div></div>").load( tocUrl + " #main", function() {
-            var toc = $(this).find('ul.summary li.textes a').map( function() {
-                return $(this).attr('href');
-            }).get(),
-                i = $.inArray(currentId, toc);
+        var currentId = location.pathname.match(/(\d+)$/g)[0], //TODO: passer en contexte
+            tocUrl = $('.navEntities .goContents').attr('href'),
+            result =  $("<div></div>").load( tocUrl + " #main", function() {
+                var toc = $(this).find('ul.summary li a').map( function() {
+                    return $(this).attr('href');
+                }).get(),
+                    i = $.inArray(currentId, toc);
 
-            if (i !== -1) {
-                $('.navEntities a.goPrev, .navEntities a.goNext').remove();
-                if (i !== 0) {
-                    addNav('goPrev', toc[i-1]);
-                } 
-                if (i+1 !== toc.length) {
-                    addNav('goNext', toc[i+1]);
+                if (i !== -1) {
+                    $('.navEntities a.goPrev, .navEntities a.goNext').remove();
+                    if (i !== 0) {
+                        addNav('goPrev', toc[i-1]);
+                    } 
+                    if (i+1 !== toc.length) {
+                        addNav('goNext', toc[i+1]);
+                    }
+                    $('<span></span>').css({'float': 'left', 'margin': '2px 5px'}).text(Number(i+1) + '/' + Number(toc.length)).prependTo('.navEntities');
                 }
-                $('<span></span>').css({'float': 'left', 'margin': '2px 5px'}).text(Number(i+1) + '/' + Number(toc.length)).prependTo('.navEntities');
-            }
-        });   
+            }); 
+    }
 }
 
 // Bookmarklet debugger 
