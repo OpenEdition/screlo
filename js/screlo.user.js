@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.06.17.1
+// @version     14.06.18.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -19,13 +19,14 @@ function Erreur(message, type) {
 }
 
 // Contexte
-function setContexte() {
+function setContexte() { //TODO: revoir ce machin inutile
     var contexte = new Array();
-	contexte.isTexte = $('body').hasClass('textes');
+    contexte.isTexte = $('body').hasClass('textes');
 	contexte.isCompterendu = $("body").hasClass("compterendu");
 	contexte.isNotedelecture = $("body").hasClass("notedelecture");
     contexte.isInformations = $("body").hasClass("informations");
     contexte.isActualite = $("body").hasClass("actualite");
+    contexte.isPublications = $("body").hasClass("publications");
 	contexte.admin = ($('#lodel-container').length !== 0);
     return contexte;
 }
@@ -77,6 +78,15 @@ function fixNav() {
                 }
             }); 
     }
+}
+
+// Liens vers la source sur TOC de la publication
+function sourceDepuisToc() {
+    $('ul.summary .title').each( function() {
+        var id = $(this).children('a').eq(0).attr('href'),
+            href ='lodel/edition/index.php?do=download&type=source&id=' + id;
+        $(this).append('<a href="' + href + '"> Ⓦ</a>');
+    });   
 }
 
 // Bookmarklet debugger 
@@ -557,7 +567,12 @@ if (window.jQuery) {
 			},
 					
 		];
-		
+        
+        // 3. LES OUTILS
+        
+        // Liens vers la source depuis la TOC
+        sourceDepuisToc();
+        		
 		// Debug stylage auto
 		debugStylage();
 		
