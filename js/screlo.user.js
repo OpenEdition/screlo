@@ -85,7 +85,9 @@ function sourceDepuisToc() {
     $('ul.summary .title').each( function() {
         var id = $(this).children('a').eq(0).attr('href'),
             href ='lodel/edition/index.php?do=download&type=source&id=' + id;
-        $(this).append('<a href="' + href + '"> Ⓦ</a>');
+        if (id !== undefined) {
+            $(this).append('<a href="' + href + '"> Ⓦ</a>');
+        }
     });   
 }
 
