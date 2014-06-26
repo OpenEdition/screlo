@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.06.18.1
+// @version     14.06.26.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -441,6 +441,33 @@ if (window.jQuery) {
 					}
 				}
 			},
+            
+            // Paragraphes "Normal" qui commencent par une puce de liste
+            {
+                condition : function () {
+                    return contexte.isTexte;
+                },
+                action : function () {
+                    var compteur = 0;
+
+                    // NOTE: les span paranumber fichent le bazar, il faut les virer (dans un clone) 
+                    // FIXME: certains elements (ex : citations) nont pas de paranumber, inutile de checher a le sortir
+                    // TODO: en faire une fonction pour réutiliser
+                    $('#text > .text > p.texte').each( function() {
+                        var clone = $(this).clone(); // TODO: c'est peut-etre pas ideal niveau perf, a verifier. Peut-etre mieux de recuperer les textNodes après chaque span.paranumber ?
+                        clone.find('span.paranumber').remove();
+                        var string = clone.text();
+                        if (string.match(/^[•∙◊–—>-]/)) { // TODO: ajouter *) *. *- */ pour les ol
+                            ajouterMarqueur(this, "Liste", "warning");
+                            compteur++;
+                        }
+                    });
+
+                    if(compteur > 0) {
+                        return new Erreur('Listes manquantes (' + compteur + ')', 'warning');
+                    }
+                }
+            },
 				
 			// Styles inconnus : checker tous les paragraphes du texte. Si c'est pas dans la whitelist on signale (genre le fameux "grillecouleur-accent1")
 			{
