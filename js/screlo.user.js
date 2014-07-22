@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.07.22.1
+// @version     14.07.22.2
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -610,6 +610,23 @@ if (window.jQuery) {
 
                     if(compteur > 0) {
                         return new Erreur('Champ d\'index Word (' + compteur + ')', 'danger');
+                    }
+                }			
+            },
+            
+            // Remerciement en note 1
+            {
+                condition : function () {
+                    return contexte.isTexte;
+                },
+                action : function () {
+                    var str = $("#notes .notesbaspage:first").text(),
+                        merci = [/merci/i, /thank/i]; // TODO: compléter
+
+                    for (var i=0; i<merci.length; i++) { 
+                        if (str.match(merci[i])) {
+                            return new Erreur('Remerciement en note', 'warning');
+                        }
                     }
                 }			
             } //,
