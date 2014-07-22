@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.06.26.2
+// @version     14.07.22.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -594,6 +594,25 @@ if (window.jQuery) {
 					}
 				}			
 			},
+            
+            // Champs d'index Word
+            {
+                condition : function () {
+                    return contexte.isTexte;
+                },
+                action : function () {
+                    var compteur = 0;
+
+                    $("a:contains('Error: Reference source not found')").each( function() {
+                            compteur++;
+                            ajouterMarqueur(this, "Champ d'index", "danger");
+                    });
+
+                    if(compteur > 0) {
+                        return new Erreur('Champ d\'index Word (' + compteur + ')', 'danger');
+                    }
+                }			
+            } //,
 					
 		];
         
