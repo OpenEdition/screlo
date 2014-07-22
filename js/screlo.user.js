@@ -603,7 +603,7 @@ if (window.jQuery) {
                 action : function () {
                     var compteur = 0;
 
-                    $("a:contains('Error: Reference source not found')").each( function() {
+                    $("a:contains('Error: Reference source not found'), a[href^='#id']").each( function() {
                             compteur++;
                             ajouterMarqueur(this, "Champ d'index", "danger");
                     });
