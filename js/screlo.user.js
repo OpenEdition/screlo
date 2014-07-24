@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.07.24.1
+// @version     14.07.24.2
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -478,7 +478,7 @@ if (window.jQuery) {
 				}
 			},
             
-            // Paragraphes "Normal" qui commencent par une puce de liste
+            // Paragraphes "Normal" qui commencent par une puce de liste ou liste numérotée
             {
                 condition : function () {
                     return contexte.isTexte;
@@ -493,7 +493,7 @@ if (window.jQuery) {
                         var clone = $(this).clone(); // TODO: c'est peut-etre pas ideal niveau perf, a verifier. Peut-etre mieux de recuperer les textNodes après chaque span.paranumber ?
                         clone.find('span.paranumber').remove();
                         var string = String(clone.text()).trim();
-                        if (string.match(/^[•∙◊–—>-]/)) { // TODO: ajouter *) *. *- */ pour les ol
+                        if (string.match(/^[•∙◊–—>-]/) || string.slice(1,2).match(/[.):–—-]/)) { // TODO: ajouter *) *. *- */ pour les ol
                             ajouterMarqueur(this, "Liste", "warning");
                             compteur++;
                         }
