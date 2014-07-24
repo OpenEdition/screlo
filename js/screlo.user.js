@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.07.22.2
+// @version     14.07.24.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -28,12 +28,48 @@ function setContexte() { //TODO: revoir ce machin inutile
     contexte.isActualite = $("body").hasClass("actualite");
     contexte.isPublications = $("body").hasClass("publications");
 	contexte.admin = ($('#lodel-container').length !== 0);
+    contexte.isMotscles = $("body").hasClass("indexes") && $("body").is("[class*='motscles']");
     return contexte;
 }
 
 // Injection d'une feuille de style
 function addCss() {
 	$('head').append('<link rel="stylesheet" href="https://rawgit.com/thomas-fab/screlo/' + branch + '/css/screlo.css" type="text/css" />');
+}
+
+// Fonction générique pour tester les mots cles
+function testerMotsCles($collection) {
+    var ok = true;
+
+    $collection.each( function() {
+        var motCle = $(this).text(),
+            alertes = [];
+
+        // Premier caractère invalide
+        var latinAlphanum = /[\u0030-\u0039\u0040-\u005A\u0061-\u007A\u00C0-\u00FF\u0100-\u017F\u0180-\u024F]/
+        if (!motCle.substr(0,1).match(latinAlphanum)) {
+            alertes.push('Initiale');   
+        }
+
+        // Point final
+        if (motCle.slice(-1) === '.') {
+            alertes.push('Point final');   
+        }
+
+        // Mauvais séparateurs
+        if (motCle.match(/[\-/;–—][A-z0-9 ]*[\-/;–—]/) && motCle.length > 20 ) {
+            alertes.push('Vérifier les séparateurs');   
+        }
+
+        // TODO: tester les doublons
+
+        if (alertes.length !== 0){
+            ok = false;
+            ajouterMarqueur(this, alertes.join(' | '), 'warning', true);
+        }
+    });
+
+    return ok;
 }
 
 // Reference copier
@@ -627,6 +663,24 @@ if (window.jQuery) {
                         if (str.match(merci[i])) {
                             return new Erreur('Remerciement en note', 'warning');
                         }
+                    }
+                }			
+            },
+            
+            // Composition des mots-cles
+            {
+                condition : function () {
+                    return contexte.isMotscles || contexte.isTexte;
+                },
+                action : function () {
+                    if (contexte.isMotscles) {
+                        var res = testerMotsCles($('#pageBody .entries ul li'));
+                    } else if (contexte.isTexte) {
+                        var res = testerMotsCles($('#entries .index a'));
+                    }
+                    
+                    if (!res) {
+                        return new Erreur('Vérifier les mots clés', 'warning');
                     }
                 }			
             } //,
