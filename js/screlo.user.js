@@ -166,12 +166,12 @@ function retournerUrl(quoi) {
     var h = location.href,
         p = location.pathname,
         a = p.replace(/[^/]+$/g, ''),
-        b = p.match(/(\d+)$/g);
+        b = p.match(/(\d+)$/g),
+        parent = $("#breadcrumb #crumbs a:last").attr('href');
     if (quoi === "doc") {
-       h = 'http://' + window.location.host + a + 'lodel/edition/index.php?do=download&type=source&id=' + b;
+        h = 'http://' + window.location.host + a + 'lodel/edition/index.php?do=download&type=source&id=' + b;
     } else if (quoi === "otx") {
-        // FIXME: Ne pas encore uitiliser il faut choper id parent
-        // http://lodel.revues.org/10/corela/lodel/edition/oochargement.php?identity=1504&idparent=833&reload=1
+        h = 'http://' + window.location.host + a + 'lodel/edition/oochargement.php?identity=' + b + '&idparent=' + parent + '&reload=1';
     } else if (quoi === "editer") {
        // http://lodel.revues.org/10/corela/lodel/edition/index.php?do=view&id=1504
        h = 'http://' + window.location.host + a + 'lodel/edition/index.php?do=view&id=' + b;   
@@ -195,7 +195,7 @@ function setRelectureBox() {
 	});
 	
 	// Boutons
-	$('<div id="relecture_buttons"><form id="acces_rapide"><input type="text" id="id_acces"></input><input type="submit" value="go"/></form><a title="Version" href="#" id="version_popup"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/about.png" alt ="Version"/></a><a title="Document source" href="' + retournerUrl('doc') + '"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/docsource.png" alt ="Document source"/></a><a title="Editer" href="' + retournerUrl('editer') + '"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/edit.png" alt="Editer" /></a></div>').appendTo('#relecture_box');
+    $('<div id="relecture_buttons"><form id="acces_rapide"><input type="text" id="id_acces"></input><input type="submit" value="go"/></form><a title="Version" href="#" id="version_popup"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/about.png" alt ="Version"/></a><a title="Document source" href="' + retournerUrl('doc') + '"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/docsource.png" alt ="Document source"/></a><a title="Editer" href="' + retournerUrl('editer') + '"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/edit.png" alt="Editer" /></a><a title="Recharger" href="' + retournerUrl('otx') + '"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/upload.png" alt="Recharger" /></a></div>').appendTo('#relecture_box');
 	
 	// Fonctions
 	$( "#version_popup" ).click(function( event ) {
