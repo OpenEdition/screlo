@@ -3,15 +3,17 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.07.25.1
+// @version     14.07.25.2
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
 // ==/UserScript==
 
-var branch = 'master';
-
-/* ----- Fin de l'entete ----- */
+var appUrls = {
+    "root": "https://raw.githubusercontent.com/thomas-fab/screlo/master/",
+    "stylesheat": "https://rawgit.com/thomas-fab/screlo/master/css/screlo.css",
+    "update": 'https://rawgit.com/thomas-fab/screlo/master/js/screlo.user.js'
+};
 
 function Erreur(message, type) {
     this.type = typeof type !== 'undefined' ? type : 'danger';
@@ -34,7 +36,7 @@ function setContexte() { //TODO: revoir ce machin inutile
 
 // Injection d'une feuille de style
 function addCss() {
-	$('head').append('<link rel="stylesheet" href="https://rawgit.com/thomas-fab/screlo/' + branch + '/css/screlo.css" type="text/css" />');
+	$('head').append('<link rel="stylesheet" href="' + appUrls.stylesheat + '" type="text/css" />');
 }
 
 // Fonction générique pour tester les mots cles
@@ -195,16 +197,16 @@ function setRelectureBox() {
 	});
 	
 	// Boutons
-    $('<div id="relecture_buttons"><form id="acces_rapide"><input type="text" id="id_acces"></input><input type="submit" value="go"/></form><a title="Version" href="#" id="version_popup"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/about.png" alt ="Version"/></a><a title="Document source" href="' + retournerUrl('doc') + '"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/docsource.png" alt ="Document source"/></a><a title="Editer" href="' + retournerUrl('editer') + '"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/edit.png" alt="Editer" /></a><a title="Recharger" href="' + retournerUrl('otx') + '"><img src="https://raw.githubusercontent.com/thomas-fab/screlo/' + branch + '/css/upload.png" alt="Recharger" /></a></div>').appendTo('#relecture_box');
+    $('<div id="relecture_buttons"><form id="acces_rapide"><input type="text" id="id_acces"></input><input type="submit" value="go"/></form><a title="Version" href="#" id="version_popup"><img src="' + appUrls.root + 'css/about.png" alt ="Version"/></a><a title="Document source" href="' + retournerUrl('doc') + '"><img src="' + appUrls.root + 'css/docsource.png" alt ="Document source"/></a><a title="Editer" href="' + retournerUrl('editer') + '"><img src="' + appUrls.root + 'css/edit.png" alt="Editer" /></a><a title="Recharger" href="' + retournerUrl('otx') + '"><img src="' + appUrls.root + 'css/upload.png" alt="Recharger" /></a></div>').appendTo('#relecture_box');
 	
 	// Fonctions
 	$( "#version_popup" ).click(function( event ) {
 		event.preventDefault();
-		var msg = 'ScReLo (' + branch + ') version ' + GM_info.script.version + '\nUne mise à jour est peut-être disponible. Forcer la mise à jour ?',
+		var msg = 'ScReLo version ' + GM_info.script.version + '\nUne mise à jour est peut-être disponible. Forcer la mise à jour ?',
 			mettreAJour = false;
 		mettreAJour = confirm(msg);
 		if (mettreAJour) {
-			window.location.href = 'https://rawgit.com/thomas-fab/screlo/' + branch  + '/js/screlo.user.js';
+			window.location.href = appUrls.update;
 		}
 	});
 	
@@ -696,7 +698,6 @@ if (window.jQuery) {
                     
                     $('#toc div').each( function () {
                         var niveau = Number($(this).attr('class').slice(-1));
-                        console.log($(this).text() + " : " + niveau + "/" + precedent);
                         if (niveau > precedent + 1 || (precedent == 0 && niveau != 1)) {
                             compteur++;
                             ajouterMarqueur(this, "Hierarchie", "warning", true);
