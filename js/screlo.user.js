@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.07.24.2
+// @version     14.07.25.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -683,7 +683,32 @@ if (window.jQuery) {
                         return new Erreur('Vérifier les mots clés', 'warning');
                     }
                 }			
-            } //,
+            },
+            
+            // Hierarchie incohérente (niveaux de titres)
+            {
+                condition : function () {
+                    return contexte.isTexte;
+                },
+                action : function () {
+                    var precedent = 0,
+                        compteur = 0;
+                    
+                    $('#toc div').each( function () {
+                        var niveau = Number($(this).attr('class').slice(-1));
+                        console.log($(this).text() + " : " + niveau + "/" + precedent);
+                        if (niveau > precedent + 1 || (precedent == 0 && niveau != 1)) {
+                            compteur++;
+                            ajouterMarqueur(this, "Hierarchie", "warning", true);
+                        }
+                        precedent = niveau;
+                    });
+
+                    if(compteur > 0) {
+                        return new Erreur('Incohérence du plan (' + compteur + ')', 'warning');
+                    }
+                }			
+            }//,
 					
 		];
         
