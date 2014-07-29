@@ -292,7 +292,7 @@ if (window.jQuery) {
 		// 2. LES TESTS
 		var tests = [
 				
-			// Pas d'auteur ou auteur pas valide
+			// Pas d'auteur
 			{
 				condition : function () {
                     return contexte.isTexte && !contexte.isActualite && !contexte.isInformations;
@@ -301,8 +301,6 @@ if (window.jQuery) {
 					var champAuteur = $('#docAuthor');
 					if(champAuteur.length === 0){
 						return new Erreur('Pas d\'auteur',  'danger');
-					} else if (champAuteur.text().trim().match(/ /) === null) { //FIXME: || champAuteur.text().trim().match(/^([A-zéàèç -,])+$/) === null la regex sur le latin ca craint + le nbsp passe pas
-						return new Erreur('Vérifier le nom de l\'auteur',  'warning');
 					}
 				}
 			},
@@ -360,50 +358,18 @@ if (window.jQuery) {
 				}
 			},
 						   
-			// Police Symbol
+			// Police non Unicode
 			{
 				condition : function () {
 					return contexte.isTexte;
 				},
 				action : function () {
-					var el = $('#content [style*="Symbol"], #content [style*="symbol"]');
+					var el = $('#content [style*="Symbol"], #content [style*="symbol"], #content [style*="Wingdings"], #content [style*="wingdings"], #content [style*="Webdings"], #content [style*="webdings"]');
 					if (el.length !== 0) {						
 						el.each(function() {
-                            ajouterMarqueur(this, "Symbol");
+                            ajouterMarqueur(this, "Police");
 						});
-						return new Erreur('Police "Symbol" utilisée (' + el.length + ')');
-					}
-				}
-			},
-
-			// Police Wingdings
-			{
-				condition : function () {
-					return contexte.isTexte;
-				},
-				action : function () {
-					var el = $('#content [style*="Wingdings"], #content [style*="wingdings"]');
-					if (el.length !== 0) {
-						el.each(function() {
-                            ajouterMarqueur(this, "Wingdings");
-						});
-						return new Erreur('Police "Wingdings" utilisée (' + el.length + ')');
-					}
-				}
-			},
-				
-			// Police Webdings
-			{
-				condition : function () {
-					return contexte.isTexte;
-				},
-				action : function () {
-					var el = $('#content [style*="Webdings"], #content [style*="webdings"]');
-					if (el.length !== 0) {
-						el.each(function() {
-                            ajouterMarqueur(this, "Webdings");
-						});
-						return new Erreur('Police "Webdings" utilisée (' + el.length + ')');
+						return new Erreur('Police non Unicode utilisée (' + el.length + ')');
 					}
 				}
 			},
@@ -512,15 +478,15 @@ if (window.jQuery) {
                 }
             },
 				
-			// Styles inconnus : checker tous les paragraphes du texte. Si c'est pas dans la whitelist on signale (genre le fameux "grillecouleur-accent1")
+			// Styles inconnus : checker tous les paragraphes du texte. Si c'est pas dans la whitelist on signale
 			{
 				condition : function () {
 					return contexte.isTexte;
 				},
 				action : function () {
                     var textWhitelist = "p.remerciements, p.texte, p.paragraphesansretrait, p.creditillustration, p.epigraphe, p.citation, p.citationbis, p.citationter, p.titreillustration, p.legendeillustration, p.question, p.reponse, p.separateur, p.encadre";
-					var compteur = 0; //TODO: l'ideal serait de compter par style et de faire une enumération des styles en alerte avec le nb à chaque fois 
-					$('#text > .text p').each( function() { //TODO : pour l'instant p uniqument, mais pourquoi pas plus ? >> sinon utiliser attr() plutôt que is().
+					var compteur = 0;
+					$('#text > .text p').each( function() {
 						if (!$(this).is(textWhitelist)) {
                             ajouterMarqueur(this, 'Style inconnu : ' + $(this).attr('class'));
 							compteur++;
