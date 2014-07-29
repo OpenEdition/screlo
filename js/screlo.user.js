@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.07.28.1
+// @version     14.07.29.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -69,8 +69,6 @@ function testerMotsCles($collection) {
         if (motCle.match(/[\-/;–—][\u0030-\u0039\u0040-\u005A\u0061-\u007A\u00C0-\u00FF\u0100-\u017F\u0180-\u024F \s]*[\-/;–—]/) && motCle.length > 20 ) {
             alertes.push('Vérifier les séparateurs');   
         }
-
-        // TODO: tester les doublons
 
         if (alertes.length !== 0){
             ok = false;
@@ -727,21 +725,30 @@ if (window.jQuery) {
                     var arr = {},
                         text = "",
                         err = 0;
-                    $('#pageBody .entries ul li').each( function () {
+                    $('#pageBody .entries ul li').each( function (index) {
                         text = latinize($(this).text()).replace(/[\s;–—-]+/g, '').toLowerCase();
                         if (arr[text]) {
-                            ajouterMarqueur(this, "Doublon  ?", "warning", true);
-                            err++;
+                            arr[text].push(index);
                         } else {
-                            arr[text] = true;
+                            arr[text] = [index];
                         }
                     });
+					
+					$.each(arr, function (key, eqs) {
+						if ($.isArray(eqs) && eqs.length > 1) {
+							for (var i=0; i < eqs.length; i++) {
+								ajouterMarqueur($('#pageBody .entries ul li').eq(eqs[i])[0], "Doublon  ?", "warning", true);
+							}
+							err++;
+						}
+					});
+					
                     
                     if (err !== 0) {
                         return new Erreur('Vérifier les doublons (' + err + ')', 'warning');
                     }
                 }			
-            }//,
+            } //,
 					
 		];
         
