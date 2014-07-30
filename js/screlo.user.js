@@ -214,6 +214,15 @@ function ajouterMarqueur(element, message, type, after) {
     }
 }
 
+// Liste des tests
+function listerTests(tests) {
+    var liste = [];
+    for (var i=0; i<tests.length; i++) {
+        liste.push(String(i+1) + '. ' + tests[i]['nom']);
+    }
+    return liste;
+}
+
 // Afficher
 function afficherRelecture(tests) {
 	var condition,
@@ -259,10 +268,9 @@ if (window.jQuery) {
 
 		// 2. LES TESTS
 		var tests = [
-				
-			// Pas d'auteur
 			{
-				condition : contexte.isTexte && !contexte.isActualite && !contexte.isInformations,
+				nom: "Absence d'auteur",
+                condition : contexte.isTexte && !contexte.isActualite && !contexte.isInformations,
 				action : function () {
 					var champAuteur = $('#docAuthor');
 					if(champAuteur.length === 0){
@@ -270,9 +278,8 @@ if (window.jQuery) {
 					}
 				}
 			},
-				
-			// Pas de facsimile
 			{
+                nom: "Absence de facsimilé",
                 condition : contexte.isTexte && !contexte.isActualite && !contexte.isInformations,
 				action : function () {
 					if($('#wDownload.facsimile').length === 0){
@@ -280,9 +287,8 @@ if (window.jQuery) {
 					}
 				}
 			},
-			
-			// Pagination
 			{
+                nom: "Erreur de pagination",
                 condition : contexte.isTexte && !contexte.isActualite && !contexte.isInformations,
 				action : function () {
 					if($('#docPagination').length === 0){
@@ -292,10 +298,8 @@ if (window.jQuery) {
 					}
 				}
 			},
-				
-			// Date de publication electronique
-            // NOTE: provient du numéro !
 			{
+                nom: "Pas de date de publication électronique (numéro)",
                 condition : contexte.isTexte && !contexte.isActualite && !contexte.isInformations,
 				action : function () {
 					// FIXME: ce test ne fonctionne que si la page est affichée en français
@@ -305,19 +309,17 @@ if (window.jQuery) {
 					}
 				}
 			},			
-
-			// Compterendu/notedelecture sans reference
 			{	
-				condition : contexte.isTexte && (contexte.isCompterendu || contexte.isNotedelecture),
+                nom: "Compterendu/notedelecture sans référence",
+                condition : contexte.isTexte && (contexte.isCompterendu || contexte.isNotedelecture),
 				action : function () {
 					if ($("#docReference").length === 0) {
 						return new Erreur('Pas de référence de l\'oeuvre',  'danger');
 					}
 				}
 			},
-						   
-			// Police non Unicode
 			{
+                nom: "Utilisation de police(s) non Unicode",
                 condition : contexte.isTexte,
 				action : function () {
 					var el = $('#content [style*="Symbol"], #content [style*="symbol"], #content [style*="Wingdings"], #content [style*="wingdings"], #content [style*="Webdings"], #content [style*="webdings"]');
@@ -329,9 +331,8 @@ if (window.jQuery) {
 					}
 				}
 			},
-				
-			// Br dans le titre de l'article
 			{
+                nom: "Retour à la ligne dans le titre",
                 condition : contexte.isTexte,
 				action : function () {
 					var titre = $('h1#docTitle');
@@ -340,9 +341,8 @@ if (window.jQuery) {
 					}
 				}
 			},
-			
-			// Br dans les intertitres
 			{
+                nom: "Retour à la ligne dans les intertitres",
                 condition : contexte.isTexte,
 				action : function () {
 					var l = $('.texte:header br').length;
@@ -352,13 +352,12 @@ if (window.jQuery) {
 					}
 				}
 			},
-				
-			// Ordre des meta illustration : titreillus
-			// FIXME: quand on a titreillus, illus, titreillus, illus, titreillus, illus ça matche quand même
 			{
+                nom: "Titres d'illustrations mal placés",
                 condition : contexte.isTexte,
 				action : function () {
 					// titreillus apres illus = erreur, sauf si suivi d'illus
+                    // FIXME: quand on a titreillus, illus, titreillus, illus, titreillus, illus ça matche quand même
 					var compteur = 0;
 					
 					$('table + .titreillustration, img + .titreillustration, div.textIcon + .titreillustration').each( function() {
@@ -373,9 +372,8 @@ if (window.jQuery) {
 					}
 				}
 			},
-				
-			// Paragraphes qui commencent par une minuscule (sauf paragraphes sans retrait et citations)
 			{
+                nom: "Paragraphes qui commencent par une minuscule",
                 condition : contexte.isTexte,
 				action : function () {
 					var compteur = 0;
@@ -398,9 +396,8 @@ if (window.jQuery) {
 					}
 				}
 			},
-            
-            // Paragraphes "Normal" qui commencent par une puce de liste ou liste numérotée
             {
+                nom: "Listes mal formatées",
                 condition : contexte.isTexte,
                 action : function () {
                     var compteur = 0;
@@ -423,9 +420,8 @@ if (window.jQuery) {
                     }
                 }
             },
-				
-			// Styles inconnus : checker tous les paragraphes du texte. Si c'est pas dans la whitelist on signale
 			{
+                nom: "Styles inconnus utilisés",
                 condition : contexte.isTexte,
 				action : function () {
                     var textWhitelist = "p.remerciements, p.texte, p.paragraphesansretrait, p.creditillustration, p.epigraphe, p.citation, p.citationbis, p.citationter, p.titreillustration, p.legendeillustration, p.question, p.reponse, p.separateur, p.encadre";
@@ -442,9 +438,8 @@ if (window.jQuery) {
 					}
 				}
 			},
-				
-			// Numérotation des notes de bas de page
 			{
+                nom: "Incohérence dans la numérotation des notes",
                 condition : contexte.isTexte,
 				action : function () {
 					var e = false;
@@ -459,9 +454,8 @@ if (window.jQuery) {
 					}
 				}
 			},
-
-			// Arborescences interdites
 			{
+                nom: "Arborescences interdites",
                 condition : contexte.isTexte,
 				action : function () {
 					var compteur = 0,
@@ -477,9 +471,8 @@ if (window.jQuery) {
 					}
 				}			
 			},
-			
-			// Ponctuation à la fin des intertitres
 			{
+                nom: "Ponctuation à la fin des intertitres",
                 condition : contexte.isTexte,
 				action : function () {
 					var compteur = 0;
@@ -496,9 +489,8 @@ if (window.jQuery) {
 					}
 				}			
 			},
-			
-			// Mises en formes locales sur le titre
 			{
+                nom: "Mises en formes locales sur le titre",
                 condition : contexte.isTexte,
 				action : function () {
 					if ($('#docTitle[style], #docTitle [style]').length !== 0) {
@@ -506,9 +498,8 @@ if (window.jQuery) {
 					}
 				}			
 			},
-			
-			// Appel de note dans le titre
 			{
+                nom: "Appel de note dans le titre",
                 condition : contexte.isTexte,
 				action : function () {
 					if ($('#docTitle .footnotecall').length !== 0) {
@@ -516,12 +507,9 @@ if (window.jQuery) {
 					}
 				}			
 			},
-			
-			// Titre d'illustration en légende
 			{
-				condition : function () {
-					return contexte.isTexte;
-				},
+                nom: "Titre d'illustration en légende",
+                condition : contexte.isTexte,
 				action : function () {
 					var compteur = 0;
 					
@@ -537,9 +525,8 @@ if (window.jQuery) {
 					}
 				}			
 			},
-            
-            // Champs d'index Word
             {
+                nom: "Présence de champs d'index Word",
                 condition : contexte.isTexte,
                 action : function () {
                     var compteur = 0;
@@ -554,9 +541,8 @@ if (window.jQuery) {
                     }
                 }			
             },
-            
-            // Remerciement en note 1
             {
+                nom: "Remerciement en note 1",
                 condition : contexte.isTexte,
                 action : function () {
                     var str = $("#notes .notesbaspage:first").text(),
@@ -569,9 +555,8 @@ if (window.jQuery) {
                     }
                 }			
             },
-            
-            // Composition des mots-cles
             {
+                nom: "Composition des mots-cles à vérifier",
                 condition : contexte.isMotscles || (contexte.isTexte && !contexte.isActualite && !contexte.isInformations),
                 action : function () {
                     if (contexte.isMotscles) {
@@ -585,9 +570,8 @@ if (window.jQuery) {
                     }
                 }			
             },
-            
-            // Hierarchie incohérente (niveaux de titres)
             {
+                nom: "Hierarchie du plan incohérente",
                 condition : contexte.isTexte,
                 action : function () {
                     var precedent = 0,
@@ -607,9 +591,8 @@ if (window.jQuery) {
                     }
                 }			
             },
-            
-            // Doublons de mots-cles
             {
+                nom: "Doublons de mots-cles",
                 condition : contexte.isMotscles,
                 action : function () {
                     var arr = {},
@@ -663,8 +646,9 @@ if (window.jQuery) {
 		
 		// Tests + affichage
 		afficherRelecture(tests);
-		
-		console.log('Script ' + GM_info.script.name + '.js version ' + GM_info.script.version + ' chargé.');
+        
+        console.log('Script ' + GM_info.script.name + '.js version ' + GM_info.script.version + ' chargé.');
+        console.log('Screlo effectue les tests suivants :\n' + listerTests(tests).join('\n'));
 	
 	});
 }
