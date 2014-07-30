@@ -88,28 +88,6 @@ span.screlo-marqueur {
     border-color: #d58512;
 }
 
-/* ReferenceCopier */
-
-span.paranumber {
-    cursor: pointer;
-}
-span.paranumber:hover {
-    background-color: yellow;
-}
-#reference-copier {
-    position: fixed;
-    bottom: 10px;
-    left: -100px;
-    background-color: #E3E3E3;
-    width: 10px;
-}
-ul#liste_erreurs {
-    margin-bottom: 20px;
-}
-ul#liste_erreurs li {
-    margin: 10px 0;
-}
-
 /* Repérer le nom de famille de l'auteur */
 
 #docAuthor span.familyName {

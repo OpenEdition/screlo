@@ -79,20 +79,6 @@ function testerMotsCles($collection) {
     return ok;
 }
 
-// Reference copier
-function refCopier () {
-	var copyInput = $(document.createElement('div')).html('<input id="reference-copier" type="text"></input>');
-	copyInput.appendTo('body');
-	
-	$('span.paranumber').hover(function() {
-		var n = $(this).text(),
-			str = 'Dans l\'article ' + document.URL + ' au paragraphe ' + n + ', ';
-		$('#reference-copier').val(str).select();
-    }, function() {
-		$('#reference-copier').blur();
-    });
-}
-
 // Fixer le menu de navigation pour boucler sur tous les éléments
 function fixNav() {
     function addNav(dirClass, url) {
@@ -713,9 +699,6 @@ if (window.jQuery) {
             
         // Fixer la nav
         fixNav();
-			   
-		// References para
-		refCopier();
 		
 		// Colorer les liens
 		colorerLiens();
