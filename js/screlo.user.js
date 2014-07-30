@@ -136,18 +136,6 @@ function sourceDepuisToc() {
 
 // Bookmarklet debugger 
 function debugStylage() {
-    /*
-     * debug_stylage.js
-     * requiert jQuery - http://jquery.com
-     */
-    
-	//$('<div>Les balises vides et les mises en forme locales ont \u00E9t\u00E9 mises en \u00E9vidence.</div>')
-	//	.css({'color':'red','background':'#FF8','font':'12px sans-serif','padding':'6px','position':'absolute','z-index':'999999'})
-	//	.prependTo('body');
-		
-	$('<style type="text/css">.TODO{background:#FF9DF9;cursor:help}.FIXME{color:red;background:#FF8}</style>')
-		.appendTo('head');
-	
 	// On recherche les P et SPAN vides (sauf COinS !)
 	$('p,span:not(.Z3988)').each(function() {
 	
@@ -159,12 +147,6 @@ function debugStylage() {
 		// Mises en forme locales
 		if ($(this).attr('style') !== undefined)
 			$(this).attr('title', $(this).attr('style')).addClass('TODO');
-			
-	});
-	
-	$('img').each(function() {
-		if ($(this).width() <= 1 || $(this).height() <= 1)
-			$(this).css({'border':'6px solid red'}).addClass('FIXME').attr('title', 'Cette image est invisible');
 	});
 }
 

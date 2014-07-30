@@ -178,3 +178,13 @@ ul#liste_erreurs li {
 #toc .tocSection9:before {
     content: "h9";
 }
+
+/* Debug de stylage */
+.TODO{
+    background:#FF9DF9;
+    cursor:help
+}
+.FIXME{
+    color:red;
+    background:#FF8
+}
