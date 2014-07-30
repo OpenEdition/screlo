@@ -42,7 +42,7 @@ if (!window.jQuery) {
             contexte.admin = ($('#lodel-container').length !== 0);
             contexte.isMotscles = $("body").hasClass("indexes") && $("body").is("[class*='motscles']");
             contexte.isIndex = $("body").hasClass("indexes");
-            contexte.idPage = location.pathname.match(/(\d+)$/g)[0];
+            contexte.idPage = location.pathname.match(/(\d+)$/g);
             return contexte;
         }
         
@@ -158,7 +158,7 @@ if (!window.jQuery) {
                         var toc = $(this).find('ul.summary li a').map( function() {
                             return $(this).attr('href');
                         }).get(),
-                            i = $.inArray(contexte.idPage, toc);
+                            i = $.inArray(contexte.idPage[0], toc);
 
                         if (i !== -1) {
                             $('.navEntities a.goPrev, .navEntities a.goNext').remove();
@@ -199,14 +199,19 @@ if (!window.jQuery) {
             // Inspecteur de classes 
             $('<div id="class_inspector"></div>').appendTo('#relecture_box');
             $('#text p').hover( function() {
-                var cl = $( this ).attr("class"); // FIXME: virer les classes injectees par le script
+                var cl = $( this ).attr("class");
                 $('#class_inspector').text(cl);
             }, function() {
                 $('#class_inspector').text('');
             });
 
             // Boutons
-            $('<div id="relecture_buttons"><form id="acces_rapide"><input type="text" id="id_acces"></input><input type="submit" value="go"/></form><a title="Editer" href="' + retournerUrl('editer') + '"><img src="' + appUrls.root + 'css/edit.png" alt="Editer" /></a><a title="Document source" href="' + retournerUrl('doc') + '"><img src="' + appUrls.root + 'css/docsource.png" alt ="Document source"/></a><a title="Recharger" href="' + retournerUrl('otx') + '"><img src="' + appUrls.root + 'css/upload.png" alt="Recharger" /></a><a title="Version" href="#" id="version_popup"><img src="' + appUrls.root + 'css/about.png" alt ="Version"/></a></div>').appendTo('#relecture_box');
+			var relecture_buttons = $('<div id="relecture_buttons"><form id="acces_rapide"><input type="text" id="id_acces"></input><input type="submit" value="go"/></form></div>');
+			if (contexte.idPage != null) {
+				$('<a title="Editer" href="' + retournerUrl('editer') + '"><img src="' + appUrls.root + 'css/edit.png" alt="Editer" /></a><a title="Document source" href="' + retournerUrl('doc') + '"><img src="' + appUrls.root + 'css/docsource.png" alt ="Document source"/></a><a title="Recharger" href="' + retournerUrl('otx') + '"><img src="' + appUrls.root + 'css/upload.png" alt="Recharger" /></a>').appendTo(relecture_buttons);
+			}
+            $('<a title="Version" href="#" id="version_popup"><img src="' + appUrls.root + 'css/about.png" alt ="Version"/></a>').appendTo(relecture_buttons);
+			relecture_buttons.appendTo("#relecture_box");
 
             // Fonctions
             $( "#version_popup" ).click(function( event ) {
