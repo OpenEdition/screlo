@@ -41,6 +41,7 @@ if (!window.jQuery) {
             contexte.isPublications = $("body").hasClass("publications");
             contexte.admin = ($('#lodel-container').length !== 0);
             contexte.isMotscles = $("body").hasClass("indexes") && $("body").is("[class*='motscles']");
+            contexte.isIndex = $("body").hasClass("indexes");
             contexte.idPage = location.pathname.match(/(\d+)$/g)[0];
             return contexte;
         }
@@ -560,7 +561,7 @@ if (!window.jQuery) {
                 }			
             },
             {
-                nom: "Composition des mots-cles à vérifier",
+                nom: "Composition des mots-cles",
                 condition : contexte.isMotscles || (contexte.isTexte && !contexte.isActualite && !contexte.isInformations),
                 action : function () {
                     if (contexte.isMotscles) {
@@ -624,7 +625,43 @@ if (!window.jQuery) {
                         return new Erreur('Vérifier les doublons (' + err + ')', 'warning');
                     }
                 }			
-            } //,
+            },
+            {
+                nom: "Nom d'auteur en capitales",
+                condition : contexte.isIndex || (contexte.isTexte && !contexte.isActualite && !contexte.isInformations),
+                action : function () {
+                    var text = "",
+                        err = 0;
+                    $('span.familyName').each( function (index) {
+                        text = latinize($(this).text().trim());
+                        if (text === text.toUpperCase()) {
+                            ajouterMarqueur(this, "Capitales", "warning", true);
+                            err++
+                        }
+                    });
+					
+                    if (err !== 0) {
+                        return new Erreur('Nom d\'auteur en capitales (' + err + ')', 'warning');
+                    }
+                }			
+            },
+            {
+                nom: "Auteur sans prénom",
+                condition : contexte.isIndex || (contexte.isTexte && !contexte.isActualite && !contexte.isInformations),
+                action : function () {
+                    var err = 0;
+                    $('span.familyName').each( function (index) {
+                        if ($(this).text().trim() === $(this).parent().text().trim()) {
+                            ajouterMarqueur(this, "Nom seul", "warning", true);
+                            err++
+                        }
+                    });
+					
+                    if (err !== 0) {
+                        return new Erreur('Auteur sans prénom (' + err + ')', 'warning');
+                    }
+                }			
+            }//,
 					
 		];
         
