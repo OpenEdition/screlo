@@ -273,7 +273,7 @@ if (window.jQuery) {
 				
 			// Pas de facsimile
 			{
-				condition : contexte.isTexte,
+                condition : contexte.isTexte && !contexte.isActualite && !contexte.isInformations,
 				action : function () {
 					if($('#wDownload.facsimile').length === 0){
 						return new Erreur('Pas de facsimile',  'warning');
@@ -283,7 +283,7 @@ if (window.jQuery) {
 			
 			// Pagination
 			{
-				condition : contexte.isTexte,
+                condition : contexte.isTexte && !contexte.isActualite && !contexte.isInformations,
 				action : function () {
 					if($('#docPagination').length === 0){
 						return new Erreur('Pas de pagination',  'warning');
@@ -296,7 +296,7 @@ if (window.jQuery) {
 			// Date de publication electronique
             // NOTE: provient du numéro !
 			{
-				condition : contexte.isTexte,
+                condition : contexte.isTexte && !contexte.isActualite && !contexte.isInformations,
 				action : function () {
 					// FIXME: ce test ne fonctionne que si la page est affichée en français
 					var refElectro = $('#quotation > h3:last').next('p').text();
@@ -572,7 +572,7 @@ if (window.jQuery) {
             
             // Composition des mots-cles
             {
-                condition : contexte.isMotscles || contexte.isTexte,
+                condition : contexte.isMotscles || (contexte.isTexte && !contexte.isActualite && !contexte.isInformations),
                 action : function () {
                     if (contexte.isMotscles) {
                         var res = testerMotsCles($('#pageBody .entries ul li'));
