@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.07.30.1
+// @version     14.08.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -110,6 +110,7 @@ if (!window.jQuery) {
         function getPText($p) {
             var clone = $p.clone();
             clone.find('span.paranumber').remove();
+            clone.find('span.screlo-marqueur').remove();
             return String(clone.text()).trim();
         }
         
@@ -138,11 +139,6 @@ if (!window.jQuery) {
                 if ($(this).attr('style') !== undefined)
                     $(this).attr('title', $(this).attr('style')).addClass('TODO');
             });
-        }
-        
-        // Colorer les liens dans le texte pour mieux les voir
-        function colorerLiens() {
-            $('#main p a[href]:not(.footnotecall):not(.FootnoteSymbol)').css('background-color','lightblue');
         }
         
         // Fixer le menu de navigation pour boucler sur tous les éléments
@@ -398,7 +394,7 @@ if (!window.jQuery) {
 				action : function () {
 					var compteur = 0;
 					
-					$('#text > .text > *:not(.citation,.paragraphesansretrait)').each( function() {
+                    $('#text > .text > *:not(.textandnotes), #text > .text > .textandnotes > *, #text > .text > *:header').not('.citation,.paragraphesansretrait, blockquote, .sidenotes').each( function() {
 						var string = getPText($(this));
 						if (string.match(/^[a-z]/)) {
                             ajouterMarqueur(this, "Minuscule", "warning");
@@ -417,9 +413,9 @@ if (!window.jQuery) {
                 action : function () {
                     var compteur = 0;
 
-                    $('#text > .text > p.texte').each( function() {
+                    $('#text > .text > p.texte, #text > .text > .textandnotes > p.texte').each( function() {
                         var string = getPText($(this));
-                        if (string.match(/^[•∙◊–—>-]/) || string.slice(1,2).match(/[.):–—-]/)) { // TODO: ajouter *) *. *- */ pour les ol
+                        if (string.match(/^[•∙◊–—>-]/) || string.slice(1,2).match(/[\/.):–—-]/)) {
                             ajouterMarqueur(this, "Liste", "warning");
                             compteur++;
                         }
@@ -632,21 +628,21 @@ if (!window.jQuery) {
                 }			
             },
             {
-                nom: "Nom d'auteur en capitales",
+                nom: "Format de nom d\'auteur : capitales, caractères interdits",
                 condition : contexte.isIndex || (contexte.isTexte && !contexte.isActualite && !contexte.isInformations),
                 action : function () {
                     var text = "",
                         err = 0;
-                    $('span.familyName').each( function (index) {
+                    $('span.familyName').each( function () {
                         text = latinize($(this).text().trim());
-                        if (text === text.toUpperCase()) {
-                            ajouterMarqueur(this, "Capitales", "warning", true);
+                        if (text === text.toUpperCase() || text.match(/[&!?)(*\/]/)) {
+                            ajouterMarqueur(this, "Format", "warning", true);
                             err++
                         }
                     });
 					
                     if (err !== 0) {
-                        return new Erreur('Nom d\'auteur en capitales (' + err + ')', 'warning');
+                        return new Erreur('Format de nom d\'auteur : capitales, caractères interdits  (' + err + ')', 'warning');
                     }
                 }			
             },
@@ -655,7 +651,7 @@ if (!window.jQuery) {
                 condition : contexte.isIndex || (contexte.isTexte && !contexte.isActualite && !contexte.isInformations),
                 action : function () {
                     var err = 0;
-                    $('span.familyName').each( function (index) {
+                    $('span.familyName').each( function () {
                         if ($(this).text().trim() === $(this).parent().text().trim()) {
                             ajouterMarqueur(this, "Nom seul", "warning", true);
                             err++
@@ -676,7 +672,6 @@ if (!window.jQuery) {
 		debugStylage();
 		addCss();
         fixNav();
-		colorerLiens();
 		setRelectureBox();
 		afficherRelecture(tests);
         
