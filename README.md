@@ -32,24 +32,27 @@ Screlo effectue les tests suivants :
 4. Pas de date de publication électronique (numéro)
 5. Compterendu/notedelecture sans référence
 6. Utilisation de police(s) non Unicode
-7. Retour à la ligne dans le titre
-8. Retour à la ligne dans les intertitres
-9. Titres d'illustrations mal placés
-10. Paragraphes qui commencent par une minuscule
-11. Listes mal formatées
-12. Styles inconnus utilisés
-13. Incohérence dans la numérotation des notes
-14. Arborescences interdites
-15. Ponctuation à la fin des intertitres
-16. Mises en formes locales sur le titre
-17. Appel de note dans le titre
-18. Titre d'illustration en légende
-19. Présence de champs d'index Word
-20. Remerciement en note 1
-21. Composition des mots-cles
-22. Hierarchie du plan incohérente
-23. Doublons de mots-cles
-24. Format de nom d'auteur : capitales, caractères interdits
-25. Auteur sans prénom
+7. Retour à la ligne dans le titre ou dans un intertitre
+8. Titre d'illustration mal placé
+9. Légende d'illustration mal placée
+10. Paragraphe qui commence par une minuscule
+11. Citation stylée en Normal
+12. Listes mal formatées
+13. Styles inconnus utilisés
+14. Incohérence dans la numérotation des notes
+15. Arborescences interdites
+16. Ponctuation à la fin du titre ou d'un intertitre
+17. Mises en formes locales sur le titre
+18. Appel de note dans le titre
+19. Titre d'illustration en légende
+20. Présence de champs d'index Word
+21. Remerciement en note 1
+22. Composition des mots-cles
+23. Hierarchie du plan incohérente
+24. Doublons de mots-cles
+25. Format de nom d'auteur : capitales, caractères interdits
+26. Auteur sans prénom
+27. Format d'image non supporté (WMF)
+28. Intertitre sur plusieurs paragraphes
 
 La liste complète des tests effectués est disponible dans le menu "Informations".
