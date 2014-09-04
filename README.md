@@ -54,5 +54,6 @@ Screlo effectue les tests suivants :
 26. Auteur sans prénom
 27. Format d'image non supporté (WMF)
 28. Intertitre sur plusieurs paragraphes
+29. Caractères Symbol
 
 La liste complète des tests effectués est disponible dans le menu "Informations".

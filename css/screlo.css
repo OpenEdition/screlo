@@ -173,3 +173,6 @@ span.familyName {
     color:red;
     background:#FF8
 }
+
+/* Alertes Symbol */
+span.symbolalert {background-color: orange;}
