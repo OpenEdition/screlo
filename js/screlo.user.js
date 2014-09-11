@@ -3,7 +3,7 @@
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.09.1
+// @version     14.09.2
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -746,7 +746,21 @@ if (!window.jQuery) {
                         return new Erreur('Caractères Symbol (' + err + ')', 'danger');
                     }   
                 }
-            }//,		
+            },
+            {
+                nom: "Erreurs d'import du résumé et des mots-clés",
+                condition : contexte.isTexte,
+                action : function () {
+                    var nbMots = $("#entries .index h3").filter( function(i,e) {
+                        return !$(e).text().match(/(Index|Índice|Indice)/);
+                    }).length,
+                        nbResumes = $("#abstract .tabContent").length;
+                    
+                    if ((nbMots !== 0 || nbResumes !== 0) && (nbMots !== nbResumes)) {
+                        return new Erreur('Vérifier le stylage du résumé et des mots-clés', 'warning');   
+                    }
+                }			
+            }//,
 		];
         
         // ############### TIRE LA CHEVILLETTE ET LA BOBINETTE CHERRA ! ###############
