@@ -89,6 +89,14 @@ span.screlo-marqueur {
     border-color: #d58512;
 }
 
+#relecture_box span.count.danger {
+	color: #D2322D;
+}
+
+#relecture_box span.count.warning {
+	color: #ED9C28;
+}
+
 /* Repérer le nom de famille de l'auteur */
 
 span.familyName {

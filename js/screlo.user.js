@@ -4,7 +4,7 @@
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     /^http://formations\.lodel\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.09.4
+// @version     14.09.5
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -136,7 +136,7 @@ if (!window.jQuery) {
         // Bookmarklet debugger (version light)
         function debugStylage() {
             // On recherche les P et SPAN vides (sauf COinS !)
-            $('p,span:not(.Z3988)').each(function() {
+            $('p,span:not(.Z3988)').not('#relecture_box *').each(function() {
 
                 // Elements vides
                 var strEmpty = ($(this).get(0).tagName == 'P') ? 'paragraphe vide' : '\u00A0';
@@ -277,13 +277,13 @@ if (!window.jQuery) {
                 }
             }
             if (danger) {
-                msg += '<span style="color: #D2322D;">' + danger + ' erreur(s)</span>';
+                msg += '<span class="count danger">' + danger + ' erreur(s)</span>';
             }
             if (danger && warning) {
                 msg += ', ';
             }
             if (warning) {
-                msg += '<span style="color: #ED9C28;">' + warning + ' avertissement(s) </span>';
+                msg += '<span class="count warning">' + warning + ' avertissement(s) </span>';
             }
             $('<p>' + msg + '</p>').prependTo('#relecture_box');
         }
@@ -362,10 +362,10 @@ if (!window.jQuery) {
 				action : function () {
                     var compteur = 0;
                     
-                    if ($('.texte:header br, h1#docTitle br').length > 0) {
+                    $('.texte:header br, h1#docTitle br').each( function() {
                         compteur++;
-                        ajouterMarqueur(this, "Retour à la ligne");
-					}
+                        ajouterMarqueur(this.parentNode, "Retour à la ligne", "warning");
+					});
                     
                     if(compteur > 0) {
                         return new Erreur('Retour à la ligne dans le titre ou dans un intertitre (' + compteur + ')');
@@ -413,8 +413,8 @@ if (!window.jQuery) {
 					var compteur = 0;
 					
                     $('#text > .text > *:not(.textandnotes), #text > .text > .textandnotes > *, #text > .text > *:header').not('.citation,.paragraphesansretrait, blockquote, .sidenotes, ol, ul, li').each( function() {
-						var string = getPText($(this));
-						if (string.match(/^[a-z]/)) {
+						var firstChar = getPText($(this)).charAt(0);
+						if (latinize(firstChar).match(/^[a-z]/)) {
                             ajouterMarqueur(this, "Minuscule", "warning");
 							compteur++;
 						}
@@ -433,7 +433,7 @@ if (!window.jQuery) {
 					
                     $('#text > .text > *:not(.textandnotes), #text > .text > .textandnotes > *').not('.citation, .epigraphe, blockquote, .sidenotes, ol, ul, li, :header').each( function() {
 						var string = getPText($(this));
-                        if (string.match(/^[«"“]/)) {
+                        if (string.charAt(0).match(/[«"“]/) && string.slice(-20).match(/[”"»]/)) {
                             ajouterMarqueur(this, "Citation ?", "warning");
 							compteur++;
 						}
@@ -450,7 +450,7 @@ if (!window.jQuery) {
                 action : function () {
                     var compteur = 0;
 
-                    $('#text > .text > p.texte, #text > .text > .textandnotes > p.texte').each( function() {
+                    $('#text > .text > p, #text > .text > .textandnotes > p').each( function() {
                         var string = getPText($(this));
                         if (string.match(/^[•∙◊–—>-]/) || string.slice(1,2).match(/[\/.):–—-]/)) {
                             ajouterMarqueur(this, "Liste", "warning");
@@ -485,11 +485,16 @@ if (!window.jQuery) {
                 nom: "Incohérence dans la numérotation des notes",
                 condition : contexte.isTexte,
 				action : function () {
-					var e = false;
+					var e = false,
+						debut = 0;
 					$('#notes > p > a[id^=ftn]').each( function(index) {
-						if($(this).text() != index + 1) {
-							e = true;
-							return false;
+						if (index === 0) {
+							debut = parseInt($(this).text());
+						} else {
+							if (parseInt($(this).text()) !== index + debut) {
+								e = true;
+								return false;
+							}
 						}
 					});
 					if (e) {
@@ -504,7 +509,7 @@ if (!window.jQuery) {
 					var compteur = 0,
 						blackList = 'ol :header, ul :header, li:header'; 
 					
-					$(blackList).each( function() {
+					$("#content").find(blackList).each( function() {
 						compteur++;
                         ajouterMarqueur(this, "Arborescence interdite");
 					});
@@ -667,7 +672,7 @@ if (!window.jQuery) {
             },
             {
                 nom: "Format de nom d'auteur : capitales, caractères interdits",
-                condition : contexte.isIndex || (contexte.isTexte && !contexte.isActualite && !contexte.isInformations),
+                condition : contexte.isIndex || (contexte.isTexte && !contexte.isActualite && !contexte.isInformations) || contexte.isPublications,
                 action : function () {
                     var text = "",
                         err = 0;
@@ -675,7 +680,9 @@ if (!window.jQuery) {
                         text = latinize($(this).text().trim());
                         if (text === text.toUpperCase() || text.match(/[&!?)(*\/]/)) {
                             ajouterMarqueur(this, "Format", "warning", true);
-                            err++;
+                            if (!contexte.isTexte || $(this).is('#docAuthor *, #docTranslator *')) {
+								err++;
+							}
                         }
                     });
 					
@@ -686,13 +693,15 @@ if (!window.jQuery) {
             },
             {
                 nom: "Auteur sans prénom",
-                condition : contexte.isIndex || (contexte.isTexte && !contexte.isActualite && !contexte.isInformations),
+                condition : contexte.isIndex || (contexte.isTexte && !contexte.isActualite && !contexte.isInformations) || contexte.isPublications,
                 action : function () {
                     var err = 0;
                     $('span.familyName').each( function () {
                         if ($(this).text().trim() === $(this).parent().text().trim()) {
                             ajouterMarqueur(this, "Nom seul", "warning", true);
-                            err++;
+							if (!contexte.isTexte || $(this).is('#docAuthor *, #docTranslator *')) {
+								err++;
+							}
                         }
                     });
 					
@@ -767,11 +776,11 @@ if (!window.jQuery) {
         // ############### TIRE LA CHEVILLETTE ET LA BOBINETTE CHERRA ! ###############
         
         sourceDepuisToc();
-		debugStylage();
 		addCss();
         fixNav();
 		setRelectureBox();
 		afficherRelecture(tests);
+		debugStylage();
         
         console.log('Script ' + GM_info.script.name + '.js version ' + GM_info.script.version + ' chargé.');
 	
