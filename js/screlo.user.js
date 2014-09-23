@@ -4,7 +4,7 @@
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     /^http://formations\.lodel\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.09.5
+// @version     14.09.6
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -47,6 +47,7 @@ if (!window.jQuery) {
             contexte.isInformations = $("body").hasClass("informations");
             contexte.isActualite = $("body").hasClass("actualite");
             contexte.isPublications = $("body").hasClass("publications");
+            contexte.isNumero = $("body").hasClass("numero");
             contexte.admin = ($('#lodel-container').length !== 0);
             contexte.isMotscles = $("body").hasClass("indexes") && $("body").is("[class*='motscles']");
             contexte.isIndex = $("body").hasClass("indexes");
@@ -768,6 +769,15 @@ if (!window.jQuery) {
                     
                     if (nbMots !== 0 && nbResumes !== 0 && nbMots !== nbResumes) {
                         return new Erreur('Vérifier le stylage du résumé et des mots-clés', 'warning');   
+                    }
+                }			
+            },
+            {
+                nom: "Numéro sans couverture",
+                condition : contexte.isNumero,
+                action : function () {
+                    if ($("#publiInformation img").length === 0) {
+                        return new Erreur('Numéro sans couverture', 'warning');      
                     }
                 }			
             }//,

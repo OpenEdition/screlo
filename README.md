@@ -56,5 +56,6 @@ Screlo effectue les tests suivants :
 28. Intertitre sur plusieurs paragraphes
 29. Caractères Symbol
 30. Erreurs d'import du résumé et des mots-clés
+31. Numéro sans couverture
 
 La liste complète des tests effectués est disponible dans le menu "Informations".
