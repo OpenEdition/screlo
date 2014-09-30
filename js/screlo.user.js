@@ -4,7 +4,7 @@
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     /^http://formations\.lodel\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.09.7
+// @version     14.09.8
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -249,28 +249,37 @@ if (!window.jQuery) {
                 console.log('Erreur de parametre de ajouterMarqueur()');
             }
         }
-
-        // Lancer les tests et afficher les erreurs
-        function afficherRelecture(tests) {
+        
+        // Effectuer les tests
+        function relire(tests) {
             var condition,
-                action,
-                danger = 0,
-                warning = 0,
-                msg = '';
+                res,
+                erreurs = [];
             for (var i = 0; i < tests.length; i++) {
                 condition = tests[i].condition;
                 if (condition) {
                     res = tests[i].action();
                     if (res instanceof Erreur) {
-                        var li = $('<li class="erreur ' + res.type + '">' + res.message + '</li>');
-                        if (res.type === "danger") {
-                            li.prependTo('#relecture_box ul#liste_erreurs');
-                            danger++;
-                        } else {
-                            li.appendTo('#relecture_box ul#liste_erreurs');
-                            warning++;
-                        }
+                        erreurs.push(res);
                     }
+                }
+            }
+            return erreurs;
+        }
+
+        // Afficher les erreurs
+        function afficherErreurs(erreurs) {
+            var danger = 0,
+                warning = 0,
+                msg = '';
+            for (var i = 0; i < erreurs.length; i++) {
+                var li = $('<li class="erreur ' + erreurs[i].type + '">' + erreurs[i].message + '</li>');
+                if (erreurs[i].type === "danger") {
+                    li.prependTo('#relecture_box ul#liste_erreurs');
+                    danger++;
+                } else {
+                    li.appendTo('#relecture_box ul#liste_erreurs');
+                    warning++;
                 }
             }
             if (danger) {
@@ -785,7 +794,7 @@ if (!window.jQuery) {
 		addCss();
         fixNav();
 		setRelectureBox();
-		afficherRelecture(tests);
+		afficherErreurs(relire(tests));
 		debugStylage();
         
         console.log('Script ' + GM_info.script.name + '.js version ' + GM_info.script.version + ' chargé.');
