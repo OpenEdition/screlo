@@ -4,7 +4,7 @@
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     /^http://formations\.lodel\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.09.8
+// @version     14.09.9
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -251,14 +251,14 @@ if (!window.jQuery) {
         }
         
         // Effectuer les tests
-        function relire(tests) {
+        function relire(tests, root) {
             var condition,
                 res,
                 erreurs = [];
             for (var i = 0; i < tests.length; i++) {
                 condition = tests[i].condition;
                 if (condition) {
-                    res = tests[i].action();
+                    res = tests[i].action(root);
                     if (res instanceof Erreur) {
                         erreurs.push(res);
                     }
@@ -302,8 +302,8 @@ if (!window.jQuery) {
 			{
 				nom: "Absence d'auteur",
                 condition : contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations,
-				action : function () {
-					var champAuteur = $('#docAuthor');
+				action : function (root) {
+					var champAuteur = $('#docAuthor', root);
 					if(champAuteur.length === 0){
 						return new Erreur('Pas d\'auteur',  'danger');
 					}
@@ -312,8 +312,8 @@ if (!window.jQuery) {
 			{
                 nom: "Absence de facsimilé",
                 condition : contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations,
-				action : function () {
-					if($('#wDownload.facsimile').length === 0){
+				action : function (root) {
+					if($('#wDownload.facsimile', root).length === 0){
 						return new Erreur('Pas de facsimile',  'warning');
 					}
 				}
@@ -321,10 +321,10 @@ if (!window.jQuery) {
 			{
                 nom: "Erreur de pagination",
                 condition : contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations,
-				action : function () {
-					if($('#docPagination').length === 0){
+				action : function (root) {
+					if($('#docPagination', root).length === 0){
 						return new Erreur('Pas de pagination',  'warning');
-					} else if(!/^p\. [0-9-]*$/i.test($('#docPagination').text())) {
+					} else if(!/^p\. [0-9-]*$/i.test($('#docPagination', root).text())) {
 						return new Erreur('Mauvais format de pagination',  'danger');
 					}
 				}
@@ -332,9 +332,9 @@ if (!window.jQuery) {
 			{
                 nom: "Pas de date de publication électronique (numéro)",
                 condition : contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations,
-				action : function () {
+				action : function (root) {
 					// FIXME: ce test ne fonctionne que si la page est affichée en français
-					var refElectro = $('#quotation > h3:last').next('p').text();
+					var refElectro = $('#quotation > h3:last', root).next('p').text();
 					if (refElectro.match(/mis en ligne le ,/)) {
 						return new Erreur('Pas de date de publication électronique',  'danger');
 					}
@@ -343,8 +343,8 @@ if (!window.jQuery) {
 			{	
                 nom: "Compterendu/notedelecture sans référence",
                 condition : contexte.classes.textes && (contexte.classes.compterendu || contexte.classes.notedelecture),
-				action : function () {
-					if ($("#docReference").length === 0) {
+				action : function (root) {
+					if ($("#docReference", root).length === 0) {
 						return new Erreur('Pas de référence de l\'oeuvre',  'danger');
 					}
 				}
@@ -352,8 +352,8 @@ if (!window.jQuery) {
 			{
                 nom: "Utilisation de police(s) non Unicode",
                 condition : contexte.classes.textes,
-				action : function () {
-					var el = $('#content [style*="Symbol"], #content [style*="symbol"], #content [style*="Wingdings"], #content [style*="wingdings"], #content [style*="Webdings"], #content [style*="webdings"]');
+				action : function (root) {
+					var el = $('#content [style*="Symbol"], #content [style*="symbol"], #content [style*="Wingdings"], #content [style*="wingdings"], #content [style*="Webdings"], #content [style*="webdings"]', root);
 					if (el.length !== 0) {						
 						el.each(function() {
                             ajouterMarqueur(this, "Police");
@@ -365,10 +365,10 @@ if (!window.jQuery) {
 			{
                 nom: "Retour à la ligne dans le titre ou dans un intertitre",
                 condition : contexte.classes.textes,
-				action : function () {
+				action : function (root) {
                     var compteur = 0;
                     
-                    $('.texte:header br, h1#docTitle br').each( function() {
+                    $('.texte:header br, h1#docTitle br', root).each( function() {
                         compteur++;
                         ajouterMarqueur(this.parentNode, "Retour à la ligne", "warning");
 					});
@@ -381,10 +381,10 @@ if (!window.jQuery) {
 			{
                 nom: "Titre d'illustration mal placé",
                 condition : contexte.classes.textes,
-				action : function () {
+				action : function (root) {
 					var compteur = 0;
                     
-					$('table + .titreillustration, img + .titreillustration, div.textIcon + .titreillustration').each( function() {
+					$('table + .titreillustration, img + .titreillustration, div.textIcon + .titreillustration', root).each( function() {
 						if($(this).next('table, img, div.textIcon').length === 0) { // titreillus apres illus = erreur, sauf si suivi d'illus
 							compteur++;
                             ajouterMarqueur(this, "Repositionner ce titre");
@@ -399,10 +399,10 @@ if (!window.jQuery) {
             {
                 nom: "Légende d'illustration mal placée",
                 condition : contexte.classes.textes,
-                action : function () {
+                action : function (root) {
                     var compteur = 0;
 
-                    $('.creditillustration + .legendeillustration, div.textIcon + .legendeillustration').each( function() {
+                    $('.creditillustration + .legendeillustration, div.textIcon + .legendeillustration', root).each( function() {
                             compteur++;
                             ajouterMarqueur(this, "Repositionner cette légende");
                     });
@@ -415,10 +415,10 @@ if (!window.jQuery) {
 			{
                 nom: "Paragraphe qui commence par une minuscule",
                 condition : contexte.classes.textes,
-				action : function () {
+				action : function (root) {
 					var compteur = 0;
 					
-                    $('#text > .text > *:not(.textandnotes), #text > .text > .textandnotes > *, #text > .text > *:header').not('.citation,.paragraphesansretrait, blockquote, .sidenotes, ol, ul, li').each( function() {
+                    $('#text > .text > *:not(.textandnotes), #text > .text > .textandnotes > *, #text > .text > *:header', root).not('.citation,.paragraphesansretrait, blockquote, .sidenotes, ol, ul, li').each( function() {
 						var firstChar = getPText($(this)).charAt(0);
 						if (latinize(firstChar).match(/^[a-z]/)) {
                             ajouterMarqueur(this, "Minuscule", "warning");
@@ -434,10 +434,10 @@ if (!window.jQuery) {
             {
                 nom: "Citation stylée en Normal",
                 condition : contexte.classes.textes,
-				action : function () {
+				action : function (root) {
 					var compteur = 0;
 					
-                    $('#text > .text > *:not(.textandnotes), #text > .text > .textandnotes > *').not('.citation, .epigraphe, blockquote, .sidenotes, ol, ul, li, :header').each( function() {
+                    $('#text > .text > *:not(.textandnotes), #text > .text > .textandnotes > *', root).not('.citation, .epigraphe, blockquote, .sidenotes, ol, ul, li, :header').each( function() {
 						var string = getPText($(this));
                         if (string.charAt(0).match(/[«"“]/) && string.slice(-20).match(/[”"»]/)) {
                             ajouterMarqueur(this, "Citation ?", "warning");
@@ -453,10 +453,10 @@ if (!window.jQuery) {
             {
                 nom: "Listes mal formatées",
                 condition : contexte.classes.textes,
-                action : function () {
+                action : function (root) {
                     var compteur = 0;
 
-                    $('#text > .text > p, #text > .text > .textandnotes > p').each( function() {
+                    $('#text > .text > p, #text > .text > .textandnotes > p', root).each( function() {
                         var string = getPText($(this));
                         if (string.match(/^[•∙◊–—>-]/) || string.slice(1,2).match(/[\/.):–—-]/)) {
                             ajouterMarqueur(this, "Liste", "warning");
@@ -472,10 +472,10 @@ if (!window.jQuery) {
 			{
                 nom: "Styles inconnus utilisés",
                 condition : contexte.classes.textes,
-				action : function () {
+				action : function (root) {
                     var textWhitelist = "p.remerciements, p.texte, p.paragraphesansretrait, p.creditillustration, p.epigraphe, p.citation, p.citationbis, p.citationter, p.titreillustration, p.legendeillustration, p.question, p.reponse, p.separateur, p.encadre";
 					var compteur = 0;
-					$('#text > .text p').each( function() {
+					$('#text > .text p', root).each( function() {
 						if (!$(this).is(textWhitelist)) {
                             ajouterMarqueur(this, 'Style inconnu : ' + $(this).attr('class'));
 							compteur++;
@@ -490,10 +490,10 @@ if (!window.jQuery) {
 			{
                 nom: "Incohérence dans la numérotation des notes",
                 condition : contexte.classes.textes,
-				action : function () {
+				action : function (root) {
 					var e = false,
 						debut = 0;
-					$('#notes > p > a[id^=ftn]').each( function(index) {
+					$('#notes > p > a[id^=ftn]', root).each( function(index) {
 						if (index === 0) {
 							debut = parseInt($(this).text());
 						} else {
@@ -511,11 +511,11 @@ if (!window.jQuery) {
 			{
                 nom: "Arborescences interdites",
                 condition : contexte.classes.textes,
-				action : function () {
+				action : function (root) {
 					var compteur = 0,
 						blackList = 'ol :header, ul :header, li:header'; 
 					
-					$("#content").find(blackList).each( function() {
+					$("#content", root).find(blackList).each( function() {
 						compteur++;
                         ajouterMarqueur(this, "Arborescence interdite");
 					});
@@ -528,10 +528,10 @@ if (!window.jQuery) {
 			{
                 nom: "Ponctuation à la fin du titre ou d'un intertitre",
                 condition : contexte.classes.textes,
-				action : function () {
+				action : function (root) {
 					var compteur = 0;
 					
-                    $('.texte:header, h1#docTitle').each( function() {
+                    $('.texte:header, h1#docTitle', root).each( function() {
 						if( $(this).text().trim().match(/[\.:;=]$/) ) {
 							compteur++;
                             ajouterMarqueur(this, "Ponctuation", "danger", true);
@@ -546,8 +546,8 @@ if (!window.jQuery) {
 			{
                 nom: "Mises en formes locales sur le titre",
                 condition : contexte.classes.textes,
-				action : function () {
-					if ($('#docTitle[style], #docTitle [style]').length !== 0) {
+				action : function (root) {
+					if ($('#docTitle[style], #docTitle [style]', root).length !== 0) {
 						return new Erreur('Mises en formes locales sur le titre', 'danger');
 					}
 				}			
@@ -555,8 +555,8 @@ if (!window.jQuery) {
 			{
                 nom: "Appel de note dans le titre",
                 condition : contexte.classes.textes,
-				action : function () {
-					if ($('#docTitle .footnotecall').length !== 0) {
+				action : function (root) {
+					if ($('#docTitle .footnotecall', root).length !== 0) {
 						return new Erreur('Appel de note dans le titre', 'warning');
 					}
 				}			
@@ -564,10 +564,10 @@ if (!window.jQuery) {
 			{
                 nom: "Titre d'illustration en légende",
                 condition : contexte.classes.textes,
-				action : function () {
+				action : function (root) {
 					var compteur = 0;
 					
-					$('.legendeillustration').each( function() {
+					$('.legendeillustration', root).each( function() {
 						if( $(this).text().match(/^(fig|tabl)/i) ) {
 							compteur++;
                             ajouterMarqueur(this, "Titre plutôt que légende", "warning");
@@ -582,10 +582,10 @@ if (!window.jQuery) {
             {
                 nom: "Présence de champs d'index Word",
                 condition : contexte.classes.textes,
-                action : function () {
+                action : function (root) {
                     var compteur = 0;
 
-                    $("a:contains('Error: Reference source not found'), a[href^='#id']").each( function() {
+                    $("a:contains('Error: Reference source not found'), a[href^='#id']", root).each( function() {
                             compteur++;
                             ajouterMarqueur(this, "Champ d'index", "danger");
                     });
@@ -598,8 +598,8 @@ if (!window.jQuery) {
             {
                 nom: "Remerciement en note 1",
                 condition : contexte.classes.textes,
-                action : function () {
-                    var str = $("#notes .notesbaspage:first").text(),
+                action : function (root) {
+                    var str = $("#notes .notesbaspage:first", root).text(),
                         merci = [/merci/i, /thank/i]; // TODO: compléter
 
                     for (var i=0; i<merci.length; i++) { 
@@ -612,12 +612,12 @@ if (!window.jQuery) {
             {
                 nom: "Composition des mots-cles",
                 condition : contexte.isMotscles || (contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations),
-                action : function () {
+                action : function (root) {
                     var res;
                     if (contexte.isMotscles) {
-                        res = testerMotsCles($('#pageBody .entries ul li'));
+                        res = testerMotsCles($('#pageBody .entries ul li', root));
                     } else if (contexte.classes.textes) {
-                        res = testerMotsCles($('#entries .index a'));
+                        res = testerMotsCles($('#entries .index a', root));
                     }
                     
                     if (!res) {
@@ -628,11 +628,11 @@ if (!window.jQuery) {
             {
                 nom: "Hierarchie du plan incohérente",
                 condition : contexte.classes.textes,
-                action : function () {
+                action : function (root) {
                     var precedent = 0,
                         compteur = 0;
                     
-                    $('#toc div').each( function () {
+                    $('#toc div', root).each( function () {
                         var niveau = Number($(this).attr('class').slice(-1));
                         if (niveau > precedent + 1 || (precedent === 0 && niveau != 1)) {
                             compteur++;
@@ -649,11 +649,11 @@ if (!window.jQuery) {
             {
                 nom: "Doublons de mots-cles",
                 condition : contexte.isMotscles,
-                action : function () {
+                action : function (root) {
                     var arr = {},
                         text = "",
                         err = 0;
-                    $('#pageBody .entries ul li').each( function (index) {
+                    $('#pageBody .entries ul li', root).each( function (index) {
                         text = latinize($(this).text()).replace(/[\s;–—-]+/g, '').toLowerCase();
                         if (arr[text]) {
                             arr[text].push(index);
@@ -665,7 +665,7 @@ if (!window.jQuery) {
 					$.each(arr, function (key, eqs) {
 						if ($.isArray(eqs) && eqs.length > 1) {
 							for (var i=0; i < eqs.length; i++) {
-								ajouterMarqueur($('#pageBody .entries ul li').eq(eqs[i])[0], "Doublon  ?", "warning", true);
+								ajouterMarqueur($('#pageBody .entries ul li', root).eq(eqs[i])[0], "Doublon  ?", "warning", true);
 							}
 							err++;
 						}
@@ -679,10 +679,10 @@ if (!window.jQuery) {
             {
                 nom: "Format de nom d'auteur : capitales, caractères interdits",
                 condition : contexte.classes.indexes || (contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations) || contexte.classes.publications,
-                action : function () {
+                action : function (root) {
                     var text = "",
                         err = 0;
-                    $('span.familyName').each( function () {
+                    $('span.familyName', root).each( function () {
                         text = latinize($(this).text().trim());
                         if (text === text.toUpperCase() || text.match(/[&!?)(*\/]/)) {
                             ajouterMarqueur(this, "Format", "warning", true);
@@ -700,9 +700,9 @@ if (!window.jQuery) {
             {
                 nom: "Auteur sans prénom",
                 condition : contexte.classes.indexes || (contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations) || contexte.classes.publications,
-                action : function () {
+                action : function (root) {
                     var err = 0;
-                    $('span.familyName').each( function () {
+                    $('span.familyName', root).each( function () {
                         if ($(this).text().trim() === $(this).parent().text().trim()) {
                             ajouterMarqueur(this, "Nom seul", "warning", true);
 							if (!contexte.classes.textes || $(this).is('#docAuthor *, #docTranslator *')) {
@@ -719,9 +719,9 @@ if (!window.jQuery) {
             {
                 nom: "Format d'image non supporté (WMF)",
                 condition : contexte.classes.textes,
-                action : function () {
+                action : function (root) {
                     var err = 0;
-                    $( "img[src$='.wmf']" ).each( function () {
+                    $("img[src$='.wmf']", root).each( function () {
                             ajouterMarqueur(this, "Format d'image inconnu", "danger", true);
                             err++;
                     });
@@ -734,9 +734,9 @@ if (!window.jQuery) {
             {
                 nom: "Intertitre sur plusieurs paragraphes",
                 condition : contexte.classes.textes,
-                action : function () {
+                action : function (root) {
                     var err = 0;
-                    $( ".texte:header + .texte:header" ).each( function () {
+                    $(".texte:header + .texte:header", root).each( function () {
                         if ($(this).prev('.texte:header')[0].nodeName === this.nodeName) {
                             ajouterMarqueur(this, "Double intertitre", "danger", true);
                             err++;   
@@ -751,9 +751,9 @@ if (!window.jQuery) {
             {
                 nom: "Caractères Symbol",
                 condition : contexte.classes.textes,
-                action : function () {
+                action : function (root) {
                     var symbolsRegex = 	/[]/g,
-                        err = $('#docBody').highlightRegex(symbolsRegex, {
+                        err = $('#docBody', root).highlightRegex(symbolsRegex, {
                             tagType:   'span',
                             className: 'symbolalert'
                         }).find('span.symbolalert').length;
@@ -766,11 +766,11 @@ if (!window.jQuery) {
             {
                 nom: "Erreurs d'import du résumé et des mots-clés",
                 condition : contexte.classes.textes,
-                action : function () {
-                    var nbMots = $("#entries .index h3").filter( function(i,e) {
+                action : function (root) {
+                    var nbMots = $("#entries .index h3", root).filter( function(i,e) {
                         return !$(e).text().match(/(Index|Índice|Indice)/);
                     }).length,
-                        nbResumes = $("#abstract .tabContent").length;
+                        nbResumes = $("#abstract .tabContent", root).length;
                     
                     if (nbMots !== 0 && nbResumes !== 0 && nbMots !== nbResumes) {
                         return new Erreur('Vérifier le stylage du résumé et des mots-clés', 'warning');   
@@ -780,8 +780,8 @@ if (!window.jQuery) {
             {
                 nom: "Numéro sans couverture",
                 condition : contexte.classes.numero,
-                action : function () {
-                    if ($("#publiInformation img").length === 0) {
+                action : function (root) {
+                    if ($("#publiInformation img", root).length === 0) {
                         return new Erreur('Numéro sans couverture', 'warning');      
                     }
                 }			
@@ -794,7 +794,7 @@ if (!window.jQuery) {
 		addCss();
         fixNav();
 		setRelectureBox();
-		afficherErreurs(relire(tests));
+		afficherErreurs(relire(tests, document));
 		debugStylage();
         
         console.log('Script ' + GM_info.script.name + '.js version ' + GM_info.script.version + ' chargé.');
