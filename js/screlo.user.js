@@ -21,7 +21,7 @@ if (!window.jQuery) {
             "root": "https://raw.githubusercontent.com/thomas-fab/screlo/master/",
             //"stylesheat": "https://rawgit.com/thomas-fab/screlo/master/css/screlo.css",
             "stylesheat": "http://localhost/screlo/screlo.css",
-            "update": 'https://rawgit.com/thomas-fab/screlo/master/js/screlo.user.js'
+            "update": 'https://rawgit.com/thomas-fab/screlo/master/js/screlo.user.js' // FIXME: je pense pas que ce soit le bon lien
         };
         
         // ################ PLUGINS JQUERY (eviter ajax) ###############
@@ -195,6 +195,7 @@ if (!window.jQuery) {
         // Creer l'UI principale
         function setRelectureBox() {
             $('<div id="relecture_box"><ul id="liste_erreurs"></ul></div>').appendTo('body');
+            $("body").append("<div id='screlo-loading' ></div>");
 
             // Inspecteur de classes 
             $('<div id="class_inspector"></div>').appendTo('#relecture_box');
@@ -258,7 +259,8 @@ if (!window.jQuery) {
         function relire(tests, root) {
             var condition,
                 res,
-                erreurs = [];
+                erreurs = [],
+                nbTests = 0;
             for (var i = 0; i < tests.length; i++) {
                 condition = tests[i].condition;
                 if (condition) {
@@ -266,36 +268,33 @@ if (!window.jQuery) {
                     if (res instanceof Erreur) {
                         erreurs.push(res);
                     }
+                    nbTests++;
                 }
+            }
+            if (erreurs[0] === undefined && nbTests > 0 && (contexte.classes.textes || root !== document)) {
+                erreurs.push(new Erreur('Aucune erreur détectée (' + nbTests + ' tests effectués)',  'succes'));
             }
             return erreurs;
         }
 
         // Afficher les erreurs
-        function afficherErreurs(erreurs) {
-            var danger = 0,
-                warning = 0,
-                msg = '';
+        function afficherErreurs(erreurs, target) {
+            
+            erreurs.sort(function (a, b) {
+                var ordre = ['danger','warning','succes'],
+                    typeA = ordre.indexOf(a.type),
+                    typeB = ordre.indexOf(b.type);
+                
+                if (typeA > typeB)
+                    return 1;
+                if (typeA < typeB)
+                    return -1;
+                return 0;
+            });
+            
             for (var i = 0; i < erreurs.length; i++) {
-                var li = $('<li class="erreur ' + erreurs[i].type + '">' + erreurs[i].message + '</li>');
-                if (erreurs[i].type === "danger") {
-                    li.prependTo('#relecture_box ul#liste_erreurs');
-                    danger++;
-                } else {
-                    li.appendTo('#relecture_box ul#liste_erreurs');
-                    warning++;
-                }
+                $('<li class="erreur ' + erreurs[i].type + '">' + erreurs[i].message + '</li>').appendTo(target);
             }
-            if (danger) {
-                msg += '<span class="count danger">' + danger + ' erreur(s)</span>';
-            }
-            if (danger && warning) {
-                msg += ', ';
-            }
-            if (warning) {
-                msg += '<span class="count warning">' + warning + ' avertissement(s) </span>';
-            }
-            $('<p>' + msg + '</p>').prependTo('#relecture_box');
         }
         
         // Relecture Ajax
@@ -303,7 +302,7 @@ if (!window.jQuery) {
             var url =  retournerUrl("site") + id;
             
             // 1ere requete pour recupere les classes du body afin de constituer le contexte
-            // FIXME: Cette requete est une horreur, chaque lien de la TOC va gérérer deux requetes ajax (texte + html) dont un juste pour connaitre les classes du body. Mais l'info n'est pas disponible ailleurs dans la maquette !
+            // FIXME: Cette requete est une horreur, chaque lien de la TOC va gérérer deux requetes ajax (texte + html) dont un juste pour connaitre les classes du body.
             $.get(url, function(data) {
                 var root = data.match(/\n.*(<body.*)\n/i)[1].replace("body", "div"),
                     classes = $(root).get(0).className.split(/\s+/),
@@ -314,17 +313,9 @@ if (!window.jQuery) {
                     var tests = getTests(contexte),
                         erreurs = relire(tests, this);
                     
-                    // TODO: doublon de code, à cleaner
-                    for (var i = 0; i < erreurs.length; i++) {
-                        var li = $('<li class="erreur ' + erreurs[i].type + '">' + erreurs[i].message + '</li>');
-                        if (erreurs[i].type === "danger") {
-                            li.prependTo("ul#relecture" + id);
-                        } else {
-                            li.appendTo("ul#relecture" + id);
-                        }
-                    }
+                    afficherErreurs(erreurs, "ul#relecture" + id);
                     
-                    $("body").append("<span class='blabla'></span>");
+                    $("ul#relecture" + id).addClass("complete");
                     if (callback !== undefined) {
                         callback();
                     }
@@ -334,29 +325,37 @@ if (!window.jQuery) {
         
         function relireToc() {
             if (contexte.classes.numero) {
-                var urls = [],
-                    collection = $('ul.summary li:not(.fichiers) .title');
-                
-                collection.each( function() {
-                    var id = $(this).children('a').eq(0).attr('href');
-                    if (id !== undefined) {
-                        urls.push(id);
-                    }
-                    $(this).parent().append("<ul class='screlo-relecture' id='relecture" + id + "'></ul>");
-                });
-                
-                //TODO: utiliser $.when().then() pour structurer ou setInterval() ??? ici un callback
-                for (var i = 0; i < urls.length; i++) {
-                    relectureAjax(urls[i], function(){
-                        // FIXME: faire un truc propre
-                        if (collection.length === $("span.blabla").length) {
-                            alert("FINI !");
+                if ($(".screlo-relecture").length === 0) {
+                    var urls = [],
+                        collection = $('ul.summary li:not(.fichiers) .title');
+
+                    $("body").addClass("loading");
+
+                    collection.each( function() {
+                        var id = $(this).children('a').eq(0).attr('href');
+                        if (id !== undefined) {
+                            urls.push(id);
                         }
+                        $(this).parent().append("<ul class='screlo-relecture' id='relecture" + id + "'></ul>");
                     });
+
+                    //TODO: utiliser $.when().then() pour structurer ou setInterval() ??? ici un callback
+                    for (var i = 0; i < urls.length; i++) {
+                        relectureAjax(urls[i], function(){
+                            // FIXME: faire un truc propre
+                            if (collection.length === $(".screlo-relecture.complete").length) {
+                                console.log("test");
+                                $("body").removeClass("loading");
+                                $("#main").addClass("complete");
+                            }
+                        });
+                    }
+                } else {
+                    alert("Recharger la page pour exécuter le script une seconde fois.");
                 }
                 
             } else {
-                alert("Se rendre sur la table des matières d'un numéro.");
+                alert("Il faut se rendre sur la table des matières d'un numéro.");
             }                
         }
 	
@@ -628,7 +627,7 @@ if (!window.jQuery) {
                         }
                     }			
                 },
-                // FIXME: ne fonctionne pas avec Ajax (pour une raison mistérieuse)
+                // FIXME: ne fonctionne pas avec Ajax (pour une raison mystérieuse)
                 /*{
                     nom: "Mises en formes locales sur le titre",
                     condition : contexte.classes.textes,
@@ -901,7 +900,7 @@ if (!window.jQuery) {
 		addCss();
         fixNav();
 		setRelectureBox();
-		afficherErreurs(relire(tests, document));
+        afficherErreurs(relire(tests, document), "#relecture_box ul#liste_erreurs");
 		debugStylage();
         
         console.log('Script ' + GM_info.script.name + '.js version ' + GM_info.script.version + ' chargé.');
