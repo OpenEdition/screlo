@@ -148,7 +148,7 @@ if (!window.jQuery) {
         // Fixer le menu de navigation pour boucler sur tous les éléments
         function fixNav() {
             function addNav(dirClass, url) {
-                $('.navEntities').append($('<a></a>').addClass(dirClass).attr('href', url).css('border','2px green solid'));
+                $('.navEntities').append($('<a></a>').addClass(dirClass + " corrected").attr('href', url));
             }
 
             if ($('.navEntities .goContents').length !== 0) {
@@ -269,7 +269,7 @@ if (!window.jQuery) {
         function afficherErreurs(erreurs, target) {
             
             erreurs.sort(function (a, b) {
-                var ordre = ['danger','warning','succes'],
+                var ordre = ['danger','warning','print','succes'],
                     typeA = ordre.indexOf(a.type),
                     typeB = ordre.indexOf(b.type);
                 
@@ -363,7 +363,7 @@ if (!window.jQuery) {
                     condition : contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations,
                     action : function (root) {
                         if($('#wDownload.facsimile', root).length === 0){
-                            return new Erreur('Pas de facsimile',  'warning');
+                            return new Erreur('Pas de facsimile',  'print');
                         }
                     }
                 },
@@ -372,9 +372,9 @@ if (!window.jQuery) {
                     condition : contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations,
                     action : function (root) {
                         if($('#docPagination', root).length === 0){
-                            return new Erreur('Pas de pagination',  'warning');
+                            return new Erreur('Pas de pagination',  'print');
                         } else if(!/^p\. [0-9-]*$/i.test($('#docPagination', root).text())) {
-                            return new Erreur('Mauvais format de pagination',  'danger');
+                            return new Erreur('Mauvais format de pagination',  'print');
                         }
                     }
                 },
@@ -868,7 +868,7 @@ if (!window.jQuery) {
                     condition : contexte.classes.numero,
                     action : function (root) {
                         if ($("#publiInformation img", root).length === 0) {
-                            return new Erreur('Numéro sans couverture', 'warning');      
+                            return new Erreur('Numéro sans couverture', 'print');      
                         }
                     }			
                 }//,

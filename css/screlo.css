@@ -138,7 +138,7 @@ body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
     font-family: verdana, sans-serif;
     cursor: pointer;
     text-align: center;
-    float: left;
+    float: right;
     clear: none;
     margin-top: 3px;
 }
@@ -171,31 +171,20 @@ span.screlo-marqueur {
 
 /* Niveaux d'erreurs */
 
-span.screlo-marqueur.danger {
-    background-color: #d2322d;
-    border-color: #ac2925;
-}
-span.screlo-marqueur.warning {
-    background-color: #ed9c28;
-    border-color: #d58512;
-}
-
-span.screlo-marqueur.succes {
-    background-color: #7abd18;
-    border-color: #639b11;
-}
-
-/*---*/
-ul#screlo-tests li.warning, ul.screlo-relecture li.warning {
+span.screlo-marqueur.warning, ul#screlo-tests li.warning, ul.screlo-relecture li.warning {
     background : #ed9c28;
 }
 
-ul#screlo-tests li.danger, ul.screlo-relecture li.danger {
+span.screlo-marqueur.danger, ul#screlo-tests li.danger, ul.screlo-relecture li.danger {
     background:  #d2322d;
 }
 
-ul#screlo-tests li.succes, ul.screlo-relecture li.succes {
+span.screlo-marqueur.succes, ul#screlo-tests li.succes, ul.screlo-relecture li.succes {
     background: #7ABD18;
+}
+
+span.screlo-marqueur.print, ul#screlo-tests li.print, ul.screlo-relecture li.print {
+    background: #9b55dd;
 }
 
 /* Repérer le nom de famille de l'auteur */
@@ -304,4 +293,9 @@ span.symbolalert {background-color: orange;}
 
 body.loading  #screlo-loading {
     display: block;
+}
+
+/* Correct navEntities */
+.navEntities a.corrected {
+    box-shadow: 0 0 10px #7abd18 inset;
 }
