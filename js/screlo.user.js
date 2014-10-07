@@ -41,7 +41,7 @@ if (!window.jQuery) {
         
         // Determiner le contexte d'execution
         function getContexte(importClasses) {
-            var contexte = { "classes" : {} }; //TODO: contexte.is.truc serait plus elegant
+            var contexte = { "classes" : {} };
             for ( var i=0; i < importClasses.length; i++ ) {
                 contexte.classes[importClasses[i]] = true;
             }
@@ -192,30 +192,18 @@ if (!window.jQuery) {
             $('head').append('<link rel="stylesheet" href="' + appUrls.stylesheat + '" type="text/css" />');
         }
         
-        // Creer l'UI principale
-        function setRelectureBox() {
-            $('<div id="relecture_box"><ul id="liste_erreurs"></ul></div>').appendTo('body');
-            $("body").append("<div id='screlo-loading' ></div>");
-
-            // Inspecteur de classes 
-            $('<div id="class_inspector"></div>').appendTo('#relecture_box');
-            $('#text p').hover( function() {
-                var cl = $( this ).attr("class");
-                $('#class_inspector').text(cl);
-            }, function() {
-                $('#class_inspector').text('');
-            });
-
-            // Boutons
-			var relecture_buttons = $('<div id="relecture_buttons"><form id="acces_rapide"><input type="text" id="id_acces"></input><input type="submit" value="go"/></form></div>');
-			if (contexte.idPage) {
-                $('<a title="Editer" href="' + retournerUrl('editer') + '"><img src="' + appUrls.root + 'css/edit.png" alt="Editer" /></a><a title="Document source" href="' + retournerUrl('doc') + '"><img src="' + appUrls.root + 'css/docsource.png" alt ="Document source"/></a><a title="Recharger" href="' + retournerUrl('otx') + '"><img src="' + appUrls.root + 'css/upload.png" alt="Recharger" /></a><a href="#" id="relecture_ajax">AJAX</a>').appendTo(relecture_buttons);
-			}
-            $('<a title="Version" href="#" id="version_popup"><img src="' + appUrls.root + 'css/about.png" alt ="Version"/></a>').appendTo(relecture_buttons);
-			relecture_buttons.appendTo("#relecture_box");
-
+        function ui() {
+            var buttons = ["<a data-screlo-button='edit' title='Editer' href='" + retournerUrl('editer') + "'>Editer</a>",
+                           "<a data-screlo-button='download' title='Récupérer la source' href='" + retournerUrl('doc') + "'>Récupérer la source</a>",
+                           "<a data-screlo-button='upload' title='Recharger la source' href='" + retournerUrl('otx') + "'>Recharger la source</a>",
+                           "<a data-screlo-button='ajax' title='Relecture du numéro'>Relecture du numéro</a>",
+                           "<a data-screlo-button='info' title='Informations'>Informations</a>",
+                           "<form id='form-acces-rapide'><input id='acces-rapide' type='text' data-screlo-action='go' placeholder='▶'/></form>"],
+                squel = "<div id='screlo-main'><ul id='screlo-tests'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
+            $(squel).appendTo("body");
+            
             // Fonctions
-            $( "#version_popup" ).click(function( event ) {
+            $( "[data-screlo-button='info']" ).click(function( event ) {
                 event.preventDefault();
                 var msg = 'Screlo version ' + GM_info.script.version + '\n\nScrelo effectue les tests suivants :\n' + listerTests(tests).join('\n') + '\n\nUne mise à jour de Screlo est peut-être disponible. Forcer la mise à jour ?',
                     mettreAJour = false;
@@ -224,15 +212,15 @@ if (!window.jQuery) {
                     window.location.href = appUrls.update;
                 }
             });
-            
-            $( "#relecture_ajax" ).click(function( event ) {
+
+            $( "[data-screlo-button='ajax']" ).click(function( event ) {
                 event.preventDefault();
                 relireToc();
             });
 
-            $( "#acces_rapide" ).submit(function( event ) {
+            $( "#form-acces-rapide" ).submit(function( event ) {
                 event.preventDefault();
-                var idAcces = $('input#id_acces').val();
+                var idAcces = $('input#acces-rapide').val();
                 if (typeof idAcces === 'string') {
                     window.location.href = retournerUrl(idAcces);
                 }
@@ -272,7 +260,7 @@ if (!window.jQuery) {
                 }
             }
             if (erreurs[0] === undefined && nbTests > 0 && (contexte.classes.textes || root !== document)) {
-                erreurs.push(new Erreur('Aucune erreur détectée (' + nbTests + ' tests effectués)',  'succes'));
+                erreurs.push(new Erreur('Aucune erreur détectée <span>' + nbTests + ' tests</span>',  'succes'));
             }
             return erreurs;
         }
@@ -339,12 +327,9 @@ if (!window.jQuery) {
                         $(this).parent().append("<ul class='screlo-relecture' id='relecture" + id + "'></ul>");
                     });
 
-                    //TODO: utiliser $.when().then() pour structurer ou setInterval() ??? ici un callback
                     for (var i = 0; i < urls.length; i++) {
-                        relectureAjax(urls[i], function(){
-                            // FIXME: faire un truc propre
+                        relectureAjax(urls[i], function() {
                             if (collection.length === $(".screlo-relecture.complete").length) {
-                                console.log("test");
                                 $("body").removeClass("loading");
                                 $("#main").addClass("complete");
                             }
@@ -424,7 +409,7 @@ if (!window.jQuery) {
                                     ajouterMarqueur(this, "Police");
                                 });
                             }
-                            return new Erreur('Police non Unicode utilisée (' + el.length + ')');
+                            return new Erreur('Police non Unicode utilisée <span>' + el.length + '</span>');
                         }
                     }
                 },
@@ -442,7 +427,7 @@ if (!window.jQuery) {
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Retour à la ligne dans le titre ou dans un intertitre (' + compteur + ')');
+                            return new Erreur('Retour à la ligne dans le titre ou dans un intertitre <span>' + compteur + '</span>');
                         }
                     }
                 },
@@ -462,7 +447,7 @@ if (!window.jQuery) {
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Titre après illustration (' + compteur + ')');
+                            return new Erreur('Titre après illustration <span>' + compteur + '</span>');
                         }
                     }
                 },
@@ -480,7 +465,7 @@ if (!window.jQuery) {
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Position légende illustration (' + compteur + ')');
+                            return new Erreur('Position légende illustration <span>' + compteur + '</span>');
                         }
                     }
                 },
@@ -501,7 +486,7 @@ if (!window.jQuery) {
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Caractère minuscule en début de paragraphe (' + compteur + ')', 'warning');
+                            return new Erreur('Caractère minuscule en début de paragraphe <span>' + compteur + '</span>', 'warning');
                         }
                     }
                 },
@@ -522,7 +507,7 @@ if (!window.jQuery) {
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Citation stylée en Normal (' + compteur + ')', 'warning');
+                            return new Erreur('Citation stylée en Normal <span>' + compteur + '</span>', 'warning');
                         }
                     }
                 },
@@ -543,7 +528,7 @@ if (!window.jQuery) {
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Listes manquantes (' + compteur + ')', 'warning');
+                            return new Erreur('Listes manquantes <span>' + compteur + '</span>', 'warning');
                         }
                     }
                 },
@@ -563,7 +548,7 @@ if (!window.jQuery) {
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Styles inconnus utilisés (' + compteur + ')');
+                            return new Erreur('Styles inconnus utilisés <span>' + compteur + '</span>');
                         }
                     }
                 },
@@ -603,7 +588,7 @@ if (!window.jQuery) {
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Arborescence interdite (' + compteur + ')');
+                            return new Erreur('Arborescence interdite <span>' + compteur + '</span>');
                         }
                     }			
                 },
@@ -623,7 +608,7 @@ if (!window.jQuery) {
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Ponctuation à la fin du titre ou d\'un intertitre (' + compteur + ')');
+                            return new Erreur('Ponctuation à la fin du titre ou d\'un intertitre <span>' + compteur + '</span>');
                         }
                     }			
                 },
@@ -662,7 +647,7 @@ if (!window.jQuery) {
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Titre d\'illustration stylé en légende (' + compteur + ')', 'warning');
+                            return new Erreur('Titre d\'illustration stylé en légende <span>' + compteur + '</span>', 'warning');
                         }
                     }			
                 },
@@ -680,7 +665,7 @@ if (!window.jQuery) {
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Champ d\'index Word (' + compteur + ')', 'danger');
+                            return new Erreur('Champ d\'index Word <span>' + compteur + '</span>', 'danger');
                         }
                     }			
                 },
@@ -733,7 +718,7 @@ if (!window.jQuery) {
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Incohérence du plan (' + compteur + ')', 'warning');
+                            return new Erreur('Incohérence du plan <span>' + compteur + '</span>', 'warning');
                         }
                     }			
                 },
@@ -765,7 +750,7 @@ if (!window.jQuery) {
                         });
 
                         if (err !== 0) {
-                            return new Erreur('Vérifier les doublons (' + err + ')', 'warning');
+                            return new Erreur('Vérifier les doublons <span>' + err + '</span>', 'warning');
                         }
                     }			
                 },
@@ -788,7 +773,7 @@ if (!window.jQuery) {
                         });
 
                         if (err !== 0) {
-                            return new Erreur('Format de nom d\'auteur : capitales, caractères interdits  (' + err + ')', 'warning');
+                            return new Erreur('Format de nom d\'auteur : capitales, caractères interdits  <span>' + err + '</span>', 'warning');
                         }
                     }			
                 },
@@ -809,7 +794,7 @@ if (!window.jQuery) {
                         });
 
                         if (err !== 0) {
-                            return new Erreur('Auteur sans prénom (' + err + ')', 'warning');
+                            return new Erreur('Auteur sans prénom <span>' + err + '</span>', 'warning');
                         }
                     }			
                 },
@@ -826,7 +811,7 @@ if (!window.jQuery) {
                         });
 
                         if (err !== 0) {
-                            return new Erreur('Format d\'image non supporté (' + err + ')', 'danger');
+                            return new Erreur('Format d\'image non supporté <span>' + err + '</span>', 'danger');
                         }
                     }			
                 },
@@ -845,7 +830,7 @@ if (!window.jQuery) {
                         });
 
                         if (err !== 0) {
-                            return new Erreur('Intertitre sur plusieurs paragraphes (' + err + ')', 'danger');
+                            return new Erreur('Intertitre sur plusieurs paragraphes <span>' + err + '</span>', 'danger');
                         }
                     }			
                 },
@@ -860,7 +845,7 @@ if (!window.jQuery) {
                             }).find('span.symbolalert').length;
 
                         if (err > 0) {
-                            return new Erreur('Caractères Symbol (' + err + ')', 'danger');
+                            return new Erreur('Caractères Symbol <span>' + err + '</span>', 'danger');
                         }   
                     }
                 },
@@ -899,8 +884,8 @@ if (!window.jQuery) {
         sourceDepuisToc();
 		addCss();
         fixNav();
-		setRelectureBox();
-        afficherErreurs(relire(tests, document), "#relecture_box ul#liste_erreurs");
+		ui();
+        afficherErreurs(relire(tests, document), "ul#screlo-tests");
 		debugStylage();
         
         console.log('Script ' + GM_info.script.name + '.js version ' + GM_info.script.version + ' chargé.');
