@@ -31,6 +31,11 @@ ul#screlo-tests {
     color: #fff;
 }
 
+#screlo-tests li {
+    width: 200px;
+}
+
+
 #screlo-tests li span, ul.screlo-relecture li span {
     border-radius: 10px;
     padding: 2px 6px;
@@ -123,6 +128,15 @@ body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
     display: block;
 }
 
+#screlo-toolbar a[data-screlo-button="papier"] {
+    background: url("http://localhost/screlo/svg/newspaper.svg") no-repeat center;
+    display: block;
+}
+
+#screlo-toolbar a.off {
+    opacity: 0.5
+}
+
 #form-acces-rapide {
     display: inline;
 }
@@ -212,13 +226,7 @@ span.familyName {
 #text h5.texte:before,
 #toc .tocSection5:before,
 #text h6.texte:before,
-#toc .tocSection6:before,
-#text h7.texte:before,
-#toc .tocSection7:before,
-#text h8.texte:before,
-#toc .tocSection8:before,
-#text h9.texte:before,
-#toc .tocSection9:before {
+#toc .tocSection6:before {
     background-color: #000;
     color: #FFF;
     margin-right: 10px;
@@ -248,18 +256,6 @@ span.familyName {
 #text h6.texte:before,
 #toc .tocSection6:before {
     content: "h6";
-}
-#text h7.texte:before,
-#toc .tocSection7:before {
-    content: "h7";
-}
-#text h8.texte:before,
-#toc .tocSection8:before {
-    content: "h8";
-}
-#text h9.texte:before,
-#toc .tocSection9:before {
-    content: "h9";
 }
 
 /* Debug de stylage */

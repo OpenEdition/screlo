@@ -48,6 +48,12 @@ if (!window.jQuery) {
             contexte.admin = ($('#lodel-container').length !== 0);
             contexte.isMotscles = $("body").hasClass("indexes") && $("body").is("[class*='motscles']");
             contexte.idPage = location.pathname.match(/(\d+)$/g);
+            contexte.nomCourt = nomCourt();
+            contexte.localStorage = JSON.parse(localStorage.getItem(contexte.nomCourt));
+            contexte.localStorage = contexte.localStorage ? contexte.localStorage : {};
+            if (contexte.localStorage.papier !== false) {
+                contexte.localStorage.papier = true;
+            }
             return contexte;
         }
         
@@ -70,6 +76,17 @@ if (!window.jQuery) {
                 h = 'http://' + window.location.host + a + quoi;   
             }
             return h;   
+        }
+        
+        // Recuperer le nom court
+        function nomCourt() {
+            var host = window.location.host,
+                p = location.pathname.replace(/\/(\d+)\//,'');
+            if (host.indexOf("formations.lodel.org") > -1 || host.indexOf("lodel.revues.org") > -1 || host.indexOf("devel.revues.org") > -1) {
+                return p.substr(0, p.indexOf('/'));
+            } else {
+                return host.substr(0, host.indexOf('.'));
+            }
         }
         
         // Suppression des accents pour trouver les doublons de mots-clés
@@ -192,11 +209,13 @@ if (!window.jQuery) {
             $('head').append('<link rel="stylesheet" href="' + appUrls.stylesheat + '" type="text/css" />');
         }
         
-        function ui() {
-            var buttons = ["<a data-screlo-button='edit' title='Editer' href='" + retournerUrl('editer') + "'>Editer</a>",
+        function ui(contexte) {
+            var papier = contexte.localStorage.papier === true ? "" : " class='off'",
+                buttons = ["<a data-screlo-button='edit' title='Editer' href='" + retournerUrl('editer') + "'>Editer</a>",
                            "<a data-screlo-button='download' title='Récupérer la source' href='" + retournerUrl('doc') + "'>Récupérer la source</a>",
                            "<a data-screlo-button='upload' title='Recharger la source' href='" + retournerUrl('otx') + "'>Recharger la source</a>",
                            "<a data-screlo-button='ajax' title='Relecture du numéro'>Relecture du numéro</a>",
+                           "<a data-screlo-button='papier' title='Revue papier'" + papier + ">Revue papier</a>",
                            "<a data-screlo-button='info' title='Informations'>Informations</a>",
                            "<form id='form-acces-rapide'><input id='acces-rapide' type='text' data-screlo-action='go' placeholder='▶'/></form>"],
                 squel = "<div id='screlo-main'><ul id='screlo-tests'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
@@ -216,6 +235,15 @@ if (!window.jQuery) {
             $( "[data-screlo-button='ajax']" ).click(function( event ) {
                 event.preventDefault();
                 relireToc();
+            });
+            
+            $( "[data-screlo-button='papier']" ).click(function( event ) {
+                event.preventDefault();
+                var ls = contexte.localStorage,
+                    toggle = !contexte.localStorage.papier;
+                ls.papier = toggle;
+                localStorage.setItem(contexte.nomCourt, JSON.stringify(ls));
+                location.reload();
             });
 
             $( "#form-acces-rapide" ).submit(function( event ) {
@@ -360,7 +388,7 @@ if (!window.jQuery) {
                 },
                 {
                     nom: "Absence de facsimilé",
-                    condition : contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations,
+                    condition : contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations && contexte.localStorage.papier,
                     action : function (root) {
                         if($('#wDownload.facsimile', root).length === 0){
                             return new Erreur('Pas de facsimile',  'print');
@@ -369,7 +397,7 @@ if (!window.jQuery) {
                 },
                 {
                     nom: "Erreur de pagination",
-                    condition : contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations,
+                    condition : contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations && contexte.localStorage.papier,
                     action : function (root) {
                         if($('#docPagination', root).length === 0){
                             return new Erreur('Pas de pagination',  'print');
@@ -865,7 +893,7 @@ if (!window.jQuery) {
                 },
                 {
                     nom: "Numéro sans couverture",
-                    condition : contexte.classes.numero,
+                    condition : contexte.classes.numero && contexte.localStorage.papier,
                     action : function (root) {
                         if ($("#publiInformation img", root).length === 0) {
                             return new Erreur('Numéro sans couverture', 'print');      
@@ -884,7 +912,7 @@ if (!window.jQuery) {
         sourceDepuisToc();
 		addCss();
         fixNav();
-		ui();
+		ui(contexte);
         afficherErreurs(relire(tests, document), "ul#screlo-tests");
 		debugStylage();
         
