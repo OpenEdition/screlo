@@ -172,7 +172,7 @@ if (!window.jQuery) {
 
                 var tocUrl = $('.navEntities .goContents').attr('href'),
                     result =  $("<div></div>").load( tocUrl + " #main", function() {
-                        var toc = $(this).find('ul.summary li:not(.fichiers) a').map( function() {
+                        var toc = $(this).find('ul.summary li:not(.fichiers) .title a').map( function() {
                             return $(this).attr('href');
                         }).get(),
                             i = $.inArray(contexte.idPage[0], toc);
