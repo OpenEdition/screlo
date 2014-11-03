@@ -602,11 +602,11 @@ if (!window.jQuery) {
                     }
                 },
                 {
-                    nom: "Arborescences interdites",
+                    nom: "Arborescences interdites", // TODO: pas clair, il faudrait séparer en autant de tests spécifiques avec des messages d'erreur plus précis
                     condition : contexte.classes.textes,
                     action : function (root) {
                         var compteur = 0,
-                            blackList = 'ol :header, ul :header, li:header'; 
+                            blackList = 'ol :header, ul :header, li:header, #notes p:not(.notesbaspage)'; 
 
                         $("#content", root).find(blackList).each( function() {
                             compteur++;
@@ -897,6 +897,15 @@ if (!window.jQuery) {
                     action : function (root) {
                         if ($("#publiInformation img", root).length === 0) {
                             return new Erreur('Numéro sans couverture', 'print');      
+                        }
+                    }			
+                },
+                {
+                    nom: "Pas de texte dans l'article",
+                    condition : contexte.classes.textes,
+                    action : function (root) {
+                        if ($("#docBody #text", root).length === 0) {
+                            return new Erreur('Pas de texte dans l\'article', 'danger');      
                         }
                     }			
                 }//,
