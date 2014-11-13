@@ -827,11 +827,11 @@ if (!window.jQuery) {
                     }			
                 },
                 {
-                    nom: "Format d'image non supporté (WMF)",
+                    nom: "Format d'image non supporté",
                     condition : contexte.classes.textes,
                     action : function (root) {
                         var err = 0;
-                        $("img[src$='.wmf']", root).each( function () {
+                        $("img[src$='.wmf'], .image_error", root).each( function () {
                             if (root === document) {
                                 ajouterMarqueur(this, "Format d'image inconnu", "danger", true);
                             }
