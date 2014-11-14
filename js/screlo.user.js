@@ -154,8 +154,8 @@ if (!window.jQuery) {
                     return $(this).offset().top;
                 }).get();
             
-            for (var i=0; i<marqueurs.length; i++) {
-                if (i+1 === marqueurs.length || winPos >= maxScroll) {
+            for (var i=0; i<marqueurs.length+1; i++) {
+                if (i === marqueurs.length || winPos >= maxScroll) {
                     $(window).scrollTop(marqueurs[0]);
                 } else if (marqueurs[i] > winPos + 10) {
                     $(window).scrollTop(marqueurs[i]);
