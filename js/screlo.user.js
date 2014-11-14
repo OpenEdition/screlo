@@ -97,7 +97,7 @@ if (!window.jQuery) {
         }
 
         // Fonction générique pour tester les mots cles
-        function testerMotsCles($collection) {
+        function testerMotsCles($collection, root) {
             var ok = true;
 
             $collection.each( function() {
@@ -122,7 +122,9 @@ if (!window.jQuery) {
 
                 if (alertes.length !== 0){
                     ok = false;
-                    ajouterMarqueur(this, alertes.join(' | '), 'warning', true);
+                    if (root === document) {
+                        ajouterMarqueur(this, alertes.join(' | '), 'warning', true);
+                    }
                 }
             });
             return ok;
@@ -354,25 +356,24 @@ if (!window.jQuery) {
         function relectureAjax(id, callback) {
             var url =  retournerUrl("site") + id;
             
-            // 1ere requete pour recupere les classes du body afin de constituer le contexte
-            // FIXME: Cette requete est une horreur, chaque lien de la TOC va gérérer deux requetes ajax (texte + html) dont un juste pour connaitre les classes du body.
             $.get(url, function(data) {
                 var root = data.match(/\n.*(<body.*)\n/i)[1].replace("body", "div"),
                     classes = $(root).get(0).className.split(/\s+/),
-                    contexte = getContexte(classes);
+                    contexte = getContexte(classes), 
+                    container = $("<div></div>");
+                container.append($(data).find("#main"));
+                
+                var tests = getTests(contexte),
+                    erreurs = relire(tests, container);
 
-                // 2e requete pour avoir le contenu
-                var result =  $("<div></div>").load( url + " #main", function() {
-                    var tests = getTests(contexte),
-                        erreurs = relire(tests, this);
-                    
-                    afficherErreurs(erreurs, "ul#relecture" + id);
-                    
-                    $("ul#relecture" + id).addClass("complete");
-                    if (callback !== undefined) {
-                        callback();
-                    }
-                });
+                afficherErreurs(erreurs, "ul#relecture" + id);
+
+                $("ul#relecture" + id).addClass("complete");
+                
+                if (callback !== undefined) {
+                    callback();
+                }
+                
             });
         }
         
@@ -754,9 +755,9 @@ if (!window.jQuery) {
                     action : function (root) {
                         var res;
                         if (contexte.isMotscles) {
-                            res = testerMotsCles($('#pageBody .entries ul li', root));
+                            res = testerMotsCles($('#pageBody .entries ul li', root), root);
                         } else if (contexte.classes.textes) {
-                            res = testerMotsCles($('#entries .index a', root));
+                            res = testerMotsCles($('#entries .index a', root), root);
                         }
 
                         if (!res) {
