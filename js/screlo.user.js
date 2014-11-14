@@ -149,7 +149,7 @@ if (!window.jQuery) {
         // Bookmarklet debugger (version light)
         function debugStylage() {
             // On recherche les P et SPAN vides (sauf COinS !)
-            $('p,span:not(.Z3988)').not('#relecture_box *').each(function() {
+            $('p,span:not(.Z3988)').not('#screlo-main *').each(function() {
 
                 // Elements vides
                 var strEmpty = ($(this).get(0).tagName == 'P') ? 'paragraphe vide' : '\u00A0';
@@ -167,12 +167,16 @@ if (!window.jQuery) {
             function addNav(dirClass, url) {
                 $('.navEntities').append($('<a></a>').addClass(dirClass + " corrected").attr('href', url));
             }
+            
+            function navInToolbar(buttonId, url) {
+                $("#screlo-toolbar a[data-screlo-button='" + buttonId + "']").attr("href", url).removeClass("hidden");
+            }
 
             if ($('.navEntities .goContents').length !== 0) {
 
                 var tocUrl = $('.navEntities .goContents').attr('href'),
                     result =  $("<div></div>").load( tocUrl + " #main", function() {
-                        var toc = $(this).find('ul.summary li:not(.fichiers) .title a').map( function() {
+                        var toc = $(this).find('ul.summary li:not(.fichiers) a').map( function() {
                             return $(this).attr('href');
                         }).get(),
                             i = $.inArray(contexte.idPage[0], toc);
@@ -181,13 +185,17 @@ if (!window.jQuery) {
                             $('.navEntities a.goPrev, .navEntities a.goNext').remove();
                             if (i !== 0) {
                                 addNav('goPrev', toc[i-1]);
+                                navInToolbar("goprev", toc[i-1]);
                             } 
                             if (i+1 !== toc.length) {
                                 addNav('goNext', toc[i+1]);
+                                navInToolbar("gonext", toc[i+1]);
                             }
                             $('<span></span>').css({'float': 'left', 'margin': '2px 5px'}).text(Number(i+1) + '/' + Number(toc.length)).prependTo('.navEntities');
                         }
-                    }); 
+                    });
+                
+                navInToolbar("gocontents", tocUrl);
             }
         }
 
@@ -215,9 +223,14 @@ if (!window.jQuery) {
                            "<a data-screlo-button='download' title='Récupérer la source' href='" + retournerUrl('doc') + "'>Récupérer la source</a>",
                            "<a data-screlo-button='upload' title='Recharger la source' href='" + retournerUrl('otx') + "'>Recharger la source</a>",
                            "<a data-screlo-button='ajax' title='Relecture du numéro'>Relecture du numéro</a>",
+                           "<span></span>",
+                           "<a data-screlo-button='gocontents' class='hidden' title='Parent'>Parent</a>",
+                           "<a data-screlo-button='goprev' class='hidden' title='Précédent'>Précédent</a>",
+                           "<a data-screlo-button='gonext' class='hidden' title='Suivant'>Suivant</a>",
+                           "<form id='form-acces-rapide'><input id='acces-rapide' type='text' data-screlo-action='go' placeholder='▶'/></form>",
+                           "<span></span>",
                            "<a data-screlo-button='papier' title='Revue papier'" + papier + ">Revue papier</a>",
-                           "<a data-screlo-button='info' title='Informations'>Informations</a>",
-                           "<form id='form-acces-rapide'><input id='acces-rapide' type='text' data-screlo-action='go' placeholder='▶'/></form>"],
+                           "<a data-screlo-button='info' title='Informations'>Informations</a>"],
                 squel = "<div id='screlo-main'><ul id='screlo-tests'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
             $(squel).appendTo("body");
             
@@ -920,8 +933,8 @@ if (!window.jQuery) {
         
         sourceDepuisToc();
 		addCss();
-        fixNav();
 		ui(contexte);
+        fixNav(); // toujours après ui
         afficherErreurs(relire(tests, document), "ul#screlo-tests");
 		debugStylage();
         

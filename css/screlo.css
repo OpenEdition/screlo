@@ -4,7 +4,6 @@
 
 #screlo-main {
     width: auto;
-    max-width: 320px;
     position: fixed;
     bottom: 0;
     right: 20px;
@@ -13,7 +12,7 @@
 
 ul#screlo-tests {
     padding: 0;
-    margin: 0;
+    margin: 0 0 0 auto;
     max-width: 280px;
 }
 
@@ -30,11 +29,6 @@ ul#screlo-tests {
     position: relative;
     color: #fff;
 }
-
-#screlo-tests li {
-    width: 200px;
-}
-
 
 #screlo-tests li span, ul.screlo-relecture li span {
     border-radius: 10px;
@@ -133,12 +127,33 @@ body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
     display: block;
 }
 
+#screlo-toolbar a[data-screlo-button="gocontents"] {
+    background: url("http://localhost/screlo/svg/arrow-up-left.svg") no-repeat center;
+    display: block;
+}
+
+#screlo-toolbar a[data-screlo-button="goprev"] {
+    background: url("http://localhost/screlo/svg/arrow-left.svg") no-repeat center;
+    display: block;
+}
+
+#screlo-toolbar a[data-screlo-button="gonext"] {
+    background: url("http://localhost/screlo/svg/arrow-right.svg") no-repeat center;
+    display: block;
+}
+
 #screlo-toolbar a.off {
-    opacity: 0.5
+    opacity: 0.5;
+}
+
+#screlo-toolbar a.hidden {
+    display: none;
 }
 
 #form-acces-rapide {
-    display: inline;
+    float: left;
+    clear: none;
+    margin-right: 10px;
 }
 
 #screlo-toolbar #acces-rapide {
@@ -168,6 +183,15 @@ body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
     color: #000;
     cursor: text;
     text-align: left;
+}
+
+#screlo-toolbar span {
+    border-left: 1px solid #999;
+    display: block;
+    float: left;
+    height: 26px;
+    margin: 4px 6px 0 0;
+    width: 1px;
 }
 
 /* Marqueurs */
