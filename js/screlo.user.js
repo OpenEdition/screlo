@@ -143,6 +143,24 @@ if (!window.jQuery) {
             }
             return liste;
         }
+        
+        // Faire défiler les marqueurs un par un
+        function cycle() {
+            var winPos = $(window).scrollTop(),
+                maxScroll = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight) - window.innerHeight,
+                marqueurs = $(".screlo-marqueur").map(function() {
+                    return $(this).offset().top;
+                }).get();
+            
+            for (var i=0; i<marqueurs.length; i++) {
+                if (i+1 === marqueurs.length || winPos >= maxScroll) {
+                    $(window).scrollTop(marqueurs[0]);
+                } else if (marqueurs[i] > winPos + 10) {
+                    $(window).scrollTop(marqueurs[i]);
+                    break;
+                }
+            }
+        }
 
         // ############### OUTILS & AMELIORATIONS D'INTERFACE ###############
         
@@ -223,15 +241,15 @@ if (!window.jQuery) {
                            "<a data-screlo-button='download' title='Récupérer la source' href='" + retournerUrl('doc') + "'>Récupérer la source</a>",
                            "<a data-screlo-button='upload' title='Recharger la source' href='" + retournerUrl('otx') + "'>Recharger la source</a>",
                            "<a data-screlo-button='ajax' title='Relecture du numéro'>Relecture du numéro</a>",
+                           "<a data-screlo-button='cycle' title='Aller au marqueur suivant'>Aller au marqueur suivant</a>",
+                           "<a data-screlo-button='papier' title='Revue papier'" + papier + ">Revue papier</a>",
+                           "<a data-screlo-button='info' title='Informations'>Informations</a>",
                            "<span></span>",
                            "<a data-screlo-button='gocontents' class='hidden' title='Parent'>Parent</a>",
                            "<a data-screlo-button='goprev' class='hidden' title='Précédent'>Précédent</a>",
                            "<a data-screlo-button='gonext' class='hidden' title='Suivant'>Suivant</a>",
-                           "<form id='form-acces-rapide'><input id='acces-rapide' type='text' data-screlo-action='go' placeholder='▶'/></form>",
-                           "<span></span>",
-                           "<a data-screlo-button='papier' title='Revue papier'" + papier + ">Revue papier</a>",
-                           "<a data-screlo-button='info' title='Informations'>Informations</a>"],
-                squel = "<div id='screlo-main'><ul id='screlo-tests'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
+                           "<form id='form-acces-rapide'><input id='acces-rapide' type='text' data-screlo-action='go' placeholder='▶'/></form>"],
+                squel = "<div id='screlo-main'><ul id='screlo-infos'></ul><ul id='screlo-tests'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
             $(squel).appendTo("body");
             
             // Fonctions
@@ -248,6 +266,11 @@ if (!window.jQuery) {
             $( "[data-screlo-button='ajax']" ).click(function( event ) {
                 event.preventDefault();
                 relireToc();
+            });
+            
+            $( "[data-screlo-button='cycle']" ).click(function( event ) {
+                event.preventDefault();
+                cycle();
             });
             
             $( "[data-screlo-button='papier']" ).click(function( event ) {
@@ -279,6 +302,7 @@ if (!window.jQuery) {
                 } else {
                     span.appendTo(element);    
                 }
+                $("body").addClass("hasMarqueur");
             } else {
                 console.log('Erreur de parametre de ajouterMarqueur()');
             }
@@ -463,7 +487,7 @@ if (!window.jQuery) {
                         $('.texte:header br, h1#docTitle br', root).each( function() {
                             compteur++;
                             if (root === document) {
-                                ajouterMarqueur(this.parentNode, "Retour à la ligne", "warning");
+                                ajouterMarqueur(this.parentNode, "Retour à la ligne", "danger");
                             }
                         });
 

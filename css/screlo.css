@@ -142,6 +142,11 @@ body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
     display: block;
 }
 
+body.hasMarqueur #screlo-toolbar a[data-screlo-button="cycle"] {
+    background: url("http://localhost/screlo/svg/tags.svg") no-repeat center;
+    display: block;
+}
+
 #screlo-toolbar a.off {
     opacity: 0.5;
 }
@@ -192,6 +197,10 @@ body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
     height: 26px;
     margin: 4px 6px 0 0;
     width: 1px;
+}
+
+#screlo-toolbar a:last-child, #screlo-toolbar form:last-child {
+    margin-right: 0;
 }
 
 /* Marqueurs */
