@@ -757,8 +757,8 @@ if (!window.jQuery) {
                         }
                     }			
                 },
-                // FIXME: ne fonctionne pas avec Ajax
-                {
+                // FIXME: ne fonctionne pas avec Ajax (matche à chaque fois => je désactive)
+                /*{
                     nom: "Mises en formes locales sur le titre",
                     condition : contexte.classes.textes,
                     action : function (root) {
@@ -766,7 +766,7 @@ if (!window.jQuery) {
                             return new Erreur('Mises en formes locales sur le titre', 'danger');
                         }
                     }			
-                },
+                },*/
                 {
                     nom: "Appel de note dans le titre",
                     condition : contexte.classes.textes,
