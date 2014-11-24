@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name        screlo-dev
+// @name        screlo
 // @namespace   http://revues.org/
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     /^http://formations\.lodel\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.10.1
+// @version     14.11.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -18,10 +18,9 @@ if (!window.jQuery) {
         // ################ ECRIRE L'URL DES RESSOURCES ICI ###############
         
         var appUrls = {
-            "root": "https://raw.githubusercontent.com/thomas-fab/screlo/master/",
-            //"stylesheat": "https://rawgit.com/thomas-fab/screlo/master/css/screlo.css",
-            "stylesheat": "http://localhost/screlo/screlo.css",
-            "update": 'https://rawgit.com/thomas-fab/screlo/master/js/screlo.user.js' // FIXME: je pense pas que ce soit le bon lien
+            "root": "https://raw.githubusercontent.com/thomas-fab/screlo/develop/",
+            "stylesheat": "https://rawgit.com/thomas-fab/screlo/develop/css/screlo.css",
+            "update": 'https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js'
         };
 
         // ################ FONCTIONS UTILITAIRES ###############
@@ -307,7 +306,7 @@ if (!window.jQuery) {
                 relireToc(contexte);
             });
             
-            // TODO: à revoir (doublon ci-dessus + "on" pas optimal)
+            // TODO: à revoir (doublon ci-dessus + .live() pas très performant : préférer {display: none} + .click())
             // NOTE: avec un jquery recent il faudrait utiliser .on()
             $("#screlo-infocache").live("click", function ( event ) {
                 event.preventDefault();
@@ -719,6 +718,7 @@ if (!window.jQuery) {
                     }
                 },
                 {
+                    // FIXME: ne fonctionne pas avec Ajax
                     nom: "Arborescences interdites", // TODO: pas clair, il faudrait séparer en autant de tests spécifiques avec des messages d'erreur plus précis
                     condition : contexte.classes.textes,
                     action : function (root) {
@@ -757,7 +757,7 @@ if (!window.jQuery) {
                         }
                     }			
                 },
-                // FIXME: ne fonctionne pas avec Ajax (pour une raison mystérieuse)
+                // FIXME: ne fonctionne pas avec Ajax
                 {
                     nom: "Mises en formes locales sur le titre",
                     condition : contexte.classes.textes,

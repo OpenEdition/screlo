@@ -89,57 +89,57 @@ ul.screlo-relecture {
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="edit"], body.publications #screlo-toolbar a[data-screlo-button="edit"] {
-    background: url("http://localhost/screlo/svg/quill.svg") no-repeat center;
+    background: url("https://raw.githubusercontent.com/thomas-fab/screlo/develop/svg/quill.svg") no-repeat center;
     display: block;
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="download"] {
-    background: url("http://localhost/screlo/svg/download.svg") no-repeat center;
+    background: url("https://raw.githubusercontent.com/thomas-fab/screlo/develop/svg/download.svg") no-repeat center;
     display: block;
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="upload"] {
-    background: url("http://localhost/screlo/svg/upload.svg") no-repeat center;
+    background: url("https://raw.githubusercontent.com/thomas-fab/screlo/develop/svg/upload.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="info"] {
-    background: url("http://localhost/screlo/svg/info.svg") no-repeat center;
+    background: url("https://raw.githubusercontent.com/thomas-fab/screlo/develop/svg/info.svg") no-repeat center;
     display: block;
 }
 
 body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
-    background: url("http://localhost/screlo/svg/rocket.svg") no-repeat center;
+    background: url("https://raw.githubusercontent.com/thomas-fab/screlo/develop/svg/rocket.svg") no-repeat center;
     display: block;
 }
 
 body.publications #screlo-toolbar a[data-screlo-button="clear"] {
-    background: url("http://localhost/screlo/svg/remove.svg") no-repeat center;
+    background: url("https://raw.githubusercontent.com/thomas-fab/screlo/develop/svg/remove.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="papier"] {
-    background: url("http://localhost/screlo/svg/newspaper.svg") no-repeat center;
+    background: url("https://raw.githubusercontent.com/thomas-fab/screlo/develop/svg/newspaper.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="gocontents"] {
-    background: url("http://localhost/screlo/svg/arrow-up-left.svg") no-repeat center;
+    background: url("https://raw.githubusercontent.com/thomas-fab/screlo/develop/svg/arrow-up-left.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="goprev"] {
-    background: url("http://localhost/screlo/svg/arrow-left.svg") no-repeat center;
+    background: url("https://raw.githubusercontent.com/thomas-fab/screlo/develop/svg/arrow-left.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="gonext"] {
-    background: url("http://localhost/screlo/svg/arrow-right.svg") no-repeat center;
+    background: url("https://raw.githubusercontent.com/thomas-fab/screlo/develop/svg/arrow-right.svg") no-repeat center;
     display: block;
 }
 
 body.hasMarqueur #screlo-toolbar a[data-screlo-button="cycle"] {
-    background: url("http://localhost/screlo/svg/tags.svg") no-repeat center;
+    background: url("https://raw.githubusercontent.com/thomas-fab/screlo/develop/svg/tags.svg") no-repeat center;
     display: block;
 }
 
