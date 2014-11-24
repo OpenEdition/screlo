@@ -45,17 +45,8 @@ ul#screlo-tests {
 
 ul.screlo-relecture {
     display: block;
-    transition: opacity 1s ease-out;
-    opacity: 0;
-    height: 0;
     overflow: hidden;
 }
-
-#main.complete ul.screlo-relecture {
-    opacity: 1;
-    height: auto;
-}
-
 
 /* Toolbar */
 
@@ -119,6 +110,11 @@ body.textes #screlo-toolbar a[data-screlo-button="upload"] {
 
 body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
     background: url("http://localhost/screlo/svg/rocket.svg") no-repeat center;
+    display: block;
+}
+
+body.publications #screlo-toolbar a[data-screlo-button="clear"] {
+    background: url("http://localhost/screlo/svg/remove.svg") no-repeat center;
     display: block;
 }
 
@@ -232,6 +228,14 @@ span.screlo-marqueur.succes, ul#screlo-tests li.succes, ul.screlo-relecture li.s
 
 span.screlo-marqueur.print, ul#screlo-tests li.print, ul.screlo-relecture li.print {
     background: #9b55dd;
+}
+
+span.screlo-marqueur.screlo-exception, ul#screlo-tests li.screlo-exception, ul.screlo-relecture li.screlo-exception {
+    background: #000;
+}
+
+ul#screlo-tests #screlo-infocache {
+     color: #000;
 }
 
 /* Repérer le nom de famille de l'auteur */

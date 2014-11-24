@@ -23,13 +23,6 @@ if (!window.jQuery) {
             "stylesheat": "http://localhost/screlo/screlo.css",
             "update": 'https://rawgit.com/thomas-fab/screlo/master/js/screlo.user.js' // FIXME: je pense pas que ce soit le bon lien
         };
-        
-        // ################ PLUGINS JQUERY (eviter ajax) ###############
-        
-        /*
-        * jQuery Highlight Regex Plugin v0.1.2 (https://github.com/jbr/jQuery.highlightRegex)
-        * (c) 2009-13 Jacob Rothstein - MIT license
-        */!function(a){var b=function(c){if(c&&c.childNodes){var d=a.makeArray(c.childNodes),e=null;a.each(d,function(a,d){3===d.nodeType?""===d.nodeValue?c.removeChild(d):null!==e?(e.nodeValue+=d.nodeValue,c.removeChild(d)):e=d:(e=null,d.childNodes&&b(d))})}};a.fn.highlightRegex=function(c,d){return"object"==typeof c&&"RegExp"!==c.constructor.name&&(d=c,c=void 0),"undefined"==typeof d&&(d={}),d.className=d.className||"highlight",d.tagType=d.tagType||"span",d.attrs=d.attrs||{},"undefined"==typeof c||""===c.source?a(this).find(d.tagType+"."+d.className).each(function(){a(this).replaceWith(a(this).text()),b(a(this).parent().get(0))}):a(this).each(function(){var e=a(this).get(0);b(e),a.each(a.makeArray(e.childNodes),function(e,f){var g,h,i,j,k,l;if(b(f),3==f.nodeType){if(a(f).parent(d.tagType+"."+d.className).length)return;for(;f.data&&(j=f.data.search(c))>=0&&(k=f.data.slice(j).match(c)[0],k.length>0);)g=document.createElement(d.tagType),g.className=d.className,a(g).attr(d.attrs),l=f.parentNode,h=f.splitText(j),f=h.splitText(k.length),i=h.cloneNode(!0),g.appendChild(i),l.replaceChild(g,h)}else a(f).highlightRegex(c,d)})}),a(this)}}(jQuery);
 
         // ################ FONCTIONS UTILITAIRES ###############
         
@@ -45,6 +38,22 @@ if (!window.jQuery) {
             for ( var i=0; i < importClasses.length; i++ ) {
                 contexte.classes[importClasses[i]] = true;
             }
+            if (contexte.classes.numero) {
+                var urls = [],                
+                    tocElements = $('ul.summary li.textes .title');
+                
+                contexte.toc = [];
+
+                tocElements.each( function() {
+                    var obj = {},
+                        id = $(this).children('a').eq(0).attr('href');
+                    if (id !== undefined) {
+                        obj.id = id;
+                    }
+                    obj.$element = $(this);
+                    contexte.toc.push(obj);
+                });
+            }
             contexte.admin = ($('#lodel-container').length !== 0);
             contexte.isMotscles = $("body").hasClass("indexes") && $("body").is("[class*='motscles']");
             contexte.idPage = location.pathname.match(/(\d+)$/g);
@@ -53,6 +62,9 @@ if (!window.jQuery) {
             contexte.localStorage = contexte.localStorage ? contexte.localStorage : {};
             if (contexte.localStorage.papier !== false) {
                 contexte.localStorage.papier = true;
+            }
+            if (!contexte.localStorage.erreurs) {
+                contexte.localStorage.erreurs = {};
             }
             return contexte;
         }
@@ -243,6 +255,7 @@ if (!window.jQuery) {
                            "<a data-screlo-button='download' title='Récupérer la source' href='" + retournerUrl('doc') + "'>Récupérer la source</a>",
                            "<a data-screlo-button='upload' title='Recharger la source' href='" + retournerUrl('otx') + "'>Recharger la source</a>",
                            "<a data-screlo-button='ajax' title='Relecture du numéro'>Relecture du numéro</a>",
+                           "<a data-screlo-button='clear' title='Vider le cache pour ce site'>Vider le cache pour ce site</a>",
                            "<a data-screlo-button='cycle' title='Aller au marqueur suivant'>Aller au marqueur suivant</a>",
                            "<a data-screlo-button='papier' title='Revue papier'" + papier + ">Revue papier</a>",
                            "<a data-screlo-button='info' title='Informations'>Informations</a>",
@@ -254,20 +267,62 @@ if (!window.jQuery) {
                 squel = "<div id='screlo-main'><ul id='screlo-infos'></ul><ul id='screlo-tests'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
             $(squel).appendTo("body");
             
+            // Preparer a la relecture Ajax en ajoutant les conteneurs et afficher les erreurs en cache si elles existent
+            if (contexte.classes.publications && contexte.toc) {
+                var id = "",
+                    lsErreurs,
+                    $target,
+                    lsExists = false;
+                
+                for (var i=0; i<contexte.toc.length; i++ ) {
+                    
+                    id = contexte.toc[i].id;
+                    $target = $("<ul class='screlo-relecture' id='relecture" + id + "'></ul>").appendTo(contexte.toc[i].$element.parent());
+                    lsErreurs = contexte.localStorage.erreurs[id];
+                    
+                    if (lsErreurs) {
+                        afficherErreurs(lsErreurs, $target);
+                        lsExists = true;
+                    }
+                }
+                
+                if (lsExists) {
+                    $("<li id='screlo-infocache'>Erreurs chargées à partir du cache de Screlo. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-tests");
+                }
+            }
+            
             // Fonctions
             $( "[data-screlo-button='info']" ).click(function( event ) {
                 event.preventDefault();
                 var msg = 'Screlo version ' + GM_info.script.version + '\n\nScrelo effectue les tests suivants :\n' + listerTests(tests).join('\n') + '\n\nUne mise à jour de Screlo est peut-être disponible. Forcer la mise à jour ?',
-                    mettreAJour = false;
-                mettreAJour = confirm(msg);
-                if (mettreAJour) {
+                    user = false;
+                user = confirm(msg);
+                if (user) {
                     window.location.href = appUrls.update;
                 }
             });
 
             $( "[data-screlo-button='ajax']" ).click(function( event ) {
                 event.preventDefault();
-                relireToc();
+                relireToc(contexte);
+            });
+            
+            // TODO: à revoir (doublon ci-dessus + "on" pas optimal)
+            // NOTE: avec un jquery recent il faudrait utiliser .on()
+            $("#screlo-infocache").live("click", function ( event ) {
+                event.preventDefault();
+                relireToc(contexte);
+            });
+            
+            $( "[data-screlo-button='clear']" ).click(function( event ) {
+                event.preventDefault();
+                var msg = 'Vider le cache de Screlo pour le site "' + contexte.nomCourt + '" ?',
+                    user = false;
+                user = confirm(msg);
+                if (user) {
+                    localStorage.removeItem(contexte.nomCourt);
+                    location.reload();
+                }
             });
             
             $( "[data-screlo-button='cycle']" ).click(function( event ) {
@@ -336,7 +391,7 @@ if (!window.jQuery) {
         function afficherErreurs(erreurs, target) {
             
             erreurs.sort(function (a, b) {
-                var ordre = ['danger','warning','print','succes'],
+                var ordre = ['screlo-exception','danger','warning','print','succes'],
                     typeA = ordre.indexOf(a.type),
                     typeB = ordre.indexOf(b.type);
                 
@@ -352,63 +407,87 @@ if (!window.jQuery) {
             }
         }
         
-        // Relecture Ajax
-        function relectureAjax(id, callback) {
-            var url =  retournerUrl("site") + id;
-            
-            $.get(url, function(data) {
-                var root = data.match(/\n.*(<body.*)\n/i)[1].replace("body", "div"),
-                    classes = $(root).get(0).className.split(/\s+/),
-                    contexte = getContexte(classes), 
-                    container = $("<div></div>");
-                container.append($(data).find("#main"));
-                
-                var tests = getTests(contexte),
-                    erreurs = relire(tests, container);
+        // Afficher un message screlo-exception
+        function afficherScreloException(message, target) {
+            var erreur = new Erreur(message, "screlo-exception"),
+                erreurs = [erreur];
 
-                afficherErreurs(erreurs, "ul#relecture" + id);
-
-                $("ul#relecture" + id).addClass("complete");
-                
-                if (callback !== undefined) {
-                    callback();
-                }
-                
-            });
+            afficherErreurs(erreurs, target);
         }
         
-        function relireToc() {
-            if (contexte.classes.numero) {
-                if ($(".screlo-relecture").length === 0) {
-                    var urls = [],
-                        collection = $('ul.summary li:not(.fichiers) .title');
+        // Relecture Ajax
+        function relectureAjax(id, callback, total) {
+            var url =  retournerUrl("site") + id;
+                        
+            // NOTE: comme Lodel utilise une vieille version de jquery (1.4) on ne peut pas utiliser $.get().done().fail().always(). On utilise donc $.ajax()       
+            $.ajax({
+                url: url,
+                success: function(data) {
+                    if (data && data.match(/\n.*(<body.*)\n/i) !== null) {
+                        var root = data.match(/\n.*(<body.*)\n/i)[1].replace("body", "div"),
+                            classes = $(root).get(0).className.split(/\s+/),
+                            contexte = getContexte(classes), 
+                            container = $("<div></div>");
+                        container.append($(data).find("#main"));
 
-                    $("body").addClass("loading");
-
-                    collection.each( function() {
-                        var id = $(this).children('a').eq(0).attr('href');
-                        if (id !== undefined) {
-                            urls.push(id);
-                        }
-                        $(this).parent().append("<ul class='screlo-relecture' id='relecture" + id + "'></ul>");
-                    });
-
-                    for (var i = 0; i < urls.length; i++) {
-                        relectureAjax(urls[i], function() {
-                            if (collection.length === $(".screlo-relecture.complete").length) {
-                                $("body").removeClass("loading");
-                                $("#main").addClass("complete");
-                            }
-                        });
+                        var tests = getTests(contexte),
+                            erreurs = relire(tests, container);
+                        
+                        afficherErreurs(erreurs, "ul#relecture" + id);
+                        cacherErreurs(id, erreurs);
+                    } else {
+                        erreurAjax(id);                        
                     }
-                } else {
-                    alert("Recharger la page pour exécuter le script une seconde fois.");
-                }
-                
-            } else {
-                alert("Il faut se rendre sur la table des matières d'un numéro.");
-            }                
+                },
+                error: function() {
+                    erreurAjax(id);
+                },
+                complete: function() {
+                    $("ul#relecture" + id).addClass("complete");
+
+                    if (callback && typeof(callback) === "function" && total) {
+                        callback(total);
+                    }
+                }                
+            });
+            
+            function erreurAjax(id) {
+                afficherScreloException("Impossible de charger ce document", "ul#relecture" + id);
+            }
         }
+        
+        function relireToc(contexte) {
+            
+            if (contexte.classes.numero && contexte.toc.length !== 0) {
+                
+                $("#screlo-tests #screlo-infocache").remove();
+                $(".screlo-relecture").empty();
+                $("body").addClass("loading");
+
+                var total = contexte.toc.length;
+
+                for (var i = 0; i < total; i++) {
+                    relectureAjax(contexte.toc[i].id, relireTocProgression, total);
+                }
+            } else {
+                alert("Impossible d'exécuter cette fonction (relireToc).");
+            }               
+        }
+        
+        function relireTocProgression(total) {
+            if (total === $(".screlo-relecture.complete").length) {
+                $("body").removeClass("loading");
+                $(".complete").removeClass("complete");
+            }
+        }
+        
+        // Cacher les Erreurs dans le ls pour limiter les requetes
+        function cacherErreurs (id, erreurs) {            
+            contexte.localStorage.erreurs[id] = erreurs;
+            localStorage.setItem(contexte.nomCourt, JSON.stringify(contexte.localStorage));
+        }
+        
+
 	
         // ############### DECLARATION DES TESTS ###############
         
@@ -679,7 +758,7 @@ if (!window.jQuery) {
                     }			
                 },
                 // FIXME: ne fonctionne pas avec Ajax (pour une raison mystérieuse)
-                /*{
+                {
                     nom: "Mises en formes locales sur le titre",
                     condition : contexte.classes.textes,
                     action : function (root) {
@@ -687,7 +766,7 @@ if (!window.jQuery) {
                             return new Erreur('Mises en formes locales sur le titre', 'danger');
                         }
                     }			
-                },*/
+                },
                 {
                     nom: "Appel de note dans le titre",
                     condition : contexte.classes.textes,
@@ -954,16 +1033,26 @@ if (!window.jQuery) {
         // ############### TIRE LA CHEVILLETTE ET LA BOBINETTE CHERRA ! ###############
         
         var contexte = getContexte(document.body.className.split(/\s+/)),
-            tests = getTests(contexte);
+            tests = getTests(contexte),
+            erreurs = relire(tests, document);
         
         sourceDepuisToc();
 		addCss();
 		ui(contexte);
         fixNav(); // toujours après ui
-        afficherErreurs(relire(tests, document), "ul#screlo-tests");
+        afficherErreurs(erreurs, "#screlo-tests");
+        cacherErreurs(contexte.idPage, erreurs);
 		debugStylage();
         
         console.log('Script ' + GM_info.script.name + '.js version ' + GM_info.script.version + ' chargé.');
 	
 	});
+    
+    // ################ PLUGINS JQUERY ###############
+    
+    /*
+    * jQuery Highlight Regex Plugin v0.1.2 (https://github.com/jbr/jQuery.highlightRegex)
+    * (c) 2009-13 Jacob Rothstein - MIT license
+    */!function(a){var b=function(c){if(c&&c.childNodes){var d=a.makeArray(c.childNodes),e=null;a.each(d,function(a,d){3===d.nodeType?""===d.nodeValue?c.removeChild(d):null!==e?(e.nodeValue+=d.nodeValue,c.removeChild(d)):e=d:(e=null,d.childNodes&&b(d))})}};a.fn.highlightRegex=function(c,d){return"object"==typeof c&&"RegExp"!==c.constructor.name&&(d=c,c=void 0),"undefined"==typeof d&&(d={}),d.className=d.className||"highlight",d.tagType=d.tagType||"span",d.attrs=d.attrs||{},"undefined"==typeof c||""===c.source?a(this).find(d.tagType+"."+d.className).each(function(){a(this).replaceWith(a(this).text()),b(a(this).parent().get(0))}):a(this).each(function(){var e=a(this).get(0);b(e),a.each(a.makeArray(e.childNodes),function(e,f){var g,h,i,j,k,l;if(b(f),3==f.nodeType){if(a(f).parent(d.tagType+"."+d.className).length)return;for(;f.data&&(j=f.data.search(c))>=0&&(k=f.data.slice(j).match(c)[0],k.length>0);)g=document.createElement(d.tagType),g.className=d.className,a(g).attr(d.attrs),l=f.parentNode,h=f.splitText(j),f=h.splitText(k.length),i=h.cloneNode(!0),g.appendChild(i),l.replaceChild(g,h)}else a(f).highlightRegex(c,d)})}),a(this)}}(jQuery);
+    
 }
