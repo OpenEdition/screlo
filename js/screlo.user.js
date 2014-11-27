@@ -4,7 +4,7 @@
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     /^http://formations\.lodel\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.11.1
+// @version     14.11.2
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -13,24 +13,33 @@
 if (!window.jQuery) { 
     console.log("Erreur : Screlo nécessite jQuery");
 } else {
-	$( document ).ready( function(){
+    $( document ).ready( function(){
 
         // ################ ECRIRE L'URL DES RESSOURCES ICI ###############
-        
+
         var appUrls = {
             "root": "https://raw.githubusercontent.com/thomas-fab/screlo/develop/",
             "stylesheat": "https://rawgit.com/thomas-fab/screlo/develop/css/screlo.css",
+            //"stylesheat": "http://localhost/screlo/screlo.css",
             "update": 'https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js'
         };
+        
+        // ################ PLUGINS JQUERY ###############
+        // NOTE: problème sur Chrome si les plugins jquery ne sont pas chargés au début
+        
+        /*
+        * jQuery Highlight Regex Plugin v0.1.2 (https://github.com/jbr/jQuery.highlightRegex)
+        * (c) 2009-13 Jacob Rothstein - MIT license
+        */!function(a){var b=function(c){if(c&&c.childNodes){var d=a.makeArray(c.childNodes),e=null;a.each(d,function(a,d){3===d.nodeType?""===d.nodeValue?c.removeChild(d):null!==e?(e.nodeValue+=d.nodeValue,c.removeChild(d)):e=d:(e=null,d.childNodes&&b(d))})}};a.fn.highlightRegex=function(c,d){return"object"==typeof c&&"RegExp"!==c.constructor.name&&(d=c,c=void 0),"undefined"==typeof d&&(d={}),d.className=d.className||"highlight",d.tagType=d.tagType||"span",d.attrs=d.attrs||{},"undefined"==typeof c||""===c.source?a(this).find(d.tagType+"."+d.className).each(function(){a(this).replaceWith(a(this).text()),b(a(this).parent().get(0))}):a(this).each(function(){var e=a(this).get(0);b(e),a.each(a.makeArray(e.childNodes),function(e,f){var g,h,i,j,k,l;if(b(f),3==f.nodeType){if(a(f).parent(d.tagType+"."+d.className).length)return;for(;f.data&&(j=f.data.search(c))>=0&&(k=f.data.slice(j).match(c)[0],k.length>0);)g=document.createElement(d.tagType),g.className=d.className,a(g).attr(d.attrs),l=f.parentNode,h=f.splitText(j),f=h.splitText(k.length),i=h.cloneNode(!0),g.appendChild(i),l.replaceChild(g,h)}else a(f).highlightRegex(c,d)})}),a(this)}}(jQuery); // jshint ignore:line
 
         // ################ FONCTIONS UTILITAIRES ###############
-        
+
         // Objet "Erreur"
         function Erreur(message, type) {
             this.type = typeof type !== 'undefined' ? type : 'danger';
             this.message = message;
         }
-        
+
         // Determiner le contexte d'execution
         function getContexte(importClasses) {
             var contexte = { "classes" : {} };
@@ -40,7 +49,7 @@ if (!window.jQuery) {
             if (contexte.classes.numero) {
                 var urls = [],                
                     tocElements = $('ul.summary li.textes .title');
-                
+
                 contexte.toc = [];
 
                 tocElements.each( function() {
@@ -67,7 +76,7 @@ if (!window.jQuery) {
             }
             return contexte;
         }
-        
+
         // Generer des URL
         function retournerUrl(quoi) {
             var h = location.href,
@@ -88,7 +97,7 @@ if (!window.jQuery) {
             }
             return h;   
         }
-        
+
         // Recuperer le nom court
         function nomCourt() {
             var host = window.location.host,
@@ -99,7 +108,7 @@ if (!window.jQuery) {
                 return host.substr(0, host.indexOf('.'));
             }
         }
-        
+
         // Suppression des accents pour trouver les doublons de mots-clés
         // http://stackoverflow.com/questions/990904/javascript-remove-accents-in-strings#answer-9667752
         function latinize (str) {
@@ -147,7 +156,7 @@ if (!window.jQuery) {
             clone.find('span.paranumber, span.screlo-marqueur').remove();
             return String(clone.text()).trim();
         }
-        
+
         // Liste des tests
         function listerTests(tests) {
             var liste = [];
@@ -156,15 +165,15 @@ if (!window.jQuery) {
             }
             return liste;
         }
-        
+
         // Faire défiler les marqueurs un par un
         function cycle() {
             var winPos = $(window).scrollTop(),
                 maxScroll = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight) - window.innerHeight,
-                marqueurs = $(".screlo-marqueur").map(function() {
+                marqueurs = $(".screlo-marqueur, .symbolalert").map(function() {
                     return $(this).offset().top;
                 }).get();
-            
+
             for (var i=0; i<marqueurs.length+1; i++) {
                 if (i === marqueurs.length || winPos >= maxScroll) {
                     $(window).scrollTop(marqueurs[0]);
@@ -176,7 +185,7 @@ if (!window.jQuery) {
         }
 
         // ############### OUTILS & AMELIORATIONS D'INTERFACE ###############
-        
+
         // Bookmarklet debugger (version light)
         function debugStylage() {
             // On recherche les P et SPAN vides (sauf COinS !)
@@ -192,13 +201,13 @@ if (!window.jQuery) {
                     $(this).attr('title', $(this).attr('style')).addClass('TODO');
             });
         }
-        
+
         // Fixer le menu de navigation pour boucler sur tous les éléments
         function fixNav() {
             function addNav(dirClass, url) {
                 $('.navEntities').append($('<a></a>').addClass(dirClass + " corrected").attr('href', url));
             }
-            
+
             function navInToolbar(buttonId, url) {
                 $("#screlo-toolbar a[data-screlo-button='" + buttonId + "']").attr("href", url).removeClass("hidden");
             }
@@ -225,7 +234,7 @@ if (!window.jQuery) {
                             $('<span></span>').css({'float': 'left', 'margin': '2px 5px'}).text(Number(i+1) + '/' + Number(toc.length)).prependTo('.navEntities');
                         }
                     });
-                
+
                 navInToolbar("gocontents", tocUrl);
             }
         }
@@ -240,14 +249,14 @@ if (!window.jQuery) {
                 }
             });   
         }
-        
+
         // ############### UI SCRELO & TESTS ###############
-        
+
         // Injection d'une feuille de style
         function addCss() {
             $('head').append('<link rel="stylesheet" href="' + appUrls.stylesheat + '" type="text/css" />');
         }
-        
+
         function ui(contexte) {
             var papier = contexte.localStorage.papier === true ? "" : " class='off'",
                 buttons = ["<a data-screlo-button='edit' title='Editer' href='" + retournerUrl('editer') + "'>Editer</a>",
@@ -265,31 +274,37 @@ if (!window.jQuery) {
                            "<form id='form-acces-rapide'><input id='acces-rapide' type='text' data-screlo-action='go' placeholder='▶'/></form>"],
                 squel = "<div id='screlo-main'><ul id='screlo-infos'></ul><ul id='screlo-tests'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
             $(squel).appendTo("body");
-            
+
             // Preparer a la relecture Ajax en ajoutant les conteneurs et afficher les erreurs en cache si elles existent
             if (contexte.classes.publications && contexte.toc) {
                 var id = "",
                     lsErreurs,
                     $target,
                     lsExists = false;
-                
+
                 for (var i=0; i<contexte.toc.length; i++ ) {
-                    
+
                     id = contexte.toc[i].id;
                     $target = $("<ul class='screlo-relecture' id='relecture" + id + "'></ul>").appendTo(contexte.toc[i].$element.parent());
                     lsErreurs = contexte.localStorage.erreurs[id];
-                    
+
                     if (lsErreurs) {
                         afficherErreurs(lsErreurs, $target);
                         lsExists = true;
                     }
                 }
-                
+
                 if (lsExists) {
                     $("<li id='screlo-infocache'>Erreurs chargées à partir du cache de Screlo. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-tests");
                 }
+                
+                // Fix de maquette : certaines publications ont un style height inline sur #main
+                if ( $('#main[style*="height"]').length ) {
+                    var expectedHeight = $("#main").css("height");
+                    $("#main").css({"height": "auto", "min-height": expectedHeight});
+                }
             }
-            
+
             // Fonctions
             $( "[data-screlo-button='info']" ).click(function( event ) {
                 event.preventDefault();
@@ -305,14 +320,14 @@ if (!window.jQuery) {
                 event.preventDefault();
                 relireToc(contexte);
             });
-            
+
             // TODO: à revoir (doublon ci-dessus + .live() pas très performant : préférer {display: none} + .click())
             // NOTE: avec un jquery recent il faudrait utiliser .on()
             $("#screlo-infocache").live("click", function ( event ) {
                 event.preventDefault();
                 relireToc(contexte);
             });
-            
+
             $( "[data-screlo-button='clear']" ).click(function( event ) {
                 event.preventDefault();
                 var msg = 'Vider le cache de Screlo pour le site "' + contexte.nomCourt + '" ?',
@@ -323,12 +338,12 @@ if (!window.jQuery) {
                     location.reload();
                 }
             });
-            
+
             $( "[data-screlo-button='cycle']" ).click(function( event ) {
                 event.preventDefault();
                 cycle();
             });
-            
+
             $( "[data-screlo-button='papier']" ).click(function( event ) {
                 event.preventDefault();
                 var ls = contexte.localStorage,
@@ -363,7 +378,7 @@ if (!window.jQuery) {
                 console.log('Erreur de parametre de ajouterMarqueur()');
             }
         }
-        
+
         // Effectuer les tests
         function relire(tests, root) {
             var condition,
@@ -388,24 +403,24 @@ if (!window.jQuery) {
 
         // Afficher les erreurs
         function afficherErreurs(erreurs, target) {
-            
+
             erreurs.sort(function (a, b) {
                 var ordre = ['screlo-exception','danger','warning','print','succes'],
                     typeA = ordre.indexOf(a.type),
                     typeB = ordre.indexOf(b.type);
-                
+
                 if (typeA > typeB)
                     return 1;
                 if (typeA < typeB)
                     return -1;
                 return 0;
             });
-            
+
             for (var i = 0; i < erreurs.length; i++) {
                 $('<li class="erreur ' + erreurs[i].type + '">' + erreurs[i].message + '</li>').appendTo(target);
             }
         }
-        
+
         // Afficher un message screlo-exception
         function afficherScreloException(message, target) {
             var erreur = new Erreur(message, "screlo-exception"),
@@ -413,11 +428,11 @@ if (!window.jQuery) {
 
             afficherErreurs(erreurs, target);
         }
-        
+
         // Relecture Ajax
         function relectureAjax(id, callback, total) {
             var url =  retournerUrl("site") + id;
-                        
+
             // NOTE: comme Lodel utilise une vieille version de jquery (1.4) on ne peut pas utiliser $.get().done().fail().always(). On utilise donc $.ajax()       
             $.ajax({
                 url: url,
@@ -431,7 +446,7 @@ if (!window.jQuery) {
 
                         var tests = getTests(contexte),
                             erreurs = relire(tests, container);
-                        
+
                         afficherErreurs(erreurs, "ul#relecture" + id);
                         cacherErreurs(id, erreurs);
                     } else {
@@ -449,16 +464,16 @@ if (!window.jQuery) {
                     }
                 }                
             });
-            
+
             function erreurAjax(id) {
                 afficherScreloException("Impossible de charger ce document", "ul#relecture" + id);
             }
         }
-        
+
         function relireToc(contexte) {
-            
+
             if (contexte.classes.numero && contexte.toc.length !== 0) {
-                
+
                 $("#screlo-tests #screlo-infocache").remove();
                 $(".screlo-relecture").empty();
                 $("body").addClass("loading");
@@ -472,24 +487,24 @@ if (!window.jQuery) {
                 alert("Impossible d'exécuter cette fonction (relireToc).");
             }               
         }
-        
+
         function relireTocProgression(total) {
             if (total === $(".screlo-relecture.complete").length) {
                 $("body").removeClass("loading");
                 $(".complete").removeClass("complete");
             }
         }
-        
+
         // Cacher les Erreurs dans le ls pour limiter les requetes
         function cacherErreurs (id, erreurs) {            
             contexte.localStorage.erreurs[id] = erreurs;
             localStorage.setItem(contexte.nomCourt, JSON.stringify(contexte.localStorage));
         }
-        
 
-	
+
+
         // ############### DECLARATION DES TESTS ###############
-        
+
         function getTests(contexte) {
             var tests = [
                 {
@@ -984,14 +999,18 @@ if (!window.jQuery) {
                     condition : contexte.classes.textes,
                     action : function (root) {
                         var symbolsRegex = 	/[]/g,
-                            err = $('#docBody', root).highlightRegex(symbolsRegex, {
-                                tagType:   'span',
-                                className: 'symbolalert'
-                            }).find('span.symbolalert').length;
+                            match = $("#docBody", root).text().match(symbolsRegex);
 
-                        if (err > 0) {
-                            return new Erreur('Caractères Symbol <span>' + err + '</span>', 'danger');
-                        }   
+                        if (match) {
+                            if (root === document) {
+                                $('#docBody', root).highlightRegex(symbolsRegex, {
+                                    tagType:   'span',
+                                    className: 'symbolalert'
+                                });
+                            }
+
+                            return new Erreur('Caractères Symbol <span>' + match.length + '</span>', 'danger');
+                        }  
                     }
                 },
                 {
@@ -1029,30 +1048,22 @@ if (!window.jQuery) {
             ]; 
             return tests;
         }
-        
+
         // ############### TIRE LA CHEVILLETTE ET LA BOBINETTE CHERRA ! ###############
-        
+
         var contexte = getContexte(document.body.className.split(/\s+/)),
             tests = getTests(contexte),
             erreurs = relire(tests, document);
-        
+
         sourceDepuisToc();
-		addCss();
-		ui(contexte);
+        addCss();
+        ui(contexte);
         fixNav(); // toujours après ui
         afficherErreurs(erreurs, "#screlo-tests");
         cacherErreurs(contexte.idPage, erreurs);
-		debugStylage();
-        
+        debugStylage();
+
         console.log('Script ' + GM_info.script.name + '.js version ' + GM_info.script.version + ' chargé.');
-	
-	});
-    
-    // ################ PLUGINS JQUERY ###############
-    
-    /*
-    * jQuery Highlight Regex Plugin v0.1.2 (https://github.com/jbr/jQuery.highlightRegex)
-    * (c) 2009-13 Jacob Rothstein - MIT license
-    */!function(a){var b=function(c){if(c&&c.childNodes){var d=a.makeArray(c.childNodes),e=null;a.each(d,function(a,d){3===d.nodeType?""===d.nodeValue?c.removeChild(d):null!==e?(e.nodeValue+=d.nodeValue,c.removeChild(d)):e=d:(e=null,d.childNodes&&b(d))})}};a.fn.highlightRegex=function(c,d){return"object"==typeof c&&"RegExp"!==c.constructor.name&&(d=c,c=void 0),"undefined"==typeof d&&(d={}),d.className=d.className||"highlight",d.tagType=d.tagType||"span",d.attrs=d.attrs||{},"undefined"==typeof c||""===c.source?a(this).find(d.tagType+"."+d.className).each(function(){a(this).replaceWith(a(this).text()),b(a(this).parent().get(0))}):a(this).each(function(){var e=a(this).get(0);b(e),a.each(a.makeArray(e.childNodes),function(e,f){var g,h,i,j,k,l;if(b(f),3==f.nodeType){if(a(f).parent(d.tagType+"."+d.className).length)return;for(;f.data&&(j=f.data.search(c))>=0&&(k=f.data.slice(j).match(c)[0],k.length>0);)g=document.createElement(d.tagType),g.className=d.className,a(g).attr(d.attrs),l=f.parentNode,h=f.splitText(j),f=h.splitText(k.length),i=h.cloneNode(!0),g.appendChild(i),l.replaceChild(g,h)}else a(f).highlightRegex(c,d)})}),a(this)}}(jQuery);
-    
+
+    });
 }

@@ -66,6 +66,7 @@ ul.screlo-relecture {
     background: -ms-linear-gradient(top,  rgba(69,72,77,1) 0%,rgba(0,0,0,1) 100%); /* IE10+ */
     background: linear-gradient(to bottom,  rgba(69,72,77,1) 0%,rgba(0,0,0,1) 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
+    white-space: nowrap;
 
 }
 
@@ -108,12 +109,12 @@ body.textes #screlo-toolbar a[data-screlo-button="upload"] {
     display: block;
 }
 
-body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
+body.numero #screlo-toolbar a[data-screlo-button="ajax"] {
     background: url("https://rawgit.com/thomas-fab/screlo/develop/svg/rocket.svg") no-repeat center;
     display: block;
 }
 
-body.publications #screlo-toolbar a[data-screlo-button="clear"] {
+body.numero #screlo-toolbar a[data-screlo-button="clear"] {
     background: url("https://rawgit.com/thomas-fab/screlo/develop/svg/remove.svg") no-repeat center;
     display: block;
 }
@@ -155,6 +156,7 @@ body.hasMarqueur #screlo-toolbar a[data-screlo-button="cycle"] {
     float: left;
     clear: none;
     margin-right: 10px;
+    display: inline;
 }
 
 #screlo-toolbar #acces-rapide {
@@ -168,9 +170,8 @@ body.hasMarqueur #screlo-toolbar a[data-screlo-button="cycle"] {
     font-family: verdana, sans-serif;
     cursor: pointer;
     text-align: center;
-    float: right;
-    clear: none;
     margin-top: 3px;
+    display: inline;
 }
 
 #screlo-toolbar a:hover, #screlo-toolbar a:focus, #screlo-toolbar #acces-rapide:hover {
