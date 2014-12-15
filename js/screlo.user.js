@@ -150,13 +150,46 @@ if (!window.jQuery) {
             return ok;
         }
         
-        // Fonction générique pour tester les URL absolues
+        // Fonction générique pour tester les URL absolues (https://gist.github.com/dperini/729294)
         function urlEstValide(url) {
             var regex = /^(?:(?:https?|ftp|mailto):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/i;
             return regex.test(url) && url.trim().substr(-1).match(/[).,\]]/) ===  null;
         }
         
-
+        // Fonction générique pour tester les ISBN (http://pastebin.com/j9kfEUHt)
+        function isValidIsbn (isbn) {
+            
+            var sum = 0,
+                i;
+            
+            isbn = String(isbn).replace(/[^\dX]/gi, '');
+            
+            if(isbn.length == 10) {
+                if(isbn[9].toUpperCase() == 'X') {
+                    isbn[9] = 10;
+                }
+                
+                for(i = 0; i < isbn.length; i++) {
+                    sum += ((10-i) * parseInt(isbn[i]));
+                }
+                return (sum % 11 === 0);
+                
+            } else if(isbn.length === 13) {
+                
+                for (i = 0; i < isbn.length; i++) {
+                    if(i % 2 === 0) {
+                        sum += parseInt(isbn[i]);
+                    } else {
+                        sum += parseInt(isbn[i]) * 3;
+                    }
+                }
+                return (sum % 10 === 0);
+                
+            } else {
+                return false;
+            }
+        }
+        
         // Récupérer le texte des paragraphes
         function getPText($p) {
             var clone = $p.clone();
@@ -816,7 +849,7 @@ if (!window.jQuery) {
                     action : function (root) {
                         var compteur = 0; 
 
-                        $("#notes p:not(.notesbaspage)", root).each( function() {
+                        $("#notes p:not(.notesbaspage):not(.notebaspage)", root).each( function() {
                             compteur++;
                             if (root === document) {
                                 ajouterMarqueur(this, "Style de note");
@@ -1193,6 +1226,21 @@ if (!window.jQuery) {
 
                         if (err !== 0) {
                             return new Erreur('Lien(s) à vérifier <span>' + err + '</span>', 'warning');
+                        }
+                    }			
+                },
+                {
+                    nom: "Validité des ISBN",
+                    condition : contexte.classes.numero,
+                    action : function (root) {
+                        var element = $("#publiISBN").eq(0), 
+                            isbn;
+                        if (element.length !== 0) {
+                            isbn = element.text().replace("ISBN", "");
+                            if ( !isValidIsbn(isbn) ) {
+                                ajouterMarqueur(element.get(0), "ISBN invalide", "danger", true);
+                                return new Erreur('ISBN invalide', 'danger');
+                            }
                         }
                     }			
                 }//,
