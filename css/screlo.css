@@ -83,7 +83,6 @@ ul.screlo-relecture {
     border:none;
     border-radius: 30px;
     cursor: pointer;
-    transition: background linear .2s;
     float: left;
     clear: none;
     display: none;
@@ -203,7 +202,12 @@ body.hasMarqueur #screlo-toolbar a[data-screlo-button="cycle"] {
 /* Marqueurs */
 
 span.screlo-marqueur {
+    display: inline;
+}
+
+span.screlo-marqueur:after {
     font-weight: normal;
+    font-variant: normal;
     font-family: sans-serif;
     font-size: 11px;
     display: inline;
@@ -211,27 +215,33 @@ span.screlo-marqueur {
     color: white;
     padding: 3px;
     border-radius: 4px;   
+    margin: 0 5px;
+    content: attr(data-screlo-marqueur-text);
+}
+
+span.screlo-marqueur:first-child:after, span.paranumber + span.screlo-marqueur:after {
+    margin-left: 0;
 }
 
 /* Niveaux d'erreurs */
 
-span.screlo-marqueur.warning, ul#screlo-tests li.warning, ul.screlo-relecture li.warning {
+span.screlo-marqueur.warning:after, ul#screlo-tests li.warning, ul.screlo-relecture li.warning {
     background : #ed9c28;
 }
 
-span.screlo-marqueur.danger, ul#screlo-tests li.danger, ul.screlo-relecture li.danger {
+span.screlo-marqueur.danger:after, ul#screlo-tests li.danger, ul.screlo-relecture li.danger {
     background:  #d2322d;
 }
 
-span.screlo-marqueur.succes, ul#screlo-tests li.succes, ul.screlo-relecture li.succes {
+span.screlo-marqueur.succes:after, ul#screlo-tests li.succes, ul.screlo-relecture li.succes {
     background: #7ABD18;
 }
 
-span.screlo-marqueur.print, ul#screlo-tests li.print, ul.screlo-relecture li.print {
+span.screlo-marqueur.print:after, ul#screlo-tests li.print, ul.screlo-relecture li.print {
     background: #9b55dd;
 }
 
-span.screlo-marqueur.screlo-exception, ul#screlo-tests li.screlo-exception, ul.screlo-relecture li.screlo-exception {
+span.screlo-marqueur.screlo-exception:after, ul#screlo-tests li.screlo-exception, ul.screlo-relecture li.screlo-exception {
     background: #000;
 }
 

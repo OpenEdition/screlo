@@ -4,7 +4,7 @@
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     /^http://formations\.lodel\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.11.2
+// @version     14.12.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -19,8 +19,8 @@ if (!window.jQuery) {
 
         var appUrls = {
             "root": "https://raw.githubusercontent.com/thomas-fab/screlo/develop/",
-            "stylesheat": "https://rawgit.com/thomas-fab/screlo/develop/css/screlo.css",
-            //"stylesheat": "http://localhost/screlo/screlo.css",
+            //"stylesheat": "https://rawgit.com/thomas-fab/screlo/develop/css/screlo.css",
+            "stylesheat": "http://localhost/screlo/screlo.css", // RELEASE: css prod
             "update": 'https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js'
         };
         
@@ -122,7 +122,7 @@ if (!window.jQuery) {
 
             $collection.each( function() {
                 var latinAlphanum = /[\u0030-\u0039\u0040-\u005A\u0061-\u007A\u00C0-\u00FF\u0100-\u017F\u0180-\u024F]/,
-                    motCle = $(this).text(),
+                    motCle = $(this).text().trim(),
                     alertes = [];
 
                 // Premier caractère invalide
@@ -149,6 +149,13 @@ if (!window.jQuery) {
             });
             return ok;
         }
+        
+        // Fonction générique pour tester les URL absolues
+        function urlEstValide(url) {
+            var regex = /^(?:(?:https?|ftp|mailto):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/i;
+            return regex.test(url) && url.trim().substr(-1).match(/[).,\]]/) ===  null;
+        }
+        
 
         // Récupérer le texte des paragraphes
         function getPText($p) {
@@ -189,7 +196,7 @@ if (!window.jQuery) {
         // Bookmarklet debugger (version light)
         function debugStylage() {
             // On recherche les P et SPAN vides (sauf COinS !)
-            $('p,span:not(.Z3988)').not('#screlo-main *').each(function() {
+            $('p,span:not(.Z3988)').not('#screlo-main *').not('.screlo-marqueur').each(function() {
 
                 // Elements vides
                 var strEmpty = ($(this).get(0).tagName == 'P') ? 'paragraphe vide' : '\u00A0';
@@ -216,7 +223,7 @@ if (!window.jQuery) {
 
                 var tocUrl = $('.navEntities .goContents').attr('href'),
                     result =  $("<div></div>").load( tocUrl + " #main", function() {
-                        var toc = $(this).find('ul.summary li:not(.fichiers) a').map( function() {
+                        var toc = $(this).find('ul.summary li:not(.fichiers) a:first-child').map( function() {
                             return $(this).attr('href');
                         }).get(),
                             i = $.inArray(contexte.idPage[0], toc);
@@ -280,12 +287,25 @@ if (!window.jQuery) {
                 var id = "",
                     lsErreurs,
                     $target,
-                    lsExists = false;
+                    lsExists = false,
+                    $element,
+                    $prev;
 
                 for (var i=0; i<contexte.toc.length; i++ ) {
 
                     id = contexte.toc[i].id;
-                    $target = $("<ul class='screlo-relecture' id='relecture" + id + "'></ul>").appendTo(contexte.toc[i].$element.parent());
+                    $element = contexte.toc[i].$element;
+                    
+                    // NOTE: manip indispensable pour séparer les résultats en cas d'alias. Le markup de la maquette ne permet pas de faire mieux.
+                    if ($element.nextUntil(".title", ".altertitle").length !== 0) {
+                        $prev = $element.nextUntil(".title", ".altertitle").last();
+                    } else if ($element.nextUntil(".title", ".subtitle").length !== 0) {
+                        $prev = $element.nextUntil(".title", ".subtitle").last();
+                    } else {
+                        $prev = $element;
+                    }
+                    
+                    $target = $("<ul class='screlo-relecture' id='relecture" + id + "'></ul>").insertAfter($prev);
                     lsErreurs = contexte.localStorage.erreurs[id];
 
                     if (lsErreurs) {
@@ -367,7 +387,7 @@ if (!window.jQuery) {
             type = typeof type !== 'undefined' ? type : 'danger';
 
             if (element.nodeType === 1 && message){
-                var span = $('<span class="screlo-marqueur"></span>').addClass(type).text(message);
+                var span = $('<span class="screlo-marqueur"></span>').addClass(type).attr("data-screlo-marqueur-text", message);
                 if (!after) {
                     span.prependTo(element);
                 } else {
@@ -436,6 +456,7 @@ if (!window.jQuery) {
             // NOTE: comme Lodel utilise une vieille version de jquery (1.4) on ne peut pas utiliser $.get().done().fail().always(). On utilise donc $.ajax()       
             $.ajax({
                 url: url,
+                timeout: 20000,
                 success: function(data) {
                     if (data && data.match(/\n.*(<body.*)\n/i) !== null) {
                         var root = data.match(/\n.*(<body.*)\n/i)[1].replace("body", "div"),
@@ -500,8 +521,6 @@ if (!window.jQuery) {
             contexte.localStorage.erreurs[id] = erreurs;
             localStorage.setItem(contexte.nomCourt, JSON.stringify(contexte.localStorage));
         }
-
-
 
         // ############### DECLARATION DES TESTS ###############
 
@@ -671,23 +690,82 @@ if (!window.jQuery) {
                     }
                 },
                 {
-                    nom: "Listes mal formatées",
+                    nom: "Listes mal formatées", // NOTE: Test "Listes mal formatées" amelioré pour éviter les faux positifs sur les initiales de noms propres. Ne matchent que les intiales de la forme /^[A-Z]\.\s/ qui s'inscrivent dans une suite qui commence par "A.", "B.", etc.
                     condition : contexte.classes.textes,
                     action : function (root) {
-                        var compteur = 0;
-
-                        $('#text > .text > p, #text > .text > .textandnotes > p', root).each( function() {
-                            var string = getPText($(this));
-                            if (string.match(/^[•∙◊–—>-]/) || string.slice(1,2).match(/[\/.):–—-]/)) {
-                                if (root === document) {
-                                    ajouterMarqueur(this, "Liste", "warning");
-                                }
-                                compteur++;
+                        
+                        function listInfos (string) {
+                            var ulTest = string.match(/^([•∙◊–—>-])\s/),
+                                olTest = string.match(/^([0-9a-z]{1,3})[\/.):–—-]\s/i),
+                                ALPHATest = string.match(/^[A-Z]\.\s/),
+                                res = { 
+                                    "type": false,
+                                    "symbol": "",
+                                };
+                            
+                            if (ulTest !== null) {
+                                res.type = "ul";
+                                res.symbol = ulTest[1];
+                                
+                            } else if (olTest !== null) {
+                                
+                                if (ALPHATest !== null) {
+                                    res.type = "alpha";
+                                } else {
+                                    res.type = "ol";
+                                }                        
+                                res.symbol = olTest[1];
                             }
+                            return res;                          
+                        }
+                        
+                        function getLetter (start, dir) {
+                            var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                            return alphabet[alphabet.indexOf(start) + dir];
+                        }
+                        
+                        var collection = $('#text > .text > p, #text > .text > .textandnotes > p', root),
+                            err = [],
+                            alphaCollection = {},
+                            i,
+                            prevLetter,
+                            lastRecordedLetter;
+                        
+                        collection.each( function(index) {
+                            var string = getPText($(this)),
+                                infos = listInfos(string);
+                            
+                            if (infos.type === "ul" | infos.type === "ol") {
+                                err.push(this);
+                            } else if (infos.type === "alpha") {
+                                alphaCollection[index] = { 
+                                    "symbol": infos.symbol, 
+                                    "element": this 
+                                };
+                            }                            
                         });
+                        
+                        for (i=0; i<collection.length; i++) {
+                            if (alphaCollection[i]) {
+                                prevLetter = getLetter(alphaCollection[i].symbol, -1);
+                                if (
+                                    ( alphaCollection[i].symbol === "A" && !alphaCollection[i-1] && alphaCollection[i+1].symbol === "B" ) ||
+                                    ( alphaCollection[i].symbol !== "A" && alphaCollection[i-1] && alphaCollection[i-1].symbol === prevLetter && lastRecordedLetter === prevLetter )
+                                ) {
+                                    err.push(alphaCollection[i].element);
+                                    lastRecordedLetter = alphaCollection[i].symbol;
+                                }
+                            }
+                        }
+                        
+                        if (root === document) {
+                            for (i=0; i<err.length; i++) {
+                                ajouterMarqueur(err[i], "Liste", "warning");
+                            }
+                        }
 
-                        if(compteur > 0) {
-                            return new Erreur('Listes manquantes <span>' + compteur + '</span>', 'warning');
+                        if(err.length > 0) {
+                            return new Erreur('Listes mal formatées <span>' + err.length + '</span>', 'warning');
                         }
                     }
                 },
@@ -695,7 +773,7 @@ if (!window.jQuery) {
                     nom: "Styles inconnus utilisés",
                     condition : contexte.classes.textes,
                     action : function (root) {
-                        var textWhitelist = "p.remerciements, p.texte, p.paragraphesansretrait, p.creditillustration, p.epigraphe, p.citation, p.citationbis, p.citationter, p.titreillustration, p.legendeillustration, p.question, p.reponse, p.separateur, p.encadre";
+                        var textWhitelist = "p.remerciements, p.texte, p.paragraphesansretrait, p.creditillustration, p.crditsillustration, p.epigraphe, p.citation, p.citationbis, p.citationter, p.titreillustration, p.legendeillustration, p.question, p.reponse, p.separateur, p.encadre";
                         var compteur = 0;
                         $('#text > .text p', root).each( function() {
                             if (!$(this).is(textWhitelist)) {
@@ -733,22 +811,38 @@ if (!window.jQuery) {
                     }
                 },
                 {
-                    // FIXME: ne fonctionne pas avec Ajax
-                    nom: "Arborescences interdites", // TODO: pas clair, il faudrait séparer en autant de tests spécifiques avec des messages d'erreur plus précis
+                    nom: "Mauvais style de note",
                     condition : contexte.classes.textes,
                     action : function (root) {
-                        var compteur = 0,
-                            blackList = 'ol :header, ul :header, li:header, #notes p:not(.notesbaspage)'; 
+                        var compteur = 0; 
 
-                        $("#content", root).find(blackList).each( function() {
+                        $("#notes p:not(.notesbaspage)", root).each( function() {
                             compteur++;
                             if (root === document) {
-                                ajouterMarqueur(this, "Arborescence interdite");
+                                ajouterMarqueur(this, "Style de note");
                             }
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Arborescence interdite <span>' + compteur + '</span>');
+                            return new Erreur('Mauvais style de note <span>' + compteur + '</span>');
+                        }
+                    }			
+                },
+                {
+                    nom: "Intertitre dans une liste",
+                    condition : contexte.classes.textes,
+                    action : function (root) {
+                        var compteur = 0;
+
+                        $("#content ol :header, #content ul :header, #content li:header", root).each( function() {
+                            compteur++;
+                            if (root === document) {
+                                ajouterMarqueur(this, "Intertitre dans une liste");
+                            }
+                        });
+
+                        if(compteur > 0) {
+                            return new Erreur('Intertitre dans une liste <span>' + compteur + '</span>');
                         }
                     }			
                 },
@@ -758,30 +852,36 @@ if (!window.jQuery) {
                     action : function (root) {
                         var compteur = 0;
 
-                        $('.texte:header, h1#docTitle', root).each( function() {
+                        $('.texte:header, #docTitle, #docSubtitle, #docAltertitle > div', root).each( function() {
                             if( $(this).text().trim().match(/[\.:;=]$/) ) {
                                 compteur++;
                                 if (root === document) {
-                                    ajouterMarqueur(this, "Ponctuation", "danger", true);
+                                    ajouterMarqueur(this, "Ponctuation", "warning", true);
                                 }
                             }
                         });
 
                         if(compteur > 0) {
-                            return new Erreur('Ponctuation à la fin du titre ou d\'un intertitre <span>' + compteur + '</span>');
+                            return new Erreur('Ponctuation à la fin du titre ou d\'un intertitre <span>' + compteur + '</span>',"warning");
                         }
                     }			
                 },
-                // FIXME: ne fonctionne pas avec Ajax (matche à chaque fois => je désactive)
-                /*{
+                {
                     nom: "Mises en formes locales sur le titre",
                     condition : contexte.classes.textes,
                     action : function (root) {
-                        if ($('#docTitle[style], #docTitle [style]', root).length !== 0) {
-                            return new Erreur('Mises en formes locales sur le titre', 'danger');
+                        var err = 0;
+                        $('#docTitle, #docTitle *', root).each( function() {
+                            if ($(this).attr("style")) {
+                                err++;
+                                return false;
+                            }
+                        });
+                        if (err) {
+                            return new Erreur('Mises en formes locales sur le titre', 'warning');
                         }
                     }			
-                },*/
+                },
                 {
                     nom: "Appel de note dans le titre",
                     condition : contexte.classes.textes,
@@ -916,7 +1016,7 @@ if (!window.jQuery) {
                 },
                 {
                     nom: "Format de nom d'auteur : capitales, caractères interdits",
-                    condition : contexte.classes.indexes || (contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations) || contexte.classes.publications,
+                    condition : contexte.classes.indexes || (contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations),
                     action : function (root) {
                         var text = "",
                             err = 0;
@@ -939,7 +1039,7 @@ if (!window.jQuery) {
                 },
                 {
                     nom: "Auteur sans prénom",
-                    condition : contexte.classes.indexes || (contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations) || contexte.classes.publications,
+                    condition : contexte.classes.indexes || (contexte.classes.textes && !contexte.classes.actualite && !contexte.classes.informations),
                     action : function (root) {
                         var err = 0;
                         $('span.familyName', root).each( function () {
@@ -983,14 +1083,14 @@ if (!window.jQuery) {
                         $(".texte:header + .texte:header", root).each( function () {
                             if ($(this).prev('.texte:header')[0].nodeName === this.nodeName) {
                                 if (root === document) {
-                                    ajouterMarqueur(this, "Double intertitre", "danger", true);
+                                    ajouterMarqueur(this, "Double intertitre", "warning", true);
                                 }
                                 err++;   
                             }
                         });
 
                         if (err !== 0) {
-                            return new Erreur('Intertitre sur plusieurs paragraphes <span>' + err + '</span>', 'danger');
+                            return new Erreur('Intertitre sur plusieurs paragraphes <span>' + err + '</span>', 'warning');
                         }
                     }			
                 },
@@ -1037,11 +1137,62 @@ if (!window.jQuery) {
                     }			
                 },
                 {
-                    nom: "Pas de texte dans l'article",
+                    nom: "Pas de texte dans le document",
                     condition : contexte.classes.textes,
                     action : function (root) {
-                        if ($("#docBody #text", root).length === 0) {
-                            return new Erreur('Pas de texte dans l\'article', 'danger');      
+                        var element = $("#docBody #text", root),
+                            text = element.text().trim();
+                        if (element.length === 0 || text === "") {
+                            return new Erreur('Pas de texte dans le document', 'danger');
+                        }
+                    }
+                },
+                {
+                    nom: "Document sans titre",
+                    condition : contexte.classes.textes,
+                    action : function (root) {
+                        var element = $("#docTitle", root),
+                            text = element.text().trim();
+                        if (element.length === 0 || text === "" || text === "Document sans titre") {
+                            return new Erreur('Document sans titre', 'danger');
+                        }
+                    }			
+                },
+                {
+                    // FIXME: ne fonctionne pas avec Ajax
+                    nom: "Lien(s) caché(s) vers Wikipedia",
+                    condition : contexte.classes.textes,
+                    action : function (root) {
+                        var err = 0;
+                        $("#content a[href*='wikipedia']", root).each( function () {
+                            if ($(this).text !== $(this).attr("href")) {
+                                ajouterMarqueur(this, "Wikipedia", "warning", true);
+                                err++;
+                            }
+                        });
+
+                        if (err !== 0) {
+                            return new Erreur('Lien(s) caché(s) vers Wikipedia <span>' + err + '</span>', 'warning');
+                        }
+                    }			
+                },
+                {
+                    nom: "Lien(s) à vérifier",
+                    condition : contexte.classes.textes,
+                    action : function (root) {
+                        var err = 0,
+                            url = "";
+                        
+                        $("#main p a[href]:not(.footnotecall):not(.FootnoteSymbol)", root).each( function () {
+                            url = $(this).attr("href");
+                            if (!urlEstValide(url)) {                              
+                                ajouterMarqueur(this, "Lien à vérifier", "warning", true);
+                                err++;
+                            }
+                        });
+
+                        if (err !== 0) {
+                            return new Erreur('Lien(s) à vérifier <span>' + err + '</span>', 'warning');
                         }
                     }			
                 }//,
