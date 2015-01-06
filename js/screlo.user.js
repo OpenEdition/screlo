@@ -973,7 +973,9 @@ if (!window.jQuery) {
 
                         for (var i=0; i<merci.length; i++) { 
                             if (str.match(merci[i])) {
-                                ajouterMarqueur($el.get(0), "Remerciement", "warning");
+                                if (root === document) {
+                                    ajouterMarqueur($el.get(0), "Remerciement", "warning");
+                                }
                                 return new Erreur('Remerciement en note', 'warning');
                             }
                         }
@@ -1203,7 +1205,9 @@ if (!window.jQuery) {
                         var err = 0;
                         $("#content a[href*='wikipedia']", root).each( function () {
                             if ($(this).text() !== $(this).attr("href")) {
-                                ajouterMarqueur(this, "Wikipedia", "warning", true);
+                                if (root === document) {
+                                    ajouterMarqueur(this, "Wikipedia", "warning", true);
+                                }
                                 err++;
                             }
                         });
@@ -1222,8 +1226,10 @@ if (!window.jQuery) {
                         
                         $("#main p a[href]:not(.footnotecall, .FootnoteSymbol, [href^=mailto])", root).each( function () {
                             url = $(this).attr("href");
-                            if (!urlEstValide(url)) {                              
-                                ajouterMarqueur(this, "Lien à vérifier", "warning", true);
+                            if (!urlEstValide(url)) { 
+                                if (root === document) {
+                                    ajouterMarqueur(this, "Lien à vérifier", "warning", true);
+                                }
                                 err++;
                             }
                         });
@@ -1242,7 +1248,9 @@ if (!window.jQuery) {
                         if (element.length !== 0) {
                             isbn = element.text().replace("ISBN", "");
                             if ( !isValidIsbn(isbn) ) {
-                                ajouterMarqueur(element.get(0), "ISBN invalide", "danger", true);
+                                if (root === document) {
+                                    ajouterMarqueur(element.get(0), "ISBN invalide", "danger", true);
+                                }
                                 return new Erreur('ISBN invalide', 'danger');
                             }
                         }
