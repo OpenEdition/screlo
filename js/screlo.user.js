@@ -4,7 +4,7 @@
 // @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
 // @include     /^http://formations\.lodel\.org/[0-9]{2}/*/
 // @include     http://*.revues.org/*
-// @version     14.12.1
+// @version     15.01.1
 // @downloadURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @updateURL	https://raw.githubusercontent.com/thomas-fab/screlo/master/js/screlo.js
 // @grant       none
@@ -18,7 +18,6 @@ if (!window.jQuery) {
         // ################ ECRIRE L'URL DES RESSOURCES ICI ###############
 
         var appUrls = {
-            "root": "https://raw.githubusercontent.com/thomas-fab/screlo/develop/",
             //"stylesheat": "https://rawgit.com/thomas-fab/screlo/develop/css/screlo.css",
             "stylesheat": "http://localhost/screlo/screlo.css", // RELEASE: css prod
             "update": 'https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js'
@@ -152,7 +151,7 @@ if (!window.jQuery) {
         
         // Fonction générique pour tester les URL absolues (https://gist.github.com/dperini/729294)
         function urlEstValide(url) {
-            var regex = /^(?:(?:https?|ftp|mailto):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/i;
+            var regex = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/i;
             return regex.test(url) && url.trim().substr(-1).match(/[).,\]]/) ===  null;
         }
         
@@ -686,7 +685,7 @@ if (!window.jQuery) {
                     action : function (root) {
                         var compteur = 0;
 
-                        $('#text > .text > *:not(.textandnotes), #text > .text > .textandnotes > *, #text > .text > *:header', root).not('.citation,.paragraphesansretrait, blockquote, .sidenotes, ol, ul, li').each( function() {
+                        $('#text > .text > *:not(.textandnotes), #text > .text > .textandnotes > *, #text > .text > *:header', root).not('.citation,.paragraphesansretrait, blockquote, .sidenotes, ol, ul, li, table, table *').each( function() {
                             var firstChar = getPText($(this)).charAt(0);
                             if (latinize(firstChar).match(/^[a-z]/)) {
                                 if (root === document) {
@@ -723,14 +722,14 @@ if (!window.jQuery) {
                     }
                 },
                 {
-                    nom: "Listes mal formatées", // NOTE: Test "Listes mal formatées" amelioré pour éviter les faux positifs sur les initiales de noms propres. Ne matchent que les intiales de la forme /^[A-Z]\.\s/ qui s'inscrivent dans une suite qui commence par "A.", "B.", etc.
+                    nom: "Listes mal formatées", // NOTE: Test "Listes mal formatées" amelioré pour éviter les faux positifs sur les initiales de noms propres. Ne matchent que les intiales de la forme /^[A-Z]\.\s/ qui s'inscrivent dans une suite qui commence par "A.", "B.", etc. ou "A:", B:"...
                     condition : contexte.classes.textes,
                     action : function (root) {
                         
                         function listInfos (string) {
                             var ulTest = string.match(/^([•∙◊–—>-])\s/),
                                 olTest = string.match(/^([0-9a-z]{1,3})[\/.):–—-]\s/i),
-                                ALPHATest = string.match(/^[A-Z]\.\s/),
+                                ALPHATest = string.match(/[A-Z][.:]\s/),
                                 res = { 
                                     "type": false,
                                     "symbol": "",
@@ -852,7 +851,7 @@ if (!window.jQuery) {
                         $("#notes p:not(.notesbaspage):not(.notebaspage)", root).each( function() {
                             compteur++;
                             if (root === document) {
-                                ajouterMarqueur(this, "Style de note");
+                                ajouterMarqueur(this, "Style de note : " + $(this).attr("class"));
                             }
                         });
 
@@ -966,11 +965,13 @@ if (!window.jQuery) {
                     nom: "Remerciement en note 1",
                     condition : contexte.classes.textes,
                     action : function (root) {
-                        var str = $("#notes .notesbaspage:first", root).text(),
+                        var $el = $("#notes .notesbaspage:first", root),
+                            str = $el.text(),
                             merci = [/merci/i, /thank/i]; // TODO: compléter
 
                         for (var i=0; i<merci.length; i++) { 
                             if (str.match(merci[i])) {
+                                ajouterMarqueur($el.get(0), "Remerciement", "warning");
                                 return new Erreur('Remerciement en note', 'warning');
                             }
                         }
@@ -1140,6 +1141,7 @@ if (!window.jQuery) {
                                     tagType:   'span',
                                     className: 'symbolalert'
                                 });
+                                $("body").addClass("hasMarqueur");
                             }
 
                             return new Erreur('Caractères Symbol <span>' + match.length + '</span>', 'danger');
@@ -1198,7 +1200,7 @@ if (!window.jQuery) {
                     action : function (root) {
                         var err = 0;
                         $("#content a[href*='wikipedia']", root).each( function () {
-                            if ($(this).text !== $(this).attr("href")) {
+                            if ($(this).text() !== $(this).attr("href")) {
                                 ajouterMarqueur(this, "Wikipedia", "warning", true);
                                 err++;
                             }
@@ -1216,7 +1218,7 @@ if (!window.jQuery) {
                         var err = 0,
                             url = "";
                         
-                        $("#main p a[href]:not(.footnotecall):not(.FootnoteSymbol)", root).each( function () {
+                        $("#main p a[href]:not(.footnotecall, .FootnoteSymbol, [href^=mailto])", root).each( function () {
                             url = $(this).attr("href");
                             if (!urlEstValide(url)) {                              
                                 ajouterMarqueur(this, "Lien à vérifier", "warning", true);
