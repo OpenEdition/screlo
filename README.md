@@ -40,22 +40,28 @@ Screlo effectue les tests suivants :
 12. Listes mal formatées
 13. Styles inconnus utilisés
 14. Incohérence dans la numérotation des notes
-15. Arborescences interdites
-16. Ponctuation à la fin du titre ou d'un intertitre
-17. Mises en formes locales sur le titre
-18. Appel de note dans le titre
-19. Titre d'illustration en légende
-20. Présence de champs d'index Word
-21. Remerciement en note 1
-22. Composition des mots-cles
-23. Hierarchie du plan incohérente
-24. Doublons de mots-cles
-25. Format de nom d'auteur : capitales, caractères interdits
-26. Auteur sans prénom
-27. Format d'image non supporté (WMF)
-28. Intertitre sur plusieurs paragraphes
-29. Caractères Symbol
-30. Erreurs d'import du résumé et des mots-clés
-31. Numéro sans couverture
+15. Mauvais style de note
+16. Intertitre dans une liste
+17. Ponctuation à la fin du titre ou d'un intertitre
+18. Mises en formes locales sur le titre
+19. Appel de note dans le titre
+20. Titre d'illustration en légende
+21. Présence de champs d'index Word
+22. Remerciement en note 1
+23. Composition des mots-cles
+24. Hierarchie du plan incohérente
+25. Doublons de mots-cles
+26. Format de nom d'auteur : capitales, caractères interdits
+27. Auteur sans prénom
+28. Format d'image non supporté
+29. Intertitre sur plusieurs paragraphes
+30. Caractères Symbol
+31. Erreurs d'import du résumé et des mots-clés
+32. Numéro sans couverture
+33. Pas de texte dans le document
+34. Document sans titre
+35. Lien(s) caché(s) vers Wikipedia
+36. Lien(s) à vérifier
+37. Validité des ISBN
 
 La liste complète des tests effectués est disponible dans le menu "Informations".
