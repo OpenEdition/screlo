@@ -758,7 +758,7 @@ if (!window.jQuery) {
                             return alphabet[alphabet.indexOf(start) + dir];
                         }
                         
-                        var collection = $('#text > .text > p, #text > .text > .textandnotes > p', root),
+                        var collection = $('#text > .text > p, #text > .text > .textandnotes > p', root).not(".titreillustration"),
                             err = [],
                             alphaCollection = {},
                             i,
@@ -932,7 +932,7 @@ if (!window.jQuery) {
                         var compteur = 0;
 
                         $('.legendeillustration', root).each( function() {
-                            if( $(this).text().match(/^(fig|tabl)/i) ) {
+                            if( $(this).text().match(/^(fig|tabl|illus|image|img|sch)/i) ) {
                                 compteur++;
                                 if (root === document) {
                                     ajouterMarqueur(this, "Titre plutôt que légende", "warning");
