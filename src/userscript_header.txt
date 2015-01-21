@@ -1,0 +1,12 @@
+// ==UserScript==
+// @name        screlo
+// @description Thomas Brouard - OpenEdition
+// @namespace   http://revues.org/
+// @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
+// @include     /^http://formations\.lodel\.org/[0-9]{2}/*/
+// @include     http://*.revues.org/*
+// @version     <!-- @echo VERSION -->
+// @downloadURL	https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js
+// @updateURL	https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js
+// @grant       none
+// ==/UserScript==
