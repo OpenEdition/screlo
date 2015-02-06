@@ -18,50 +18,20 @@ Le script s’exécute automatiquement au chargement de la page quand les script
 
 Pour rétablir un affichage normal de la page, désactiver les scripts utilisateur et recharger la page.
 
-## Forcer les mises à jour
+### Forcer les mises à jour
 
 Les mises à jour sont automatiques sous Firefox mais pas sous Chrome (bug #4). Pour forcer la mise à jour, utiliser le bouton "Informations" > "OK" puis accepter la réinstallation du script. 
 
-## Vérifications
+### Vérifications
 
-Screlo effectue les tests suivants :
+La liste complète des tests effectués par Screlo est disponible dans le menu "Informations".
 
-1. Absence d'auteur
-2. Absence de facsimilé
-3. Erreur de pagination
-4. Pas de date de publication électronique (numéro)
-5. Compterendu/notedelecture sans référence
-6. Utilisation de police(s) non Unicode
-7. Retour à la ligne dans le titre ou dans un intertitre
-8. Titre d'illustration mal placé
-9. Légende d'illustration mal placée
-10. Paragraphe qui commence par une minuscule
-11. Citation stylée en Normal
-12. Listes mal formatées
-13. Styles inconnus utilisés
-14. Incohérence dans la numérotation des notes
-15. Mauvais style de note
-16. Intertitre dans une liste
-17. Ponctuation à la fin du titre ou d'un intertitre
-18. Mises en formes locales sur le titre
-19. Appel de note dans le titre
-20. Titre d'illustration en légende
-21. Présence de champs d'index Word
-22. Remerciement en note 1
-23. Composition des mots-cles
-24. Hierarchie du plan incohérente
-25. Doublons de mots-cles
-26. Format de nom d'auteur : capitales, caractères interdits
-27. Auteur sans prénom
-28. Format d'image non supporté
-29. Intertitre sur plusieurs paragraphes
-30. Caractères Symbol
-31. Erreurs d'import du résumé et des mots-clés
-32. Numéro sans couverture
-33. Pas de texte dans le document
-34. Document sans titre
-35. Lien(s) caché(s) vers Wikipedia
-36. Lien(s) à vérifier
-37. Validité des ISBN
+## Développement
 
-La liste complète des tests effectués est disponible dans le menu "Informations".
+1. Cloner le projet
+2. Installer Node.js : http://nodejs.org/
+3. Installer Grunt : `$ npm install -g grunt-cli` 
+4. Installer les dépendances de développement dans le répertoire du projet : `$ npm install`
+5. Lancer grunt afin de monitorer les changements : `$ grunt`
+
+Pour réinstaller automatiquement l'userscript dans le navigateur : `$ grunt --userpath="C:\path_to_your_firefox_profile\gm_scripts\screlo"`

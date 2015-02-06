@@ -1,17 +1,23 @@
 if (!window.jQuery) {
 
-    console.log("Erreur : Screlo nécessite jQuery");
+    console.error("Screlo requires jQuery");
 
 } else {
 
     $( function () {
-        
-        var run = require("./core.js").run;
-        
+
+        var globals = require("./globals.js"), // TODO: pourquoi ? Il faudrait peut-être que ce soit vraiment global ? Genre SCRELO
+            ui = require("./ui.js"),
+            improveLodel = require("./lodel.js");
+
         $ = jQuery = require("./jquery-plugins.js")(jQuery);
+
+        ui.init();
         
-        run();
+        improveLodel(); 
         
+        console.info("Screlo v." + globals.version + " loaded");
+
     });
 
 }

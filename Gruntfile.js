@@ -9,8 +9,18 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    
+    if (grunt.option( "userpath" )) { // $ grunt --userpath="C:\path_to_your_firefox_profile\gm_scripts\screlo"
+        
+        var userpath = grunt.option( "userpath" ).replace(/\\/g, "/");
+        
+        grunt.registerTask('default', ['copy', 'preprocess:prod', 'browserify', 'concat:userscript', 'clean', 'copy:userpath', 'watch']);
+        
+    } else {
 
-    grunt.registerTask('default', ['copy', 'preprocess:prod', 'browserify', 'concat:userscript', 'clean', 'watch']);
+        grunt.registerTask('default', ['copy', 'preprocess:prod', 'browserify', 'concat:userscript', 'clean', 'watch']);
+        
+    }
 
     grunt.initConfig({
         copy: {
@@ -20,6 +30,12 @@ module.exports = function(grunt) {
                 src: '*',
                 dest: 'tmp/',
             },
+            userpath: {
+                expand: true,
+                cwd: 'js/',
+                src: 'screlo.user.js',
+                dest: userpath
+            }
         },
         preprocess : {
             options: {
@@ -60,8 +76,11 @@ module.exports = function(grunt) {
         },
         clean: ['tmp/*'],
         watch: {
+            options: {
+                spawn: false // Increase speed. Not spawning task runs can make the watch more prone to failing so please use as needed.
+            },
             files: 'src/*',
             tasks: ['default']
         }
     });
-}
+};

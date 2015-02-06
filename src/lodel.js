@@ -1,8 +1,6 @@
 // ################ LODEL IMPROVEMENTS ###############
 
 
-
-
 // Bookmarklet debugger (version light)
 function debugStylage () {
     
@@ -20,8 +18,6 @@ function debugStylage () {
     });
     
 }
-
-
 
 
 // Fixer le menu de navigation pour boucler sur tous les éléments
@@ -65,8 +61,6 @@ function fixNav () {
 }
 
 
-
-
 // Liens vers la source sur TOC de la publication
 function sourceDepuisToc () {
     
@@ -81,8 +75,6 @@ function sourceDepuisToc () {
 }
 
 
-
-
 // Tout lancer d'un seul coup
 function improveLodel () {
     
@@ -93,8 +85,4 @@ function improveLodel () {
 }
 
 
-var xprt = {};
-
-xprt.improveLodel = improveLodel;
-
-module.exports = xprt;
+module.exports = improveLodel;
