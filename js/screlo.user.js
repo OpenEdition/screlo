@@ -996,7 +996,7 @@ module.exports = function (context) {
                     if (alphaCollection[i]) {
                         prevLetter = getLetter(alphaCollection[i].symbol, -1);
                         if (
-                            ( alphaCollection[i].symbol === "A" && !alphaCollection[i-1] && alphaCollection[i+1].symbol === "B" ) ||
+                            ( alphaCollection[i].symbol === "A" && !alphaCollection[i-1] && alphaCollection[i+1] && alphaCollection[i+1].symbol === "B" ) ||
                             ( alphaCollection[i].symbol !== "A" && alphaCollection[i-1] && alphaCollection[i-1].symbol === prevLetter && lastRecordedLetter === prevLetter )
                         ) {
                             err.push(alphaCollection[i].element);
