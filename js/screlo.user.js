@@ -2,51 +2,14 @@
 // @name        screlo
 // @description Thomas Brouard - OpenEdition
 // @namespace   http://revues.org/
-// @include     /^http://lodel\.revues\.org/[0-9]{2}/*/
-// @include     /^http://formations\.lodel\.org/[0-9]{2}/*/
-// @include     http://*.revues.org/*
-// @version     15.2.1
+// @include     /http:\/\/(?!(lodel|devel|formations))[a-z]+\.revues.org\/(?!(lodel))/
+// @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z]+\/(?!(lodel))/
+// @version     15.2.2
 // @downloadURL	https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js
 // @updateURL	https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js
 // @grant       none
 // ==/UserScript==
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports={
-  "name": "screlo",
-  "version": "15.2.1",
-  "description": "Script de relecture Lodel",
-  "main": "dist/screlo.js",
-  "dependencies": {},
-  "devDependencies": {
-    "browserify": "^8.1.1",
-    "grunt": "^0.4.5",
-    "grunt-browserify": "^3.3.0",
-    "grunt-contrib-clean": "^0.6.0",
-    "grunt-contrib-concat": "^0.5.0",
-    "grunt-contrib-copy": "^0.7.0",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-preprocess": "^4.1.0",
-    "preprocess": "^2.1.0"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/thomas-fab/screlo.git"
-  },
-  "keywords": [
-    "lodel"
-  ],
-  "author": "Thomas Brouard (OpenEdition)",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/thomas-fab/screlo/issues"
-  },
-  "homepage": "https://github.com/thomas-fab/screlo"
-}
-
-},{}],2:[function(require,module,exports){
 /*
     Checker
     
@@ -296,7 +259,7 @@ Checker.prototype.toCache = function () {
 
 
 module.exports = Checker;
-},{"./Notification.js":4,"./globals.js":6,"./tests-revues.js":10,"./utils.js":12}],3:[function(require,module,exports){
+},{"./Notification.js":3,"./globals.js":5,"./tests-revues.js":9,"./utils.js":11}],2:[function(require,module,exports){
 /*
     Marker
 */
@@ -340,7 +303,7 @@ Marker.prototype.inject = function () {
 
 
 module.exports = Marker;
-},{"./globals.js":6}],4:[function(require,module,exports){
+},{"./globals.js":5}],3:[function(require,module,exports){
 /*
     Notification
 */
@@ -401,7 +364,7 @@ Notification.prototype.activate = function () {
 
 
 module.exports = Notification;
-},{"./Marker.js":3,"./globals.js":6}],5:[function(require,module,exports){
+},{"./Marker.js":2,"./globals.js":5}],4:[function(require,module,exports){
 // USER COMMANDS
 
 
@@ -548,16 +511,15 @@ cmd.paper = function () {
 };
 
 module.exports = cmd;
-},{"./Checker.js":2,"./globals.js":6,"./utils.js":12}],6:[function(require,module,exports){
+},{"./Checker.js":1,"./globals.js":5,"./utils.js":11}],5:[function(require,module,exports){
 // ################ GLOBALS & CONFIGURATION ###############
 
 
 var globals = {},
-    pkg = require("../package.json"), // TODO: faire ça avec Grunt histoire de pas importer tout le package.json dans le script final
     utils = require("./utils.js"); 
 
 
-globals.version = pkg.version;
+globals.version = "15.2.2";
 
 // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 globals.schema =  "15.1.2";
@@ -628,7 +590,7 @@ globals.toc = globals.isNumero ? utils.getToc() : false;
 
 
 module.exports = globals;
-},{"../package.json":1,"./utils.js":12}],7:[function(require,module,exports){
+},{"./utils.js":11}],6:[function(require,module,exports){
 // ################ JQUERY PLUGINS ###############
 
 module.exports = function (jQuery) {
@@ -644,7 +606,7 @@ module.exports = function (jQuery) {
     return jQuery;
     
 };
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 // ################ LODEL IMPROVEMENTS ###############
 
 
@@ -733,7 +695,7 @@ function improveLodel () {
 
 
 module.exports = improveLodel;
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 if (!window.jQuery) {
 
     console.error("Screlo requires jQuery");
@@ -757,7 +719,7 @@ if (!window.jQuery) {
     });
 
 }
-},{"./globals.js":6,"./jquery-plugins.js":7,"./lodel.js":8,"./ui.js":11}],10:[function(require,module,exports){
+},{"./globals.js":5,"./jquery-plugins.js":6,"./lodel.js":7,"./ui.js":10}],9:[function(require,module,exports){
 // ############### TESTS REVUES.ORG ###############
 
 
@@ -1596,7 +1558,7 @@ module.exports = function (context) {
 
     ]; 
 };
-},{"./utils.js":12}],11:[function(require,module,exports){
+},{"./utils.js":11}],10:[function(require,module,exports){
 // ################ SCRELO UI ###############
 
 
@@ -1767,7 +1729,7 @@ ui.init = function () {
 
 
 module.exports = ui;
-},{"./Checker.js":2,"./commands.js":5,"./globals.js":6,"./utils.js":12}],12:[function(require,module,exports){
+},{"./Checker.js":1,"./commands.js":4,"./globals.js":5,"./utils.js":11}],11:[function(require,module,exports){
 
 var utils = {};
 
@@ -1925,4 +1887,4 @@ utils.cache.clear = function (nomCourt) {
 };
 
 module.exports = utils;
-},{}]},{},[9]);
+},{}]},{},[8]);

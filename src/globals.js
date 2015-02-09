@@ -2,11 +2,10 @@
 
 
 var globals = {},
-    pkg = require("../package.json"), // TODO: faire ça avec Grunt histoire de pas importer tout le package.json dans le script final
     utils = require("./utils.js"); 
 
 
-globals.version = pkg.version;
+globals.version = "/* @echo VERSION */";
 
 // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 globals.schema =  "15.1.2";
