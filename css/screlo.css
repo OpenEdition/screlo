@@ -343,3 +343,29 @@ body.loading  #screlo-loading {
 .navEntities a.corrected {
     box-shadow: 0 0 10px #7abd18 inset;
 }
+
+/* Picomodal*/
+
+.pico-content {
+    font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+    font-size: 1.3em;
+    padding: 3em 2em 4em !important;
+}
+
+.pico-content h1 {
+    font-size: 2em;
+    line-height: 1.2em;
+    margin-bottom: 1em;
+    text-align: center;
+}
+
+.pico-content h2 {
+    font-weight: bold;
+    margin: 1em 0 0;
+}
+
+.pico-content .infolinks {
+    list-style-position: outside;
+    list-style-type: circle;
+    margin: 0 0 0 5em;
+}

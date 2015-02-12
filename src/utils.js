@@ -122,7 +122,41 @@ utils.getToc = function () {
 
 };
 
+// 
+utils.getInfo = function (test) {
 
+    var links,
+        info = "";
+    
+    if (!test.description) {
+        return false;
+    }
+    
+    if (test.name) {
+        info += "<h1>Notification<br/>«&nbsp;" + test.name + "&nbsp;»</h1>";
+    }
+
+    info += "<p>" + test.description + "</p>\n";
+
+    if (test.links && test.links.length >= 2) {
+        links = test.links;
+        info += "<h2>Plus d'informations dans la documentation :</h2>\n<ul class='infolinks'>\n";
+
+        for (var j=0; j<links.length; j=j+2) {
+            if (links[j] && links[j+1]) {
+                info += "<li><a href='" + links[j+1] + "' target='_blank'>" + links[j] + "</a></li>\n";
+            }
+        }
+
+        info += "</ul>";
+    }
+
+    return info;
+
+};
+
+
+// localStorage
 utils.cache = {};
 
 utils.cache.get = function (nomCourt, id) {

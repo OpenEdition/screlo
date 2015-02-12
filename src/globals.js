@@ -2,7 +2,8 @@
 
 
 var globals = {},
-    utils = require("./utils.js"); 
+    utils = require("./utils.js"),
+    tests = require("./tests-revues.js"); 
 
 
 globals.version = "/* @echo VERSION */";
@@ -11,17 +12,9 @@ globals.version = "/* @echo VERSION */";
 globals.schema =  "15.1.2";
 
 globals.appUrls = {
-    
-    // FIXME: faire un parametre stylesheet de grunt
-    /* @ifdef DEV */
-    stylesheat: "http://localhost/screlo/screlo.css",
-    /* @endif */
-
-    /* @ifndef DEV */
-    stylesheat: "https://rawgit.com/thomas-fab/screlo/master/css/screlo.css", // jshint ignore:line
-    /* @endif */
-
-    update: "https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js"
+    stylesheet: "/* @echo STYLESHEET */",
+    update: "https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js",
+    fancybox: "http://static.devel.revues.org/js/fancybox/jquery.fancybox-1.3.1.js"
 };
 
 
@@ -80,6 +73,25 @@ globals.isNumero = (function () {
 
 
 globals.toc = globals.isNumero ? utils.getToc() : false;
+
+
+globals.infos = (function () {
+    var infos = [],
+        thisId,
+        thisInfo;
+    
+    for (var i=0; i<tests.length; i++) {
+        if (tests[i].id && tests[i].description) {
+            thisId = tests[i].id;
+            thisInfo = utils.getInfo(tests[i]);
+            infos[thisId] = thisInfo;
+        }
+    }
+    
+    console.log(infos);
+    
+    return infos;
+})();
 
 
 module.exports = globals;

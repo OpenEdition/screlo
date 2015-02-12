@@ -9,7 +9,7 @@ var ui = {},
 
 
 function manageCss () {
-    $('head').append('<link rel="stylesheet" href="' + globals.appUrls.stylesheat + '" type="text/css" />');
+    $('head').append('<link rel="stylesheet" href="' + globals.appUrls.stylesheet + '" type="text/css" />');
     
     // Fix de maquette : certaines publications ont un style height inline sur #main qui pose problème lors de l'ajout de notifications.
     if ( $('#main[style*="height"]').length ) {
@@ -82,6 +82,11 @@ function manageEvents () {
         cmd.paper();
     });
     
+    $("#screlo-tests .erreur, .screlo-relecture .erreur").live("click", function (event) {
+        event.preventDefault();            
+        cmd.showInfo($(this));
+    });
+    
 }
 
 
@@ -141,11 +146,11 @@ function manageToc () {
     }
 
     if (somethingLoaded) {
+        // FIXME: doit être chargé dans une div à part pour éviter désordre erreurs numéro
         $("<li id='screlo-infocache'>Erreurs chargées à partir du cache de Screlo. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-tests");
     }
 
 }
-
 
 
 function checkThisPage () {

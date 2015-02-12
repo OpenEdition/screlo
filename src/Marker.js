@@ -3,9 +3,6 @@
 */
 
 
-var globals = require("./globals.js");
-
-
 function Marker (options) {
 
     this.id = typeof options.id === 'number' ? options.id : 0;
@@ -35,7 +32,7 @@ Marker.prototype.inject = function () {
     } else {
         $span.appendTo(this.element);    
     }
-    $("body").addClass("hasMarqueur");
+    $("body").addClass("hasMarqueur"); // TODO: body.screlo-hasmarker
 
 };
 

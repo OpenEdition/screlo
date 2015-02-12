@@ -2,8 +2,7 @@
     Notification
 */
 
-var globals = require("./globals.js"),
-    Marker = require("./Marker.js");
+var Marker = require("./Marker.js");
 
 
 function Notification (test) {

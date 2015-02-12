@@ -1,7 +1,8 @@
 module.exports = function(grunt) {
     
     var package = require('./package.json'),
-        userpath;
+        userpath,
+        stylesheetUrl = grunt.option("stylesheet") ? grunt.option("stylesheet") : "https://rawgit.com/thomas-fab/screlo/master/css/screlo.css";
     
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-browserify');
@@ -10,12 +11,12 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
     
-    if (grunt.option( "userpath" )) { // Usage: $ grunt --userpath="C:\path_to_your_firefox_profile\gm_scripts\screlo" 
+    if (grunt.option("userpath")) { // Usage: $ grunt --userpath="C:\path_to_your_firefox_profile\gm_scripts\screlo" 
         userpath = grunt.option( "userpath" ).replace(/\\/g, "/");
         grunt.registerTask('default', ['copy', 'preprocess:prod', 'browserify', 'concat:userscript', 'clean', 'copy:userpath', 'watch']);
     } else {
         grunt.registerTask('default', ['copy', 'preprocess:prod', 'browserify', 'concat:userscript', 'clean', 'watch']);
-    }
+    } 
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -36,7 +37,8 @@ module.exports = function(grunt) {
         preprocess : {
             options: {
                 context : {
-                    VERSION: '<%= pkg.version %>'
+                    VERSION: '<%= pkg.version %>',
+                    STYLESHEET: stylesheetUrl
                 }
             },
             dev : {

@@ -8,7 +8,7 @@ var utils = require("./utils.js"),
     cmd = {};
 
 
-
+// TODO: ambiguite avec l'info de l'aide => à distinguer plus clairement
 cmd.info = function () {
 
     var msg = 'Screlo version ' + globals.version + '\n\nScrelo effectue les tests suivants :\n' + listerTests(tests).join('\n') + '\n\nUne mise à jour de Screlo est peut-être disponible. Forcer la mise à jour ?',
@@ -141,6 +141,26 @@ cmd.paper = function () {
     utils.cache.set(globals.nomCourt, "paper", toggleState);
     location.reload();
 
+};
+
+
+cmd.showInfo = function ($clickElement) {
+    
+    var id = $clickElement.attr("data-screlo-id"),
+        info;
+    
+    if (!id && id !== 0) {
+        return false;
+    }
+    
+    id = parseInt(id);
+    info = globals.infos[id];
+    
+    picoModal({
+        content: info,
+        width: 600
+    }).afterClose(function (modal) { modal.destroy(); }).show();
+    
 };
 
 module.exports = cmd;

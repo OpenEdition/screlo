@@ -15,7 +15,7 @@
 */
 
 
-var getTests = require("./tests-revues.js"),
+var tests = require("./tests-revues.js"),
     Notification = require("./Notification.js"),
     utils = require("./utils.js"),
     globals = require("./globals.js");
@@ -155,8 +155,7 @@ Checker.prototype.process = function () {
         marker.inject();
     }
 
-    var tests,
-        thisTest,
+    var thisTest,
         notif,
         res,
         nbTests = 0;
@@ -165,17 +164,15 @@ Checker.prototype.process = function () {
         console.log("Erreur lors du process(): attributs manquants dans Checker");
         return;
     }
-    
-    tests = getTests(this.context);
 
     for (var i = 0; i < tests.length; i++) {
 
         thisTest = tests[i];
 
-        if (thisTest.condition) {
+        if (thisTest.condition(this.context)) {
 
             notif = new Notification(thisTest, this.root);
-            res = thisTest.action(notif, this.root);
+            res = thisTest.action(notif, this.context, this.root);
 
             if (res.active) {
 
@@ -228,7 +225,8 @@ Checker.prototype.show = function () {
     
     for (var i=0; i < this.notifications.length; i++) {
         notif = this.notifications[i];
-        $('<li class="erreur ' + notif.type + '">' + notif.getName() + '</li>').appendTo(this.target);
+        // TODO: revoir les css (noms de classes de l'ensemble)
+        $('<li class="erreur ' + notif.type + '" data-screlo-id="' + notif.id + '">' + notif.getName() + '</li>').appendTo(this.target);
     }
     
 };
