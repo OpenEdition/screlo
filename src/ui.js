@@ -82,9 +82,22 @@ function manageEvents () {
         cmd.paper();
     });
     
-    $("#screlo-tests .erreur, .screlo-relecture .erreur").live("click", function (event) {
+    $("#screlo-tests .erreur [data-screlo-button='info'], .screlo-relecture .erreur [data-screlo-button='info']").live("click", function (event) {
         event.preventDefault();            
         cmd.showInfo($(this));
+    });
+    
+    $("#screlo-tests .erreur [data-screlo-button='cycle'], .screlo-relecture .erreur [data-screlo-button='cycle']").live("click", function (event) {
+        event.preventDefault(); 
+        
+        // TODO: harmoniser car pour "info" cette vérification est faite dans la commande. Il faudrait peut-être une fonction pour choper et tester l'id
+        var id = $(this).parents("[data-screlo-id]").eq(0).attr("data-screlo-id");
+        
+        if (!id && id !== 0) {
+            return false;
+        }
+        
+        cmd.cycle(id);
     });
     
 }

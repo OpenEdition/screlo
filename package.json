@@ -1,6 +1,6 @@
 {
   "name": "screlo",
-  "version": "15.2.2",
+  "version": "15.2.3",
   "description": "Script de relecture Lodel",
   "main": "dist/screlo.js",
   "dependencies": {},

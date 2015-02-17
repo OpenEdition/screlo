@@ -2,7 +2,7 @@
 // @name        screlo
 // @description Thomas Brouard - OpenEdition
 // @namespace   http://revues.org/
-// @include     /http:\/\/(?!(lodel|devel|formations))[a-z]+\.revues.org\/(?!(lodel))/
+// @include     /http:\/\/(?!(www|lodel|devel|formations))[a-z]+\.revues.org\/(?!(lodel))/
 // @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z]+\/(?!(lodel))/
 // @version     15.2.2
 // @downloadURL	https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js
@@ -214,7 +214,8 @@ Checker.prototype.process = function () {
 
 Checker.prototype.show = function () {
     
-    var notif;
+    var notif,
+        actions;
     
     if (!this.target || (this.target && $(this.target).length === 0)) {
         console.log("Erreur: 'target' n'est pas défini ou n'existe pas.");
@@ -237,8 +238,7 @@ Checker.prototype.show = function () {
     
     for (var i=0; i < this.notifications.length; i++) {
         notif = this.notifications[i];
-        // TODO: revoir les css (noms de classes de l'ensemble)
-        $('<li class="erreur ' + notif.type + '" data-screlo-id="' + notif.id + '">' + notif.getName() + '</li>').appendTo(this.target);
+        $(notif.getHtml()).appendTo(this.target); // FIXME: root devrait peut-être être associé à la Notification pour plus de simplicité
     }
     
 };
@@ -248,7 +248,9 @@ Checker.prototype.toCache = function () {
     
     var nomCourt = globals.nomCourt,
         id = this.idPage,
-        value = this.notifications;
+        value = this.notifications.map(function (notification) {
+            return notification.export();
+        });
     
     utils.cache.set(nomCourt, id, value);
     
@@ -301,55 +303,98 @@ module.exports = Marker;
 },{}],3:[function(require,module,exports){
 /*
     Notification
+    
+    Cet objet est passé en paramètre pour chaque test, avec des propriétés héritées de la définition du test. On peut alors utiliser les méthodes suivantes :
+    
+    * Notification.addMarker(element) permet d'ajouter un Marker à "element". Le Marker prend les propriétés de la Notification.
+    * Notification.addMarkersFromRegex(element, $parent) ajoute un Marker à chaque string qui correspond à "regex" dans l'élément $parent.
+    * Notification.activate() permet d'activer la Notification (elle sera affichée). Il est nécessaire d'activer la Notification (même quand elle possède des Markers). On peut faire : Notification.addMarker(element).activate()
+    
 */
 
-var Marker = require("./Marker.js");
+var Marker = require("./Marker.js"),
+    globals = require("./globals.js");
 
 
-function Notification (test) {
+function Notification (test, root) {
 
     this.id = typeof test.id === 'number' ? test.id : 0;
     this.name = typeof test.name === 'string' ? test.name : '';
-    this.help = typeof test.help === 'string' ? test.help : '';
     this.type = typeof test.type === 'string' ? test.type : 'danger';
     this.label = typeof test.label === 'string' ? test.label : test.name;
     this.labelPos = typeof test.labelPos === 'string' ? test.labelPos : "before";
-    this.count = 0;
     this.markers = [];
+    this.count = test.count || 0; // NOTE: always use count instead of markers.length
     this.active = false;
+    this.infoExists = globals.infos[this.id] ? true : false;
+    this.root = root;
 
 }
 
 
-Notification.prototype.getName = function () {
+Notification.prototype.getHtml = function () {
 
-    var html = this.name;
-
-    if (this.count > 0) {
-        html = html + " <span>" + this.count + "</span>";
-    }
+    // TODO: revoir les css (noms de classes de l'ensemble)
+    var count = this.count > 0 ? " <span class='count'>" + this.count + "</span>" : "",
+        cycle = this.root === document && this.count > 0 ? "<a data-screlo-button='cycle'>Rechercher dans le document</a>" : "",
+        info = this.infoExists ? "<a data-screlo-button='info'>Aide</a>" : "",
+        ignore = "<a data-screlo-button='ignore'>Ignorer</a>",
+        actions = cycle || info ? "<div class='screlo-notification-actions'>" + cycle + info + "</div>" : "", // TODO: ajouter ignore
+        html = "<li class='erreur " + this.type + "' data-screlo-id='" + this.id + "'>" + this.name + count + actions + "</li>";
 
     return html;
 };
 
 
-Notification.prototype.addMarker = function (element, label) {
-    label = label !== undefined ? label : this.label;
-
-    this.markers.push(
-        new Marker ({
-            element: element,
-            label: label,
-            type: this.type,
-            pos: this.labelPos
-        })
-    );
-
+Notification.prototype.addMarker = function (element) {
+    
+    if (this.root === document) {
+        this.markers.push(
+            new Marker ({
+                id: this.id,
+                element: element,
+                label: this.label,
+                type: this.type,
+                labelPos: this.labelPos
+            })
+        );
+    }
     this.count++;
-
+    
     return this;
 };
 
+
+Notification.prototype.addMarkersFromRegex = function (regex, $parent) {
+    
+    var _this = this;
+    
+    $parent = $parent || $("#main", this.root);
+    
+    $parent.highlightRegex(regex, {
+        tagType:   'span',
+        className: 'screlo-regexmarker'
+    });
+    
+    $("span.screlo-regexmarker").each( function() {
+        _this.addMarker(this);  
+    });
+    
+    return this;
+    
+};
+
+// Export for localStorage
+Notification.prototype.export = function () {
+    
+    return  {
+        id: this.id,
+        name: this.name,
+        type: this.type,
+        count: this.count
+    };
+    
+};
 
 Notification.prototype.activate = function () {
     this.active = true;
@@ -358,7 +403,7 @@ Notification.prototype.activate = function () {
 
 
 module.exports = Notification;
-},{"./Marker.js":2}],4:[function(require,module,exports){
+},{"./Marker.js":2,"./globals.js":5}],4:[function(require,module,exports){
 // USER COMMANDS
 
 
@@ -366,13 +411,24 @@ module.exports = Notification;
 var utils = require("./utils.js"),
 	globals = require("./globals.js"),
     Checker = require("./Checker.js"),
+    tests = require("./tests-revues.js"),
     cmd = {};
 
 
 // TODO: ambiguite avec l'info de l'aide => à distinguer plus clairement
 cmd.info = function () {
+    
+    function listTests () {
+        var res = [];
+        
+        for (var i=0; i<tests.length; i++) {
+            res.push("[" + tests[i].id + "] " + tests[i].name);
+        }
+        
+        return res;
+    }
 
-    var msg = 'Screlo version ' + globals.version + '\n\nScrelo effectue les tests suivants :\n' + listerTests(tests).join('\n') + '\n\nUne mise à jour de Screlo est peut-être disponible. Forcer la mise à jour ?',
+    var msg = 'Screlo version ' + globals.version + '\n\nScrelo effectue les tests suivants :\n' + listTests().join('\n') + '\n\nUne mise à jour de Screlo est peut-être disponible. Forcer la mise à jour ?',
         user = false;
 
     user = confirm(msg);
@@ -415,7 +471,6 @@ cmd.ajax = function () {
         chkr.target = "ul#relecture" + id;
         
         chkr.ready( function (_this) {
-            console.log("_this", _this);
             _this.toCache().show();
             doneCheckers++;
             if (isDone(doneCheckers)) {
@@ -461,11 +516,12 @@ cmd.clear = function () {
 
 
 
-cmd.cycle = function () {
+cmd.cycle = function (id) {
 
     var winPos = $(window).scrollTop(),
         maxScroll = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight) - window.innerHeight,
-        marqueurs = $(".screlo-marqueur, .symbolalert").map(function() {
+        selector = id ? ".screlo-marqueur[data-screlo-marqueur-id='" + id + "']" : ".screlo-marqueur",
+        marqueurs = $(selector).map(function() {
             return $(this).offset().top;
         }).get();
 
@@ -507,12 +563,16 @@ cmd.paper = function () {
 
 cmd.showInfo = function ($clickElement) {
     
-    var id = $clickElement.attr("data-screlo-id"),
+    // TODO: pas performant du tout (sélecteurs divers, css)
+    
+    var id = $clickElement.parents("[data-screlo-id]").eq(0).attr("data-screlo-id"),
         info;
     
     if (!id && id !== 0) {
         return false;
     }
+    
+    $clickElement.parents(".screlo-notification-actions").addClass("active");
     
     id = parseInt(id);
     info = globals.infos[id];
@@ -520,12 +580,15 @@ cmd.showInfo = function ($clickElement) {
     picoModal({
         content: info,
         width: 600
-    }).afterClose(function (modal) { modal.destroy(); }).show();
+    }).afterClose(function (modal) { 
+        modal.destroy(); 
+        $(".screlo-notification-actions.active").removeClass("active");
+    }).show();
     
 };
 
 module.exports = cmd;
-},{"./Checker.js":1,"./globals.js":5,"./utils.js":12}],5:[function(require,module,exports){
+},{"./Checker.js":1,"./globals.js":5,"./tests-revues.js":10,"./utils.js":12}],5:[function(require,module,exports){
 // ################ GLOBALS & CONFIGURATION ###############
 
 
@@ -537,7 +600,7 @@ var globals = {},
 globals.version = "15.2.2";
 
 // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
-globals.schema =  "15.1.2";
+globals.schema =  "15.2.3";
 
 globals.appUrls = {
     stylesheet: "http://localhost/screlo/screlo.css",
@@ -558,7 +621,6 @@ globals.nomCourt = (function () {
     }
     
 })();
-
 
 
 globals.cacheIsValid = (function () {
@@ -615,8 +677,6 @@ globals.infos = (function () {
             infos[thisId] = thisInfo;
         }
     }
-    
-    console.log(infos);
     
     return infos;
 })();
@@ -1120,7 +1180,8 @@ module.exports = [
 
             $('#text > .text p', root).each( function() {
                 if (!$(this).is(textWhitelist)) {
-                    notif.addMarker(this, "Style inconnu : " + $(this).attr("class")).activate();
+                    notif.label = "Style inconnu : " + $(this).attr("class");
+                    notif.addMarker(this).activate();
                 }
             });
 
@@ -1166,7 +1227,8 @@ module.exports = [
         action: function (notif, context, root) {
 
             $("#notes p:not(.notesbaspage):not(.notebaspage)", root).each( function() {
-                notif.addMarker(this, "Style inconnu : " + $(this).attr("class")).activate();
+                notif.label = "Style inconnu : " + $(this).attr("class");
+                notif.addMarker(this).activate();
             });
 
             return notif;
@@ -1343,7 +1405,8 @@ module.exports = [
                     }
 
                     if (alertes.length !== 0){
-                        notif.addMarker(this, alertes.join(' | ')).activate();
+                        notif.label = alertes.join(' | ');
+                        notif.addMarker(this).activate();
                     }
                 });
 
@@ -1541,23 +1604,16 @@ module.exports = [
             "Des caractères spéciaux sont mal affichés", "http://maisondesrevues.org/120",
             "Outils pour l’encodage et la conversion en Unicode", "http://maisondesrevues.org/199"
         ],
+        label: "Symbol",
+        labelPos: "after",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
 
-            var symbolsRegex = 	/[]/g,
-                match = $("#docBody", root).text().match(symbolsRegex);
+            var symbolsRegex = 	/[]/g;
+            
+            notif.addMarkersFromRegex(symbolsRegex);
 
-            if (match) {
-                if (root === document) {
-                    $('#docBody', root).highlightRegex(symbolsRegex, {
-                        tagType:   'span',
-                        className: 'symbolalert'
-                    });
-                    $("body").addClass("hasMarqueur");
-                }
-
-                // TODO: utiliser le même type de marqueur qu'habituellement
-                notif.count = match.length;
+            if (notif.count > 0) {
                 notif.activate();
             }
 
@@ -1797,9 +1853,22 @@ function manageEvents () {
         cmd.paper();
     });
     
-    $("#screlo-tests .erreur, .screlo-relecture .erreur").live("click", function (event) {
+    $("#screlo-tests .erreur [data-screlo-button='info'], .screlo-relecture .erreur [data-screlo-button='info']").live("click", function (event) {
         event.preventDefault();            
         cmd.showInfo($(this));
+    });
+    
+    $("#screlo-tests .erreur [data-screlo-button='cycle'], .screlo-relecture .erreur [data-screlo-button='cycle']").live("click", function (event) {
+        event.preventDefault(); 
+        
+        // TODO: harmoniser car pour "info" cette vérification est faite dans la commande. Il faudrait peut-être une fonction pour choper et tester l'id
+        var id = $(this).parents("[data-screlo-id]").eq(0).attr("data-screlo-id");
+        
+        if (!id && id !== 0) {
+            return false;
+        }
+        
+        cmd.cycle(id);
     });
     
 }

@@ -360,7 +360,8 @@ module.exports = [
 
             $('#text > .text p', root).each( function() {
                 if (!$(this).is(textWhitelist)) {
-                    notif.addMarker(this, "Style inconnu : " + $(this).attr("class")).activate();
+                    notif.label = "Style inconnu : " + $(this).attr("class");
+                    notif.addMarker(this).activate();
                 }
             });
 
@@ -406,7 +407,8 @@ module.exports = [
         action: function (notif, context, root) {
 
             $("#notes p:not(.notesbaspage):not(.notebaspage)", root).each( function() {
-                notif.addMarker(this, "Style inconnu : " + $(this).attr("class")).activate();
+                notif.label = "Style inconnu : " + $(this).attr("class");
+                notif.addMarker(this).activate();
             });
 
             return notif;
@@ -583,7 +585,8 @@ module.exports = [
                     }
 
                     if (alertes.length !== 0){
-                        notif.addMarker(this, alertes.join(' | ')).activate();
+                        notif.label = alertes.join(' | ');
+                        notif.addMarker(this).activate();
                     }
                 });
 
@@ -781,23 +784,16 @@ module.exports = [
             "Des caractères spéciaux sont mal affichés", "http://maisondesrevues.org/120",
             "Outils pour l’encodage et la conversion en Unicode", "http://maisondesrevues.org/199"
         ],
+        label: "Symbol",
+        labelPos: "after",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
 
-            var symbolsRegex = 	/[]/g,
-                match = $("#docBody", root).text().match(symbolsRegex);
+            var symbolsRegex = 	/[]/g;
+            
+            notif.addMarkersFromRegex(symbolsRegex);
 
-            if (match) {
-                if (root === document) {
-                    $('#docBody', root).highlightRegex(symbolsRegex, {
-                        tagType:   'span',
-                        className: 'symbolalert'
-                    });
-                    $("body").addClass("hasMarqueur");
-                }
-
-                // TODO: utiliser le même type de marqueur qu'habituellement
-                notif.count = match.length;
+            if (notif.count > 0) {
                 notif.activate();
             }
 

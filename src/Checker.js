@@ -202,7 +202,8 @@ Checker.prototype.process = function () {
 
 Checker.prototype.show = function () {
     
-    var notif;
+    var notif,
+        actions;
     
     if (!this.target || (this.target && $(this.target).length === 0)) {
         console.log("Erreur: 'target' n'est pas défini ou n'existe pas.");
@@ -225,8 +226,7 @@ Checker.prototype.show = function () {
     
     for (var i=0; i < this.notifications.length; i++) {
         notif = this.notifications[i];
-        // TODO: revoir les css (noms de classes de l'ensemble)
-        $('<li class="erreur ' + notif.type + '" data-screlo-id="' + notif.id + '">' + notif.getName() + '</li>').appendTo(this.target);
+        $(notif.getHtml()).appendTo(this.target); // FIXME: root devrait peut-être être associé à la Notification pour plus de simplicité
     }
     
 };
@@ -236,7 +236,9 @@ Checker.prototype.toCache = function () {
     
     var nomCourt = globals.nomCourt,
         id = this.idPage,
-        value = this.notifications;
+        value = this.notifications.map(function (notification) {
+            return notification.export();
+        });
     
     utils.cache.set(nomCourt, id, value);
     

@@ -5,13 +5,24 @@
 var utils = require("./utils.js"),
 	globals = require("./globals.js"),
     Checker = require("./Checker.js"),
+    tests = require("./tests-revues.js"),
     cmd = {};
 
 
 // TODO: ambiguite avec l'info de l'aide => à distinguer plus clairement
 cmd.info = function () {
+    
+    function listTests () {
+        var res = [];
+        
+        for (var i=0; i<tests.length; i++) {
+            res.push("[" + tests[i].id + "] " + tests[i].name);
+        }
+        
+        return res;
+    }
 
-    var msg = 'Screlo version ' + globals.version + '\n\nScrelo effectue les tests suivants :\n' + listerTests(tests).join('\n') + '\n\nUne mise à jour de Screlo est peut-être disponible. Forcer la mise à jour ?',
+    var msg = 'Screlo version ' + globals.version + '\n\nScrelo effectue les tests suivants :\n' + listTests().join('\n') + '\n\nUne mise à jour de Screlo est peut-être disponible. Forcer la mise à jour ?',
         user = false;
 
     user = confirm(msg);
@@ -54,7 +65,6 @@ cmd.ajax = function () {
         chkr.target = "ul#relecture" + id;
         
         chkr.ready( function (_this) {
-            console.log("_this", _this);
             _this.toCache().show();
             doneCheckers++;
             if (isDone(doneCheckers)) {
@@ -100,11 +110,12 @@ cmd.clear = function () {
 
 
 
-cmd.cycle = function () {
+cmd.cycle = function (id) {
 
     var winPos = $(window).scrollTop(),
         maxScroll = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight) - window.innerHeight,
-        marqueurs = $(".screlo-marqueur, .symbolalert").map(function() {
+        selector = id ? ".screlo-marqueur[data-screlo-marqueur-id='" + id + "']" : ".screlo-marqueur",
+        marqueurs = $(selector).map(function() {
             return $(this).offset().top;
         }).get();
 
@@ -146,12 +157,16 @@ cmd.paper = function () {
 
 cmd.showInfo = function ($clickElement) {
     
-    var id = $clickElement.attr("data-screlo-id"),
+    // TODO: pas performant du tout (sélecteurs divers, css)
+    
+    var id = $clickElement.parents("[data-screlo-id]").eq(0).attr("data-screlo-id"),
         info;
     
     if (!id && id !== 0) {
         return false;
     }
+    
+    $clickElement.parents(".screlo-notification-actions").addClass("active");
     
     id = parseInt(id);
     info = globals.infos[id];
@@ -159,7 +174,10 @@ cmd.showInfo = function ($clickElement) {
     picoModal({
         content: info,
         width: 600
-    }).afterClose(function (modal) { modal.destroy(); }).show();
+    }).afterClose(function (modal) { 
+        modal.destroy(); 
+        $(".screlo-notification-actions.active").removeClass("active");
+    }).show();
     
 };
 

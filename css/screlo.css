@@ -10,10 +10,12 @@
     z-index: 1000;
 }
 
+/* Notifications */
+
 ul#screlo-tests {
     padding: 0;
     margin: 0 0 0 auto;
-    max-width: 280px;
+    max-width: 350px;
 }
 
 #screlo-tests li, ul.screlo-relecture li {
@@ -28,9 +30,11 @@ ul#screlo-tests {
     border-radius: 4px;
     position: relative;
     color: #fff;
+    overflow: hidden;
+    cursor: default;
 }
 
-#screlo-tests li span, ul.screlo-relecture li span {
+#screlo-tests li span.count, ul.screlo-relecture li span.count {
     border-radius: 10px;
     padding: 2px 6px;
     text-align: center;
@@ -41,11 +45,61 @@ ul#screlo-tests {
     right: 10px;
     margin-top: -11px;
     border: 1px solid #FFF;
+    color: #FFF;
 }
 
 ul.screlo-relecture {
     display: block;
     overflow: hidden;
+}
+
+.screlo-notification-actions {
+    display: none;
+    background: #000;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    padding: 0 10px;
+    width: auto;
+    text-align: right;
+}
+
+#screlo-tests li:hover .screlo-notification-actions, ul.screlo-relecture li:hover .screlo-notification-actions, .screlo-notification-actions.active {
+    display: block;
+}
+
+.screlo-notification-actions a[data-screlo-button] {
+    text-align: left;
+    white-space: nowrap; 
+    overflow: hidden;
+    display: inline-block;
+    text-indent: -9999px;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 14px 8px;
+    background: #000;
+    border:none;
+    border-radius: 3px;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.screlo-notification-actions a[data-screlo-button]:hover {
+    opacity: 1;
+}
+
+.screlo-notification-actions a[data-screlo-button="cycle"] {
+    background: url("http://localhost/screlo/svg/search.svg") no-repeat center;
+}
+
+.screlo-notification-actions a[data-screlo-button="info"] {
+    background: url("http://localhost/screlo/svg/question.svg") no-repeat center;
+}
+
+.screlo-notification-actions a[data-screlo-button="ignore"] {
+    background: url("http://localhost/screlo/svg/cancel-circle.svg") no-repeat center;
 }
 
 /* Toolbar */
@@ -226,7 +280,7 @@ span.screlo-marqueur:first-child:after, span.paranumber + span.screlo-marqueur:a
 /* Niveaux d'erreurs */
 
 span.screlo-marqueur.warning:after, ul#screlo-tests li.warning, ul.screlo-relecture li.warning {
-    background : #ed9c28;
+    background : #DF7401;
 }
 
 span.screlo-marqueur.danger:after, ul#screlo-tests li.danger, ul.screlo-relecture li.danger {
@@ -315,9 +369,6 @@ span.familyName {
     color:red;
     background:#FF8
 }
-
-/* Alertes Symbol */
-span.symbolalert {background-color: orange;}
 
 /* Loading */
 
