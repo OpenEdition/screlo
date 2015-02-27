@@ -226,7 +226,7 @@ Checker.prototype.show = function () {
     
     for (var i=0; i < this.notifications.length; i++) {
         notif = this.notifications[i];
-        $(notif.getHtml()).appendTo(this.target); // FIXME: root devrait peut-être être associé à la Notification pour plus de simplicité
+        $(notif.getHtml()).appendTo(this.target);
     }
     
 };

@@ -1,4 +1,6 @@
-/* ScReLo - https://github.com/thomas-fab/screlo */
+/* 
+    Screlo 
+*/
 
 /* Principal */
 
@@ -12,26 +14,41 @@
 
 /* Notifications */
 
-ul#screlo-tests {
+ul#screlo-tests, ul#screlo-infos {
     padding: 0;
     margin: 0 0 0 auto;
     max-width: 350px;
 }
 
-#screlo-tests li, ul.screlo-relecture li {
+#screlo-tests li, #screlo-infos li, ul.screlo-relecture li {
     font-family: Arial, Verdana, serif;
     font-size: 14px;
     list-style-type: none;
     display: block;
     padding: 10px 40px 10px 10px;
     margin: 6px;
-    background: #eee;
+    background: #999;
     box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.1) inset;
     border-radius: 4px;
     position: relative;
     color: #fff;
     overflow: hidden;
     cursor: default;
+}
+
+#screlo-infos li {
+    background: #DDD;
+    color: #000;
+}
+
+#screlo-infos li a, #screlo-infos li a:visited {
+    text-decoration: underline;
+    color: #000;
+}
+
+#screlo-infos li a:active, #screlo-infos li a:hover, #screlo-infos li a:focus {
+    text-decoration: none;
+    color: #666;
 }
 
 #screlo-tests li span.count, ul.screlo-relecture li span.count {
@@ -91,15 +108,15 @@ ul.screlo-relecture {
 }
 
 .screlo-notification-actions a[data-screlo-button="cycle"] {
-    background: url("http://localhost/screlo/svg/search.svg") no-repeat center;
+    background: url("/* @echo URL */img/svg/16/search.svg") no-repeat center;
 }
 
 .screlo-notification-actions a[data-screlo-button="info"] {
-    background: url("http://localhost/screlo/svg/question.svg") no-repeat center;
+    background: url("/* @echo URL */img/svg/16/question.svg") no-repeat center;
 }
 
 .screlo-notification-actions a[data-screlo-button="ignore"] {
-    background: url("http://localhost/screlo/svg/cancel-circle.svg") no-repeat center;
+    background: url("/* @echo URL */img/svg/16/cancel-circle.svg") no-repeat center;
 }
 
 /* Toolbar */
@@ -143,57 +160,57 @@ ul.screlo-relecture {
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="edit"], body.publications #screlo-toolbar a[data-screlo-button="edit"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/svg/quill.svg") no-repeat center;
+    background: url("/* @echo URL */img/svg/24/quill.svg") no-repeat center;
     display: block;
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="download"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/svg/download.svg") no-repeat center;
+    background: url("/* @echo URL */img/svg/24/download.svg") no-repeat center;
     display: block;
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="upload"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/svg/upload.svg") no-repeat center;
+    background: url("/* @echo URL */img/svg/24/upload.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="info"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/svg/info.svg") no-repeat center;
+    background: url("/* @echo URL */img/svg/24/info.svg") no-repeat center;
     display: block;
 }
 
-body.numero #screlo-toolbar a[data-screlo-button="ajax"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/svg/rocket.svg") no-repeat center;
+body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
+    background: url("/* @echo URL */img/svg/24/rocket.svg") no-repeat center;
     display: block;
 }
 
-body.numero #screlo-toolbar a[data-screlo-button="clear"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/svg/remove.svg") no-repeat center;
+body.publications #screlo-toolbar a[data-screlo-button="clear"] {
+    background: url("/* @echo URL */img/svg/24/remove.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="papier"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/svg/newspaper.svg") no-repeat center;
+    background: url("/* @echo URL */img/svg/24/newspaper.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="gocontents"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/svg/arrow-up-left.svg") no-repeat center;
+    background: url("/* @echo URL */img/svg/24/arrow-up-left.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="goprev"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/svg/arrow-left.svg") no-repeat center;
+    background: url("/* @echo URL */img/svg/24/arrow-left.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="gonext"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/svg/arrow-right.svg") no-repeat center;
+    background: url("/* @echo URL */img/svg/24/arrow-right.svg") no-repeat center;
     display: block;
 }
 
 body.hasMarqueur #screlo-toolbar a[data-screlo-button="cycle"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/svg/tags.svg") no-repeat center;
+    background: url("/* @echo URL */img/svg/24/tags.svg") no-repeat center;
     display: block;
 }
 
@@ -277,30 +294,99 @@ span.screlo-marqueur:first-child:after, span.paranumber + span.screlo-marqueur:a
     margin-left: 0;
 }
 
+/* Picomodal et infos */
+
+.pico-content {
+    font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+    font-size: 1.25em;
+    padding: 3em;
+    background-color: white;
+    border-radius: 5px;
+    display: block;
+    left: 50%;
+    position: fixed;
+    top: 50px;
+    transform: translateX(-50%);
+    width: 600px;
+    z-index: 10001;
+}
+
+.pico-content a, .pico-content a:visited {
+    color: #168ed2;
+    text-decoration: underline;
+}
+
+.pico-content a:hover, .pico-content a:focus, .pico-content a:active {
+    color: #0ca7cc;
+}
+
+.pico-content h1 {
+    font-size: 1.6em;
+    line-height: 1.2em;
+    margin-bottom: 1em;
+    text-align: center;
+}
+
+.pico-content p {
+    margin: 1em 0;
+}
+
+.pico-content .infolinks {
+    border-left: 10px solid #000;
+    padding: 10px 10px 10px 30px;
+}
+
+.pico-content h2 {
+    font-size: 1.2em;
+    margin-bottom: 0.8em;
+}
+
+.pico-content .infolinks ul {
+    list-style-position: outside;
+    list-style-type: square;
+    margin-left: 30px;
+}
+
+.pico-content .screlo-typeinfos {
+    background-color: #aaa;
+    color: white;
+    padding: 1em;
+    border-radius: 4px;   
+    margin: 1em 0;
+}
+
+.pico-close {
+    cursor: pointer;
+    font-size: 26px;
+    height: 15px;
+    line-height: 15px;
+    position: absolute;
+    right: 5px;
+    text-align: center;
+    top: 10px;
+    width: 30px;
+}
+
 /* Niveaux d'erreurs */
 
-span.screlo-marqueur.warning:after, ul#screlo-tests li.warning, ul.screlo-relecture li.warning {
+span.screlo-marqueur.warning:after, ul#screlo-tests li.warning, ul.screlo-relecture li.warning, .pico-content .screlo-typeinfos.screlo-warning {
     background : #DF7401;
 }
 
-span.screlo-marqueur.danger:after, ul#screlo-tests li.danger, ul.screlo-relecture li.danger {
+span.screlo-marqueur.danger:after, ul#screlo-tests li.danger, ul.screlo-relecture li.danger, .pico-content .screlo-typeinfos.screlo-danger {
     background:  #d2322d;
 }
 
-span.screlo-marqueur.succes:after, ul#screlo-tests li.succes, ul.screlo-relecture li.succes {
+span.screlo-marqueur.succes:after, ul#screlo-tests li.succes, ul.screlo-relecture li.succes, .pico-content .screlo-typeinfos.screlo-succes {
     background: #7ABD18;
 }
 
-span.screlo-marqueur.print:after, ul#screlo-tests li.print, ul.screlo-relecture li.print {
+span.screlo-marqueur.print:after, ul#screlo-tests li.print, ul.screlo-relecture li.print, .pico-content .screlo-typeinfos.screlo-print {
     background: #9b55dd;
 }
 
 span.screlo-marqueur.screlo-exception:after, ul#screlo-tests li.screlo-exception, ul.screlo-relecture li.screlo-exception {
     background: #000;
-}
-
-ul#screlo-tests #screlo-infocache {
-     color: #000;
 }
 
 /* Repérer le nom de famille de l'auteur */
@@ -379,7 +465,7 @@ span.familyName {
     left: 0%;
     width: 100%;
     height: 100%;
-    background: black url("https://raw.githubusercontent.com/thomas-fab/screlo/master/img/loading.gif") no-repeat center center;
+    background: black url("/* @echo URL */img/loading.gif") no-repeat center center;
     z-index:10001;
     -moz-opacity: 0.8;
     opacity:.80;
@@ -393,30 +479,4 @@ body.loading  #screlo-loading {
 /* Correct navEntities */
 .navEntities a.corrected {
     box-shadow: 0 0 10px #7abd18 inset;
-}
-
-/* Picomodal*/
-
-.pico-content {
-    font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
-    font-size: 1.3em;
-    padding: 3em 2em 4em !important;
-}
-
-.pico-content h1 {
-    font-size: 2em;
-    line-height: 1.2em;
-    margin-bottom: 1em;
-    text-align: center;
-}
-
-.pico-content h2 {
-    font-weight: bold;
-    margin: 1em 0 0;
-}
-
-.pico-content .infolinks {
-    list-style-position: outside;
-    list-style-type: circle;
-    margin: 0 0 0 5em;
 }

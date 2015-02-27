@@ -35,7 +35,7 @@ function manageDom () {
                    "<a data-screlo-button='goprev' class='hidden' title='Précédent'>Précédent</a>",
                    "<a data-screlo-button='gonext' class='hidden' title='Suivant'>Suivant</a>",
                    "<form id='form-acces-rapide'><input id='acces-rapide' type='text' data-screlo-action='go' placeholder='▶'/></form>"],
-        squel = "<div id='screlo-main'><ul id='screlo-infos'></ul><ul id='screlo-tests'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
+        squel = "<div id='screlo-main'><ul id='screlo-tests'></ul><ul id='screlo-infos'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
 
     $(squel).appendTo("body");
     
@@ -114,7 +114,9 @@ function manageToc () {
             $target;
         
         // NOTE: manip indispensable pour séparer les résultats en cas d'alias. Le markup de la maquette ne permet pas de faire mieux.
-        if ($element.nextUntil(".title", ".altertitle").length !== 0) {
+        if ($element.nextUntil(".title", ".description").length !== 0) {
+            $prev = $element.nextUntil(".title", ".description").last();
+        } else if ($element.nextUntil(".title", ".altertitle").length !== 0) {
             $prev = $element.nextUntil(".title", ".altertitle").last();
         } else if ($element.nextUntil(".title", ".subtitle").length !== 0) {
             $prev = $element.nextUntil(".title", ".subtitle").last();
@@ -149,7 +151,7 @@ function manageToc () {
         $target,
         somethingLoaded = false;
     
-    if (!globals.isNumero) {
+    if (!globals.isPublication) {
         return;
     }
 
@@ -159,8 +161,7 @@ function manageToc () {
     }
 
     if (somethingLoaded) {
-        // FIXME: doit être chargé dans une div à part pour éviter désordre erreurs numéro
-        $("<li id='screlo-infocache'>Erreurs chargées à partir du cache de Screlo. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-tests");
+        $("<li id='screlo-infocache'>Notifications chargées à partir du cache de Screlo. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-infos");
     }
 
 }

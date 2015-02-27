@@ -12,9 +12,9 @@ globals.version = "/* @echo VERSION */";
 globals.schema =  "15.2.3";
 
 globals.appUrls = {
-    stylesheet: "/* @echo STYLESHEET */",
-    update: "https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js",
-    fancybox: "http://static.devel.revues.org/js/fancybox/jquery.fancybox-1.3.1.js"
+    base: "/* @echo URL */",
+    stylesheet: "/* @echo URL */" + "dist/screlo.css",
+    update: "/* @echo UPDATE */"
 };
 
 
@@ -30,6 +30,8 @@ globals.nomCourt = (function () {
     }
     
 })();
+
+globals.hash = window.location.hash.substring(1);
 
 
 globals.cacheIsValid = (function () {
@@ -66,15 +68,53 @@ globals.paper = (function () {
 
 
 
-globals.isNumero = (function () {
-    return $("body").hasClass("numero") && $('ul.summary li.textes .title').length > 0;
+globals.isPublication = (function () {
+    return $("body").hasClass("publications") && $('ul.summary li.textes .title').length > 0;
 })();
 
 
-globals.toc = globals.isNumero ? utils.getToc() : false;
+globals.toc = globals.isPublication ? utils.getToc() : false;
 
 
 globals.infos = (function () {
+    
+    function getInfo (test) {
+        var typeInfos = {
+            danger: "Cette notification signale une erreur critique concernant la composition du document. Cette erreur peut entraver le traitement et la mise en valeur des contenus sur la plateforme, il est donc fortement recommandé de la corriger.",
+            warning: "Cette notification est un avertissement concernant certains aspects de la composition du document qui peuvent peut-être être améliorés.",
+            print: "Cette notification concerne les contenus qui existent également en version imprimée. Il est conseillé de corriger ces erreurs afin d'améliorer la citabilité et le référencement de ces contenus."
+        },
+            type = test.type || "danger",
+            links,
+            info = "";
+
+        if (!test.description) {
+            return false;
+        }
+
+        if (test.name) {
+            info += "<h1 class='" + type + "'> Test #" + test.id + " - " + test.name + "</h1>";
+        }
+
+        info += "<p class='screlo-typeinfos screlo-" + type + "'>" + typeInfos[type] + "</p>";
+
+        info += "<p>" + test.description + "</p>\n";
+
+        if (test.links && test.links.length >= 2) {
+            links = test.links;
+            info += "<div class='infolinks'>\n<h2>À lire dans la documentation</h2>\n<ul>\n";
+
+            for (var j=0; j<links.length; j=j+2) {
+                if (links[j] && links[j+1]) {
+                    info += "<li><a href='" + links[j+1] + "' target='_blank'>" + links[j] + "</a></li>\n";
+                }
+            }
+
+            info += "</ul></div>";
+        }
+        return info;
+    }
+    
     var infos = [],
         thisId,
         thisInfo;
@@ -82,13 +122,12 @@ globals.infos = (function () {
     for (var i=0; i<tests.length; i++) {
         if (tests[i].id && tests[i].description) {
             thisId = tests[i].id;
-            thisInfo = utils.getInfo(tests[i]);
+            thisInfo = getInfo(tests[i]);
             infos[thisId] = thisInfo;
         }
     }
     
     return infos;
 })();
-
 
 module.exports = globals;

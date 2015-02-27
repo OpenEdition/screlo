@@ -62,11 +62,32 @@ Notification.prototype.addMarker = function (element) {
 };
 
 
+Notification.prototype.countMatches = function (regex, $parent) {
+    
+    if (!regex || !$parent) {
+        console.error("Notification.prototype.countMatches: erreur d'arguments");
+        return false;
+    }
+    
+    var match = $parent.text().match(regex);
+    
+    if (match && match.length > 0) {
+        this.count = match.length;
+    }
+};
+
+
 Notification.prototype.addMarkersFromRegex = function (regex, $parent) {
     
-    var _this = this;
+    $parent = $parent || $(this.root);
     
-    $parent = $parent || $("#main", this.root);
+    // En cas d'exécution Ajax seul le nombre d'erreurs nous intéresse
+    if (this.root !== document) {
+        this.countMatches(regex, $parent);
+        return this;
+    }
+    
+    var _this = this;
     
     $parent.highlightRegex(regex, {
         tagType:   'span',

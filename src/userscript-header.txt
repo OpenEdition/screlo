@@ -5,7 +5,6 @@
 // @include     /http:\/\/(?!(www|lodel|devel|formations))[a-z]+\.revues.org\/(?!(lodel))/
 // @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z]+\/(?!(lodel))/
 // @version     <!-- @echo VERSION -->
-// @downloadURL	https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js
-// @updateURL	https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js
+// @updateURL	<!-- @echo UPDATE -->
 // @grant       none
 // ==/UserScript==

@@ -43,6 +43,7 @@ cmd.ajax = function () {
         $("#screlo-tests #screlo-infocache").remove();
         $(".screlo-relecture").empty();
         $("body").addClass("loading");
+        $("#screlo-infocache").remove();
         
     }
     
@@ -78,7 +79,7 @@ cmd.ajax = function () {
         doneCheckers = 0,
         id;
     
-    if (!globals.isNumero) {
+    if (!globals.isPublication) {
         console.log("Impossible d'utiliser la relecture ajax sur cette page.");
         return;
     }
@@ -157,8 +158,7 @@ cmd.paper = function () {
 
 cmd.showInfo = function ($clickElement) {
     
-    // TODO: pas performant du tout (sélecteurs divers, css)
-    
+    // TODO: à recoder (sélecteurs divers, css)   
     var id = $clickElement.parents("[data-screlo-id]").eq(0).attr("data-screlo-id"),
         info;
     
@@ -173,7 +173,9 @@ cmd.showInfo = function ($clickElement) {
     
     picoModal({
         content: info,
-        width: 600
+        width: 600,
+        closeStyles: "",
+        modalStyles: ""
     }).afterClose(function (modal) { 
         modal.destroy(); 
         $(".screlo-notification-actions.active").removeClass("active");

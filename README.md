@@ -3,6 +3,8 @@ Screlo
 
 ## Installation
 
+**Attention ! Les ressources sont actuellement récupérées via http://rawgit.com version dev/testing. Ne pas utiliser en production en l'état, sinon risque de blacklisting.**
+
 Étape 1 : installer un plugin permettant d'installer des scripts utilisateur sur le navigateur :
 
 - **Pour Firefox :** GreaseMonkey https://addons.mozilla.org/fr/firefox/addon/greasemonkey/
@@ -32,6 +34,16 @@ La liste complète des tests effectués par Screlo est disponible dans le menu "
 2. Installer Node.js : http://nodejs.org/
 3. Installer Grunt : `$ npm install -g grunt-cli` 
 4. Installer les dépendances de développement dans le répertoire du projet : `$ npm install`
-5. Lancer grunt afin de monitorer les changements : `$ grunt`
+5. Lancer grunt : `$ grunt`
 
-Pour réinstaller automatiquement l'userscript dans le navigateur : `$ grunt --userpath="C:\path_to_your_firefox_profile\gm_scripts\screlo"`
+### Options Grunt
+
+* Réinstaller automatiquement l'userscript dans le navigateur : `$ grunt --userpath="C:\path_to_your_firefox_profile\gm_scripts\screlo"` où `--userpath` est le répertoire où copier `screlo.user.js`.
+* Copier les ressources sur `localhost` (utile pour contourner les *local files security policy* du navigateur) : `$ grunt --www="C:\path_to_www" --subfolder="screlo_dir_in_www"` où `--www` est le chemin de www sur le disque local et `--subfolder` le dossier où copier les ressources.
+* Utiliser les urls de la branche `develop` : `$ grunt --develop`
+
+**Remarque :** les chemins vers les répertoires passés en argument ne doivent **pas** se terminer par `/` ou `\`.
+
+### Autres tâches
+
+* Générer la liste des tests et des informations dans `docs/` à partir de `src/tests-revues.js` : `$ grunt buildinfos`

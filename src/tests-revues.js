@@ -1,8 +1,6 @@
 // ############### TESTS REVUES.ORG ###############
 
-/*
-    Chaque test est un objet de la forme suivante :
-    
+/*    
     {
         name: (string) Nom du test affiché dans la Notification.
         id: (string) Identifiant numérique unique du test.
@@ -14,7 +12,7 @@
         condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
         action: (function(notif, root)) La fonction qui exécute le test. Retourne notif.
             Le paramètre notif est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
-            Le paramètre root est l'élément du DOM qui sert de contexte au test. On utilise $(selecteur, root) dans la fonction action().
+            Le paramètre root est l'élément du DOM qui sert de contexte au test. On utilise $(selecteur, root) dans la fonction action(). Attention : seul le contenu de #content est importé lors du test en ajax. Il faut donc appliquer les tests sur $("#main", root) ou tout simplement $(root), mais pas plus haut dans le DOM sinon le test ne fonctionnera pas avec Ajax.
     }
 */
 
@@ -84,25 +82,7 @@ module.exports = [
         }
     },
 
-    {
-        // FIXME: ce test ne fonctionne que si la page est affichée en français > à passer au niveau du numéro
-        name: "Pas de date de publication électronique",
-        id: 4,
-        description: "La date de publication électronique est absente des métadonnées du numéro ou n'est pas correctement stylée. Il est impératif de renseigner cette métadonnée dans le formulaire d'édition du numéro ou de la rubrique.",
-        links: ["Les dates de publication", "http://maisondesrevues.org/84"],
-        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
-        action: function (notif, context, root) {
-
-            var refElectro = $('#quotation > h3:last', root).next('p').text();
-
-            if (refElectro.match(/mis en ligne le ,/)) {
-                notif.activate();
-            }
-
-            return notif;
-
-        }
-    },
+    // NOTE: Test #4 "Pas de date de publication électronique" supprimé. Ce test doit être recodé.
 
     {	
         name: "Absence de référence de l'œuvre commentée",
@@ -134,7 +114,7 @@ module.exports = [
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
 
-            var el = $('#content [style*="Symbol"], #content [style*="symbol"], #content [style*="Wingdings"], #content [style*="wingdings"], #content [style*="Webdings"], #content [style*="webdings"]', root);
+            var el = $('#main [style*="Symbol"], #main [style*="symbol"], #main [style*="Wingdings"], #main [style*="wingdings"], #main [style*="Webdings"], #main [style*="webdings"]', root);
 
             el.each(function() {
                 notif.addMarker(this).activate();
@@ -261,7 +241,9 @@ module.exports = [
     },
 
     {
-        name: "Listes mal formatées", // NOTE: Test "Listes mal formatées" amelioré pour éviter les faux positifs sur les initiales de noms propres. Ne matchent que les intiales de la forme /^[A-Z]\.\s/ qui s'inscrivent dans une suite qui commence par "A.", "B.", etc. ou "A:", B:"...
+        // NOTE: Test "Listes mal formatées" amelioré pour éviter les faux positifs sur les initiales de noms propres. Ne matchent que les intiales de la forme /^[A-Z]\.\s/ qui s'inscrivent dans une suite qui commence par "A.", "B.", etc. ou "A:", B:"... 
+        // TODO: Ce test est une vraie usine à gaz patchée et repatchée qu'il faudrait réécrire un jour.
+        name: "Listes mal formatées",
         id: 12,
         description: "Ce document des paragraphes qui sont peut-être des citations et qui doivent être vérifiés.",
         links: ["Stylage des listes", "http://maisondesrevues.org/91"],
@@ -299,6 +281,36 @@ module.exports = [
                 var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 return alphabet[alphabet.indexOf(start) + dir];
             }
+            
+            function onlyKeepSiblings (e) {
+                
+                function getIndex(el) {
+                    var $el = $(el);
+                    
+                    if ($el.parent(".text").length !== 0) {
+                        return $el.index();
+                    } else {
+                        return $el.parents(".text > *").eq(0).index();
+                    }
+                }
+                
+                var res = [],
+                    currentIndex,
+                    prevIndex;
+                
+                for (var i=1; i<e.length; i++) {  
+                    currentIndex = getIndex(e[i]);
+                    prevIndex = getIndex(e[i-1]);
+                    
+                    if (currentIndex === prevIndex + 1) {
+                        if (i === 1) {
+                            res.push(e[0]);
+                        }
+                        res.push(e[i]);
+                    }
+                }
+                return res;
+            }
 
             var collection = $('#text > .text > p, #text > .text > .textandnotes > p', root).not(".titreillustration"),
                 err = [],
@@ -333,8 +345,10 @@ module.exports = [
                     }
                 }
             }
+            
+            err = onlyKeepSiblings(err);
 
-            for (i=0; i<err.length; i++) {
+            for (i=0; i<err.length; i++) {                
                 notif.addMarker(err[i]).activate();
             }
 
@@ -423,7 +437,7 @@ module.exports = [
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
 
-            $("#content ol :header, #content ul :header, #content li:header", root).each( function() {
+            $("#main ol :header, #main ul :header, #main li:header", root).each( function() {
                 notif.addMarker(this).activate();
             });
 
@@ -443,7 +457,8 @@ module.exports = [
         action: function (notif, context, root) {
 
             $('.texte:header, #docTitle, #docSubtitle, #docAltertitle > div', root).each( function() {
-                if( $(this).text().trim().match(/[\.:;=]$/) ) {
+                var text = $(this).text().trim();
+                if( text.match(/[\.:;=]$/) && !($(this).is('#docSubtitle') && text.match(/p\.$/)) ) { // Ne pas matcher le "p." des pages à la fin du sous-titre.
                     notif.addMarker(this).activate();
                 }
             });
@@ -670,9 +685,9 @@ module.exports = [
     },
 
     {
-        name: "Format de nom d'auteur : capitales, caractères interdits",
+        name: "Format de nom d'auteur",
         id: 26,
-        description: "Certains noms d'auteurs ne respectent pas le format attendu.",
+        description: "Certains noms d'auteurs ne respectent pas le format attendu ou contiennent des caractères inconnus. Les noms doivent être composés en bas de casse avec capitale initale.",
         links: [
             "Stylage des noms d'auteurs", "http://maisondesrevues.org/80",
             "Règles de stylage des index", "http://maisondesrevues.org/221"
@@ -811,7 +826,7 @@ module.exports = [
         action: function (notif, context, root) {
 
             var nbMots = $("#entries .index h3", root).filter( function(i,e) {
-                return !$(e).text().match(/(Index|Índice|Indice)/);
+                return !$(e).text().match(/(Index|Índice|Indice|Personnes citées|Géographique|Thématique)/);
             }).length,
                 nbResumes = $("#abstract .tabContent", root).length;
 
@@ -882,18 +897,23 @@ module.exports = [
     },
 
     {
-        // FIXME: ne fonctionne pas avec Ajax
         name: "Lien(s) caché(s) vers Wikipedia",
         id: 35,
-        description: "Ce document contient un ou plusieurs liens vers Wikipédia qui sont “cachés” derrière du texte. La présence de tels liens est parfois dûe à des copier-coller depuis Wikipédia. Vérifiez que leur présence est volontaire.",
+        description: "Ce document contient un ou plusieurs liens vers Wikipédia qui sont “cachés” derrière du texte. La présence de tels liens est parfois due à des copier-coller depuis Wikipédia. Vérifiez que leur présence est volontaire.",
         type: "warning",
         label: "Wikipedia",
         labelPos: "after",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
 
-            $("#content a[href*='wikipedia']", root).each( function () {
-                if ($(this).text() !== $(this).attr("href")) {
+            $("a[href*='wikipedia']", root).each( function () {
+                
+                // Ne pas compter les notes marginales pour éviter les doublons.
+                if ($(this).parents(".sidenotes").length !== 0) {
+                    return; // continue
+                }
+                
+                if ($(this).text().trim() !== decodeURIComponent($(this).attr("href").trim())) {
                     notif.addMarker(this).activate();
                 }
             });
