@@ -21,7 +21,7 @@ function Marker (options) {
 
 Marker.prototype.inject = function () {
 
-    var $span = $('<span class="screlo-marqueur"></span>').addClass(this.type).attr("data-screlo-marqueur-text", this.label).attr("data-screlo-marqueur-id", this.id);
+    var $span = $('<span class="screlo-marker"></span>').addClass(this.type).attr("data-screlo-marker-text", this.label).attr("data-screlo-marker-id", this.id);
 
     if (!this.valid) {
         return;
@@ -32,7 +32,7 @@ Marker.prototype.inject = function () {
     } else {
         $span.appendTo(this.element);    
     }
-    $("body").addClass("hasMarqueur"); // TODO: body.screlo-hasmarker
+    $("body").addClass("screlo-has-marker"); // TODO: body.screlo-hasmarker
 
 };
 

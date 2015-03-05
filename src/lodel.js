@@ -5,7 +5,7 @@
 function debugStylage () {
     
     // On recherche les P et SPAN vides (sauf COinS !)
-    $('p, span:not(.Z3988)').not('#screlo-main *').not('.screlo-marqueur').each(function() {
+    $('p, span:not(.Z3988)').not('#screlo-main *').not('.screlo-marker').each(function() {
 
         // Elements vides
         var strEmpty = ($(this).get(0).tagName == 'P') ? 'paragraphe vide' : '\u00A0';

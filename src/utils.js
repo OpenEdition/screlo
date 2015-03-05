@@ -95,7 +95,7 @@ utils.getPText = function ($p) {
 
     var clone = $p.clone();
 
-    clone.find('span.paranumber, span.screlo-marqueur').remove();
+    clone.find('span.paranumber, span.screlo-marker').remove();
 
     return String(clone.text()).trim();
 };

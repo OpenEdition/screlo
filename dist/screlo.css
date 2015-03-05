@@ -14,19 +14,19 @@
 
 /* Notifications */
 
-ul#screlo-tests, ul#screlo-infos {
+#screlo-notifications, #screlo-infos {
     padding: 0;
     margin: 0 0 0 auto;
     max-width: 350px;
 }
 
-#screlo-tests li, #screlo-infos li, ul.screlo-relecture li {
+.screlo-notification, .screlo-info {
     font-family: Arial, Verdana, serif;
     font-size: 14px;
     list-style-type: none;
     display: block;
     padding: 10px 40px 10px 10px;
-    margin: 6px;
+    margin: 6px !important;
     background: #999;
     box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.1) inset;
     border-radius: 4px;
@@ -36,22 +36,7 @@ ul#screlo-tests, ul#screlo-infos {
     cursor: default;
 }
 
-#screlo-infos li {
-    background: #DDD;
-    color: #000;
-}
-
-#screlo-infos li a, #screlo-infos li a:visited {
-    text-decoration: underline;
-    color: #000;
-}
-
-#screlo-infos li a:active, #screlo-infos li a:hover, #screlo-infos li a:focus {
-    text-decoration: none;
-    color: #666;
-}
-
-#screlo-tests li span.count, ul.screlo-relecture li span.count {
+.screlo-notification span.count {
     border-radius: 10px;
     padding: 2px 6px;
     text-align: center;
@@ -65,7 +50,7 @@ ul#screlo-tests, ul#screlo-infos {
     color: #FFF;
 }
 
-ul.screlo-relecture {
+.screlo-ajax-notifications {
     display: block;
     overflow: hidden;
 }
@@ -82,7 +67,7 @@ ul.screlo-relecture {
     text-align: right;
 }
 
-#screlo-tests li:hover .screlo-notification-actions, ul.screlo-relecture li:hover .screlo-notification-actions, .screlo-notification-actions.active {
+.screlo-notification:hover .screlo-notification-actions, .screlo-notification-actions.active {
     display: block;
 }
 
@@ -108,15 +93,32 @@ ul.screlo-relecture {
 }
 
 .screlo-notification-actions a[data-screlo-button="cycle"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/16/search.svg") no-repeat center;
+    background: url("http://localhost/screlo/img/svg/16/search.svg") no-repeat center;
 }
 
 .screlo-notification-actions a[data-screlo-button="info"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/16/question.svg") no-repeat center;
+    background: url("http://localhost/screlo/img/svg/16/question.svg") no-repeat center;
 }
 
 .screlo-notification-actions a[data-screlo-button="ignore"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/16/cancel-circle.svg") no-repeat center;
+    background: url("http://localhost/screlo/img/svg/16/cancel-circle.svg") no-repeat center;
+}
+
+/* Infos */
+
+.screlo-info {
+    background: #DDD;
+    color: #000;
+}
+
+.screlo-info a, .screlo-info a:visited {
+    text-decoration: underline;
+    color: #000;
+}
+
+.screlo-info a:active, .screlo-info a:hover, .screlo-info a:focus {
+    text-decoration: none;
+    color: #666;
 }
 
 /* Toolbar */
@@ -126,17 +128,9 @@ ul.screlo-relecture {
     height: 34px;
     padding: 5px 10px;
     border-radius: 4px 4px 0 0;
-    background: #333;
+    background: #000;
     border-top: #000;
-    color: #FFFFFF;
-    background: rgb(69,72,77); /* Old browsers */
-    background: -moz-linear-gradient(top,  rgba(69,72,77,1) 0%, rgba(0,0,0,1) 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(69,72,77,1)), color-stop(100%,rgba(0,0,0,1))); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  rgba(69,72,77,1) 0%,rgba(0,0,0,1) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  rgba(69,72,77,1) 0%,rgba(0,0,0,1) 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  rgba(69,72,77,1) 0%,rgba(0,0,0,1) 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  rgba(69,72,77,1) 0%,rgba(0,0,0,1) 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
+    color: #FFF;
     white-space: nowrap;
 
 }
@@ -160,57 +154,57 @@ ul.screlo-relecture {
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="edit"], body.publications #screlo-toolbar a[data-screlo-button="edit"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/24/quill.svg") no-repeat center;
+    background: url("http://localhost/screlo/img/svg/24/quill.svg") no-repeat center;
     display: block;
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="download"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/24/download.svg") no-repeat center;
+    background: url("http://localhost/screlo/img/svg/24/download.svg") no-repeat center;
     display: block;
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="upload"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/24/upload.svg") no-repeat center;
+    background: url("http://localhost/screlo/img/svg/24/upload.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="info"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/24/info.svg") no-repeat center;
+    background: url("http://localhost/screlo/img/svg/24/info.svg") no-repeat center;
     display: block;
 }
 
 body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/24/rocket.svg") no-repeat center;
+    background: url("http://localhost/screlo/img/svg/24/rocket.svg") no-repeat center;
     display: block;
 }
 
 body.publications #screlo-toolbar a[data-screlo-button="clear"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/24/remove.svg") no-repeat center;
+    background: url("http://localhost/screlo/img/svg/24/remove.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="papier"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/24/newspaper.svg") no-repeat center;
+    background: url("http://localhost/screlo/img/svg/24/newspaper.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="gocontents"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/24/arrow-up-left.svg") no-repeat center;
+    background: url("http://localhost/screlo/img/svg/24/arrow-up-left.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="goprev"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/24/arrow-left.svg") no-repeat center;
+    background: url("http://localhost/screlo/img/svg/24/arrow-left.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="gonext"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/24/arrow-right.svg") no-repeat center;
+    background: url("http://localhost/screlo/img/svg/24/arrow-right.svg") no-repeat center;
     display: block;
 }
 
-body.hasMarqueur #screlo-toolbar a[data-screlo-button="cycle"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/develop/img/svg/24/tags.svg") no-repeat center;
+body.screlo-has-marker #screlo-toolbar a[data-screlo-button="cycle"] {
+    background: url("http://localhost/screlo/img/svg/24/search.svg") no-repeat center;
     display: block;
 }
 
@@ -222,14 +216,14 @@ body.hasMarqueur #screlo-toolbar a[data-screlo-button="cycle"] {
     display: none;
 }
 
-#form-acces-rapide {
+#form-screlo-goto {
     float: left;
     clear: none;
     margin-right: 10px;
     display: inline;
 }
 
-#screlo-toolbar #acces-rapide {
+#screlo-goto {
     border: 2px solid #FFF;
     border-radius: 4px;
     background-color: #333;
@@ -244,12 +238,11 @@ body.hasMarqueur #screlo-toolbar a[data-screlo-button="cycle"] {
     display: inline;
 }
 
-#screlo-toolbar a:hover, #screlo-toolbar a:focus, #screlo-toolbar #acces-rapide:hover {
-    background-color: #000 !important;
-    color: #FFF;
+#screlo-toolbar a:hover, #screlo-toolbar a:focus, #screlo-goto:hover {
+    background-color: #444 !important;
 }
 
-#screlo-toolbar #acces-rapide:focus {
+#screlo-goto:focus {
     border:2px solid #111;
     background-color: #fff !important;
     color: #000;
@@ -272,13 +265,14 @@ body.hasMarqueur #screlo-toolbar a[data-screlo-button="cycle"] {
 
 /* Marqueurs */
 
-span.screlo-marqueur {
+span.screlo-marker {
     display: inline;
 }
 
-span.screlo-marqueur:after {
+span.screlo-marker:after {
     font-weight: normal;
     font-variant: normal;
+    font-style: : normal;
     font-family: sans-serif;
     font-size: 11px;
     display: inline;
@@ -287,10 +281,10 @@ span.screlo-marqueur:after {
     padding: 3px;
     border-radius: 4px;   
     margin: 0 5px;
-    content: attr(data-screlo-marqueur-text);
+    content: attr(data-screlo-marker-text);
 }
 
-span.screlo-marqueur:first-child:after, span.paranumber + span.screlo-marqueur:after {
+span.screlo-marker:first-child:after, span.paranumber + span.screlo-marker:after {
     margin-left: 0;
 }
 
@@ -369,23 +363,23 @@ span.screlo-marqueur:first-child:after, span.paranumber + span.screlo-marqueur:a
 
 /* Niveaux d'erreurs */
 
-span.screlo-marqueur.warning:after, ul#screlo-tests li.warning, ul.screlo-relecture li.warning, .pico-content .screlo-typeinfos.screlo-warning {
+span.screlo-marker.warning:after, .screlo-notification.warning, .pico-content .screlo-typeinfos.screlo-warning {
     background : #DF7401;
 }
 
-span.screlo-marqueur.danger:after, ul#screlo-tests li.danger, ul.screlo-relecture li.danger, .pico-content .screlo-typeinfos.screlo-danger {
+span.screlo-marker.danger:after, .screlo-notification.danger, .pico-content .screlo-typeinfos.screlo-danger {
     background:  #d2322d;
 }
 
-span.screlo-marqueur.succes:after, ul#screlo-tests li.succes, ul.screlo-relecture li.succes, .pico-content .screlo-typeinfos.screlo-succes {
+span.screlo-marker.succes:after, .screlo-notification.succes, .pico-content .screlo-typeinfos.screlo-succes {
     background: #7ABD18;
 }
 
-span.screlo-marqueur.print:after, ul#screlo-tests li.print, ul.screlo-relecture li.print, .pico-content .screlo-typeinfos.screlo-print {
+span.screlo-marker.print:after, .screlo-notification.print, .pico-content .screlo-typeinfos.screlo-print {
     background: #9b55dd;
 }
 
-span.screlo-marqueur.screlo-exception:after, ul#screlo-tests li.screlo-exception, ul.screlo-relecture li.screlo-exception {
+span.screlo-marker.screlo-exception:after, .screlo-notification.screlo-exception {
     background: #000;
 }
 
@@ -447,11 +441,11 @@ span.familyName {
 }
 
 /* Debug de stylage */
-.TODO{
+.TODO {
     background:#FF9DF9;
     cursor:help
 }
-.FIXME{
+.FIXME {
     color:red;
     background:#FF8
 }
@@ -465,7 +459,7 @@ span.familyName {
     left: 0%;
     width: 100%;
     height: 100%;
-    background: black url("https://rawgit.com/thomas-fab/screlo/develop/img/loading.gif") no-repeat center center;
+    background: black url("http://localhost/screlo/img/loading.gif") no-repeat center center;
     z-index:10001;
     -moz-opacity: 0.8;
     opacity:.80;

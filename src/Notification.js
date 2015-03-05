@@ -37,7 +37,7 @@ Notification.prototype.getHtml = function () {
         info = this.infoExists ? "<a data-screlo-button='info'>Aide</a>" : "",
         ignore = "<a data-screlo-button='ignore'>Ignorer</a>",
         actions = cycle || info ? "<div class='screlo-notification-actions'>" + cycle + info + "</div>" : "", // TODO: ajouter ignore
-        html = "<li class='erreur " + this.type + "' data-screlo-id='" + this.id + "'>" + this.name + count + actions + "</li>";
+        html = "<li class='screlo-notification " + this.type + "' data-screlo-id='" + this.id + "'>" + this.name + count + actions + "</li>";
 
     return html;
 };

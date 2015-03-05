@@ -25,7 +25,7 @@ function Checker (arg) {
 
     this.isReady = false;
     this.notifications = [];
-    this.target = "#screlo-tests";
+    this.target = "#screlo-notifications";
     this.context = { classes: [] };
     this.idPage = location.pathname.match(/(\d+)$/g);
     
@@ -190,7 +190,7 @@ Checker.prototype.process = function () {
     if (this.notifications[0] === undefined && nbTests > 0 && (this.context.classes.textes || this.root !== document)) {
 
         var successMessage = new Notification({
-            name: 'Aucune erreur détectée <span>' + nbTests + ' tests</span>',
+            name: 'Aucune erreur détectée <span class="count">' + nbTests + ' tests</span>',
             type: "succes"
         });
 

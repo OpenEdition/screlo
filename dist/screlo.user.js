@@ -36,7 +36,7 @@ function Checker (arg) {
 
     this.isReady = false;
     this.notifications = [];
-    this.target = "#screlo-tests";
+    this.target = "#screlo-notifications";
     this.context = { classes: [] };
     this.idPage = location.pathname.match(/(\d+)$/g);
     
@@ -201,7 +201,7 @@ Checker.prototype.process = function () {
     if (this.notifications[0] === undefined && nbTests > 0 && (this.context.classes.textes || this.root !== document)) {
 
         var successMessage = new Notification({
-            name: 'Aucune erreur détectée <span>' + nbTests + ' tests</span>',
+            name: 'Aucune erreur détectée <span class="count">' + nbTests + ' tests</span>',
             type: "succes"
         });
 
@@ -282,7 +282,7 @@ function Marker (options) {
 
 Marker.prototype.inject = function () {
 
-    var $span = $('<span class="screlo-marqueur"></span>').addClass(this.type).attr("data-screlo-marqueur-text", this.label).attr("data-screlo-marqueur-id", this.id);
+    var $span = $('<span class="screlo-marker"></span>').addClass(this.type).attr("data-screlo-marker-text", this.label).attr("data-screlo-marker-id", this.id);
 
     if (!this.valid) {
         return;
@@ -293,7 +293,7 @@ Marker.prototype.inject = function () {
     } else {
         $span.appendTo(this.element);    
     }
-    $("body").addClass("hasMarqueur"); // TODO: body.screlo-hasmarker
+    $("body").addClass("screlo-has-marker"); // TODO: body.screlo-hasmarker
 
 };
 
@@ -339,7 +339,7 @@ Notification.prototype.getHtml = function () {
         info = this.infoExists ? "<a data-screlo-button='info'>Aide</a>" : "",
         ignore = "<a data-screlo-button='ignore'>Ignorer</a>",
         actions = cycle || info ? "<div class='screlo-notification-actions'>" + cycle + info + "</div>" : "", // TODO: ajouter ignore
-        html = "<li class='erreur " + this.type + "' data-screlo-id='" + this.id + "'>" + this.name + count + actions + "</li>";
+        html = "<li class='screlo-notification " + this.type + "' data-screlo-id='" + this.id + "'>" + this.name + count + actions + "</li>";
 
     return html;
 };
@@ -466,8 +466,8 @@ cmd.ajax = function () {
     
     function ajaxStart () {
         
-        $("#screlo-tests #screlo-infocache").remove();
-        $(".screlo-relecture").empty();
+        $("#screlo-notifications #screlo-infocache").remove();
+        $(".screlo-ajax-notifications").empty();
         $("body").addClass("loading");
         $("#screlo-infocache").remove();
         
@@ -541,7 +541,7 @@ cmd.cycle = function (id) {
 
     var winPos = $(window).scrollTop(),
         maxScroll = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight) - window.innerHeight,
-        selector = id ? ".screlo-marqueur[data-screlo-marqueur-id='" + id + "']" : ".screlo-marqueur",
+        selector = id ? ".screlo-marker[data-screlo-marker-id='" + id + "']" : ".screlo-marker",
         marqueurs = $(selector).map(function() {
             return $(this).offset().top;
         }).get();
@@ -561,7 +561,7 @@ cmd.cycle = function (id) {
 
 cmd.quickAccess = function () {
 
-    var idAcces = $('input#acces-rapide').val();
+    var idAcces = $('input#screlo-goto').val();
 
     if (typeof idAcces === 'string') {
         window.location.href = utils.getUrl(idAcces);
@@ -625,8 +625,8 @@ globals.version = "15.2.4";
 globals.schema =  "15.2.3";
 
 globals.appUrls = {
-    base: "https://rawgit.com/thomas-fab/screlo/develop/",
-    stylesheet: "https://rawgit.com/thomas-fab/screlo/develop/" + "dist/screlo.css",
+    base: "http://localhost/screlo/",
+    stylesheet: "http://localhost/screlo/" + "dist/screlo.css",
     update: "https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js"
 };
 
@@ -752,7 +752,7 @@ module.exports = globals;
 function debugStylage () {
     
     // On recherche les P et SPAN vides (sauf COinS !)
-    $('p, span:not(.Z3988)').not('#screlo-main *').not('.screlo-marqueur').each(function() {
+    $('p, span:not(.Z3988)').not('#screlo-main *').not('.screlo-marker').each(function() {
 
         // Elements vides
         var strEmpty = ($(this).get(0).tagName == 'P') ? 'paragraphe vide' : '\u00A0';
@@ -1859,8 +1859,8 @@ function manageDom () {
                    "<a data-screlo-button='gocontents' class='hidden' title='Parent'>Parent</a>", // TODO: sortir du core
                    "<a data-screlo-button='goprev' class='hidden' title='Précédent'>Précédent</a>",
                    "<a data-screlo-button='gonext' class='hidden' title='Suivant'>Suivant</a>",
-                   "<form id='form-acces-rapide'><input id='acces-rapide' type='text' data-screlo-action='go' placeholder='▶'/></form>"],
-        squel = "<div id='screlo-main'><ul id='screlo-tests'></ul><ul id='screlo-infos'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
+                   "<form id='form-screlo-goto'><input id='screlo-goto' type='text' data-screlo-action='go' placeholder='▶'/></form>"],
+        squel = "<div id='screlo-main'><ul id='screlo-notifications'></ul><ul id='screlo-infos'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
 
     $(squel).appendTo("body");
     
@@ -1897,7 +1897,7 @@ function manageEvents () {
     });
     
     // TODO: séprarer du core de screlo
-    $( "#form-acces-rapide" ).submit(function( event ) {
+    $( "#form-screlo-goto" ).submit(function( event ) {
         event.preventDefault();
         cmd.quickAccess();
     });
@@ -1907,12 +1907,12 @@ function manageEvents () {
         cmd.paper();
     });
     
-    $("#screlo-tests .erreur [data-screlo-button='info'], .screlo-relecture .erreur [data-screlo-button='info']").live("click", function (event) {
+    $(".screlo-notification [data-screlo-button='info']").live("click", function (event) {
         event.preventDefault();            
         cmd.showInfo($(this));
     });
     
-    $("#screlo-tests .erreur [data-screlo-button='cycle'], .screlo-relecture .erreur [data-screlo-button='cycle']").live("click", function (event) {
+    $(".screlo-notification [data-screlo-button='cycle']").live("click", function (event) {
         event.preventDefault(); 
         
         // TODO: harmoniser car pour "info" cette vérification est faite dans la commande. Il faudrait peut-être une fonction pour choper et tester l'id
@@ -1949,7 +1949,7 @@ function manageToc () {
             $prev = $element;
         }
 
-        $target = $("<ul class='screlo-relecture' id='relecture" + id + "'></ul>").insertAfter($prev);
+        $target = $("<ul class='screlo-ajax-notifications' id='relecture" + id + "'></ul>").insertAfter($prev);
         
         return $target;
         
@@ -1986,7 +1986,7 @@ function manageToc () {
     }
 
     if (somethingLoaded) {
-        $("<li id='screlo-infocache'>Notifications chargées à partir du cache de Screlo. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-infos");
+        $("<li id='screlo-infocache' class='screlo-info'>Notifications chargées à partir du cache du navigateur. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-infos");
     }
 
 }
@@ -2110,7 +2110,7 @@ utils.getPText = function ($p) {
 
     var clone = $p.clone();
 
-    clone.find('span.paranumber, span.screlo-marqueur').remove();
+    clone.find('span.paranumber, span.screlo-marker').remove();
 
     return String(clone.text()).trim();
 };

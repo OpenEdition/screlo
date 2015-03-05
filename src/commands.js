@@ -40,8 +40,8 @@ cmd.ajax = function () {
     
     function ajaxStart () {
         
-        $("#screlo-tests #screlo-infocache").remove();
-        $(".screlo-relecture").empty();
+        $("#screlo-notifications #screlo-infocache").remove();
+        $(".screlo-ajax-notifications").empty();
         $("body").addClass("loading");
         $("#screlo-infocache").remove();
         
@@ -115,7 +115,7 @@ cmd.cycle = function (id) {
 
     var winPos = $(window).scrollTop(),
         maxScroll = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight) - window.innerHeight,
-        selector = id ? ".screlo-marqueur[data-screlo-marqueur-id='" + id + "']" : ".screlo-marqueur",
+        selector = id ? ".screlo-marker[data-screlo-marker-id='" + id + "']" : ".screlo-marker",
         marqueurs = $(selector).map(function() {
             return $(this).offset().top;
         }).get();
@@ -135,7 +135,7 @@ cmd.cycle = function (id) {
 
 cmd.quickAccess = function () {
 
-    var idAcces = $('input#acces-rapide').val();
+    var idAcces = $('input#screlo-goto').val();
 
     if (typeof idAcces === 'string') {
         window.location.href = utils.getUrl(idAcces);
