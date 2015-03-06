@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        screlo
-// @description Thomas Brouard - OpenEdition
+// @description <!-- @echo DESCRIPTION -->
 // @namespace   http://revues.org/
 // @include     /http:\/\/(?!(www|lodel|devel|formations))[a-z]+\.revues.org\/(?!(lodel))/
 // @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z]+\/(?!(lodel))/

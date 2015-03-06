@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     var userpath,
         www,
         subfolder,
-        url = "https://rawgit.com/thomas-fab/screlo/master/",
+        cdn = "https://rawgit.com/thomas-fab/screlo/master/",
         defaultTask;
    
     
@@ -21,10 +21,10 @@ module.exports = function(grunt) {
     if (grunt.option("www") && grunt.option("subfolder")) { // Usage: $ grunt --www="C:\path_to_www" --subfolder="screlo_dir_in_www"
         www = grunt.option( "www" ).replace(/\\/g, "/") + "/";
         subfolder = grunt.option( "subfolder" ).replace(/\\/g, "/") + "/";
-        url = "http://localhost/" + subfolder;
+        cdn = "http://localhost/" + subfolder;
         defaultTask.push("copy:localhost");
     } else if (grunt.option("develop")) {
-        url = "https://rawgit.com/thomas-fab/screlo/develop/";
+        cdn = "https://rawgit.com/thomas-fab/screlo/develop/";
     }
     
     if (!grunt.option("nowatch")) {
@@ -89,7 +89,7 @@ module.exports = function(grunt) {
         }
         
         var tests = require('./src/tests-revues.js'),
-            header = "# Tests Revues\n",
+            header = "<!-- Attention : cette page est générée automatiquement à partir du code source de Screlo. Ne pas la modifier ici. -->\n\n# Tests Revues\n",
             content = header + getTestsInfos(tests);
         
         grunt.file.write('docs/tests-revues.md', content);
@@ -130,7 +130,9 @@ module.exports = function(grunt) {
                 context : {
                     VERSION: '<%= pkg.version %>',
                     UPDATE: 'https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js',
-                    URL: url
+                    CDN: cdn,
+                    HOMEPAGE: '<%= pkg.homepage %>',
+                    DESCRIPTION: '<%= pkg.description %>'
                 }
             },
             main : {

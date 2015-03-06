@@ -29,7 +29,7 @@ function manageDom () {
                    "<a data-screlo-button='clear' title='Vider le cache pour ce site'>Vider le cache pour ce site</a>",
                    "<a data-screlo-button='cycle' title='Aller au marqueur suivant'>Aller au marqueur suivant</a>",
                    "<a data-screlo-button='papier' title='Revue papier'" + papier + ">Revue papier</a>",
-                   "<a data-screlo-button='info' title='Informations'>Informations</a>",
+                   "<a data-screlo-button='about' title='A propos'>A propos</a>",
                    "<span></span>",
                    "<a data-screlo-button='gocontents' class='hidden' title='Parent'>Parent</a>", // TODO: sortir du core
                    "<a data-screlo-button='goprev' class='hidden' title='Précédent'>Précédent</a>",
@@ -44,9 +44,9 @@ function manageDom () {
 
 function manageEvents () {
     
-    $( "[data-screlo-button='info']" ).click(function( event ) {
+    $( "[data-screlo-button='about']" ).click(function( event ) {
         event.preventDefault();
-        cmd.info();
+        cmd.about();
     });
 
     $( "[data-screlo-button='ajax']" ).click(function( event ) {

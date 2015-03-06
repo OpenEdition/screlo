@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        screlo
-// @description Thomas Brouard - OpenEdition
+// @description Script de relecture pour Lodel
 // @namespace   http://revues.org/
 // @include     /http:\/\/(?!(www|lodel|devel|formations))[a-z]+\.revues.org\/(?!(lodel))/
 // @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z]+\/(?!(lodel))/
@@ -435,28 +435,25 @@ var utils = require("./utils.js"),
     cmd = {};
 
 
-// TODO: ambiguite avec l'info de l'aide => à distinguer plus clairement
-cmd.info = function () {
+cmd.about = function () {
     
-    function listTests () {
-        var res = [];
-        
-        for (var i=0; i<tests.length; i++) {
-            res.push("[" + tests[i].id + "] " + tests[i].name);
-        }
-        
-        return res;
-    }
+    var msg = '<h1>Script de relecture pour Lodel</h1>\n' +
+        '<p>Version ' + globals.version + ' (<a href="' + globals.appUrls.homepage + '">' + globals.appUrls.homepage + '</a>)</p>\n\n' +
+        '<p>' +
+        '<a target="_blank" href="' + globals.appUrls.homepage + '">Page du projet</a><br>\n' +
+        '<a target="_blank" href="' + globals.appUrls.doc + '">Documentation en ligne</a><br>\n' +
+        '<a href="' + globals.appUrls.update + '">Mettre à jour</a>\n' +
+        '</p>';
 
-    var msg = 'Screlo version ' + globals.version + '\n\nScrelo effectue les tests suivants :\n' + listTests().join('\n') + '\n\nUne mise à jour de Screlo est peut-être disponible. Forcer la mise à jour ?',
-        user = false;
-
-    user = confirm(msg);
-
-    if (user) {
-        window.location.href = appUrls.update;
-    }
-
+    picoModal({
+        content: msg,
+        width: 400,
+        closeStyles: "",
+        modalStyles: ""
+    }).afterClose(function (modal) { 
+        modal.destroy(); 
+    }).show();
+    
 };
 
 
@@ -625,9 +622,11 @@ globals.version = "15.2.4";
 globals.schema =  "15.2.3";
 
 globals.appUrls = {
-    base: "http://localhost/screlo/",
-    stylesheet: "http://localhost/screlo/" + "dist/screlo.css",
-    update: "https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js"
+    base: "https://rawgit.com/thomas-fab/screlo/master/",
+    stylesheet: "https://rawgit.com/thomas-fab/screlo/master/" + "dist/screlo.css",
+    update: "https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js",
+    homepage: "https://github.com/thomas-fab/screlo",
+    doc: "https://github.com/thomas-fab/screlo" + "/tree/master/doc"
 };
 
 
@@ -834,6 +833,11 @@ function improveLodel () {
 
 module.exports = improveLodel;
 },{}],7:[function(require,module,exports){
+/*
+    SCRELO - Script de relecture pour Lodel
+    Thomas Brouard - OpenEdition
+*/
+
 if (!window.jQuery) {
     console.error("Screlo requires jQuery");
 } else {
@@ -842,7 +846,7 @@ if (!window.jQuery) {
         require("./vendor/highlightRegex.js");
         require("./vendor/picoModal.js");
 
-        var globals = require("./globals.js"), // TODO: Il faudrait peut-être que ce soit vraiment global ? Genre SCRELO
+        var globals = require("./globals.js"),
             ui = require("./ui.js"),
             improveLodel = require("./lodel.js");
 
@@ -1854,7 +1858,7 @@ function manageDom () {
                    "<a data-screlo-button='clear' title='Vider le cache pour ce site'>Vider le cache pour ce site</a>",
                    "<a data-screlo-button='cycle' title='Aller au marqueur suivant'>Aller au marqueur suivant</a>",
                    "<a data-screlo-button='papier' title='Revue papier'" + papier + ">Revue papier</a>",
-                   "<a data-screlo-button='info' title='Informations'>Informations</a>",
+                   "<a data-screlo-button='about' title='A propos'>A propos</a>",
                    "<span></span>",
                    "<a data-screlo-button='gocontents' class='hidden' title='Parent'>Parent</a>", // TODO: sortir du core
                    "<a data-screlo-button='goprev' class='hidden' title='Précédent'>Précédent</a>",
@@ -1869,9 +1873,9 @@ function manageDom () {
 
 function manageEvents () {
     
-    $( "[data-screlo-button='info']" ).click(function( event ) {
+    $( "[data-screlo-button='about']" ).click(function( event ) {
         event.preventDefault();
-        cmd.info();
+        cmd.about();
     });
 
     $( "[data-screlo-button='ajax']" ).click(function( event ) {

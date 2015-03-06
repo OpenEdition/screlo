@@ -9,28 +9,25 @@ var utils = require("./utils.js"),
     cmd = {};
 
 
-// TODO: ambiguite avec l'info de l'aide => à distinguer plus clairement
-cmd.info = function () {
+cmd.about = function () {
     
-    function listTests () {
-        var res = [];
-        
-        for (var i=0; i<tests.length; i++) {
-            res.push("[" + tests[i].id + "] " + tests[i].name);
-        }
-        
-        return res;
-    }
+    var msg = '<h1>Script de relecture pour Lodel</h1>\n' +
+        '<p>Version ' + globals.version + ' (<a href="' + globals.appUrls.homepage + '">' + globals.appUrls.homepage + '</a>)</p>\n\n' +
+        '<p>' +
+        '<a target="_blank" href="' + globals.appUrls.homepage + '">Page du projet</a><br>\n' +
+        '<a target="_blank" href="' + globals.appUrls.doc + '">Documentation en ligne</a><br>\n' +
+        '<a href="' + globals.appUrls.update + '">Mettre à jour</a>\n' +
+        '</p>';
 
-    var msg = 'Screlo version ' + globals.version + '\n\nScrelo effectue les tests suivants :\n' + listTests().join('\n') + '\n\nUne mise à jour de Screlo est peut-être disponible. Forcer la mise à jour ?',
-        user = false;
-
-    user = confirm(msg);
-
-    if (user) {
-        window.location.href = appUrls.update;
-    }
-
+    picoModal({
+        content: msg,
+        width: 400,
+        closeStyles: "",
+        modalStyles: ""
+    }).afterClose(function (modal) { 
+        modal.destroy(); 
+    }).show();
+    
 };
 
 

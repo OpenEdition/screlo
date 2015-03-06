@@ -12,9 +12,11 @@ globals.version = "/* @echo VERSION */";
 globals.schema =  "15.2.3";
 
 globals.appUrls = {
-    base: "/* @echo URL */",
-    stylesheet: "/* @echo URL */" + "dist/screlo.css",
-    update: "/* @echo UPDATE */"
+    base: "/* @echo CDN */",
+    stylesheet: "/* @echo CDN */" + "dist/screlo.css",
+    update: "/* @echo UPDATE */",
+    homepage: "/* @echo HOMEPAGE */",
+    doc: "/* @echo HOMEPAGE */" + "/tree/master/doc"
 };
 
 

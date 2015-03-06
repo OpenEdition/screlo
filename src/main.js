@@ -1,3 +1,8 @@
+/*
+    SCRELO - Script de relecture pour Lodel
+    Thomas Brouard - OpenEdition
+*/
+
 if (!window.jQuery) {
     console.error("Screlo requires jQuery");
 } else {
@@ -6,7 +11,7 @@ if (!window.jQuery) {
         require("./vendor/highlightRegex.js");
         require("./vendor/picoModal.js");
 
-        var globals = require("./globals.js"), // TODO: Il faudrait peut-être que ce soit vraiment global ? Genre SCRELO
+        var globals = require("./globals.js"),
             ui = require("./ui.js"),
             improveLodel = require("./lodel.js");
 

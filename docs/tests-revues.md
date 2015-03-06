@@ -1,3 +1,5 @@
+<!-- Attention : cette page est générée automatiquement à partir du code source de Screlo. Ne pas la modifier ici. -->
+
 # Tests Revues
 
 ## Test #1 - Absence d'auteur
