@@ -1,0 +1,476 @@
+/* 
+    Screlo 
+*/
+
+/* Principal */
+
+#screlo-main {
+    width: auto;
+    position: fixed;
+    bottom: 0;
+    right: 20px;
+    z-index: 1000;
+}
+
+/* Notifications */
+
+#screlo-notifications, #screlo-infos {
+    padding: 0;
+    margin: 0 0 0 auto;
+    max-width: 350px;
+}
+
+.screlo-notification, .screlo-info {
+    font-family: Arial, Verdana, serif;
+    font-size: 14px;
+    list-style-type: none;
+    display: block;
+    padding: 10px 40px 10px 10px;
+    margin: 6px !important;
+    background: #999;
+    box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.1) inset;
+    border-radius: 4px;
+    position: relative;
+    color: #fff;
+    overflow: hidden;
+    cursor: default;
+}
+
+.screlo-notification span.count {
+    border-radius: 10px;
+    padding: 2px 6px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    margin-top: -11px;
+    border: 1px solid #FFF;
+    color: #FFF;
+}
+
+.screlo-ajax-notifications {
+    display: block;
+    overflow: hidden;
+}
+
+.screlo-notification-actions {
+    display: none;
+    background: #000;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    padding: 0 10px;
+    width: auto;
+    text-align: right;
+}
+
+.screlo-notification:hover .screlo-notification-actions, .screlo-notification-actions.active {
+    display: block;
+}
+
+.screlo-notification-actions a[data-screlo-button] {
+    text-align: left;
+    white-space: nowrap; 
+    overflow: hidden;
+    display: inline-block;
+    text-indent: -9999px;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 14px 8px;
+    background: #000;
+    border:none;
+    border-radius: 3px;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.screlo-notification-actions a[data-screlo-button]:hover {
+    opacity: 1;
+}
+
+.screlo-notification-actions a[data-screlo-button="cycle"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/16/search.svg") no-repeat center;
+}
+
+.screlo-notification-actions a[data-screlo-button="info"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/16/question.svg") no-repeat center;
+}
+
+.screlo-notification-actions a[data-screlo-button="ignore"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/16/cancel-circle.svg") no-repeat center;
+}
+
+/* Infos */
+
+.screlo-info {
+    background: #DDD;
+    color: #000;
+}
+
+.screlo-info a, .screlo-info a:visited {
+    text-decoration: underline;
+    color: #000;
+}
+
+.screlo-info a:active, .screlo-info a:hover, .screlo-info a:focus {
+    text-decoration: none;
+    color: #666;
+}
+
+/* Toolbar */
+
+#screlo-toolbar {
+    width: auto;
+    height: 34px;
+    padding: 5px 10px;
+    border-radius: 4px 4px 0 0;
+    background: #000;
+    border-top: #000;
+    color: #FFF;
+    white-space: nowrap;
+
+}
+
+#screlo-toolbar button, #screlo-toolbar a {
+    text-align: left;
+    white-space: nowrap; 
+    overflow: hidden;
+    display: inline-block;
+    text-indent: -9999px;
+    width: 34px;
+    height: 34px;
+    margin-right: 10px;
+    background: #000;
+    border:none;
+    border-radius: 30px;
+    cursor: pointer;
+    float: left;
+    clear: none;
+    display: none;
+}
+
+body.textes #screlo-toolbar a[data-screlo-button="edit"], body.publications #screlo-toolbar a[data-screlo-button="edit"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/quill.svg") no-repeat center;
+    display: block;
+}
+
+body.textes #screlo-toolbar a[data-screlo-button="download"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/download.svg") no-repeat center;
+    display: block;
+}
+
+body.textes #screlo-toolbar a[data-screlo-button="upload"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/upload.svg") no-repeat center;
+    display: block;
+}
+
+#screlo-toolbar a[data-screlo-button="about"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/info.svg") no-repeat center;
+    display: block;
+}
+
+body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/rocket.svg") no-repeat center;
+    display: block;
+}
+
+body.publications #screlo-toolbar a[data-screlo-button="clear"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/remove.svg") no-repeat center;
+    display: block;
+}
+
+#screlo-toolbar a[data-screlo-button="papier"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/newspaper.svg") no-repeat center;
+    display: block;
+}
+
+#screlo-toolbar a[data-screlo-button="gocontents"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/arrow-up-left.svg") no-repeat center;
+    display: block;
+}
+
+#screlo-toolbar a[data-screlo-button="goprev"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/arrow-left.svg") no-repeat center;
+    display: block;
+}
+
+#screlo-toolbar a[data-screlo-button="gonext"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/arrow-right.svg") no-repeat center;
+    display: block;
+}
+
+body.screlo-has-marker #screlo-toolbar a[data-screlo-button="cycle"] {
+    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/search.svg") no-repeat center;
+    display: block;
+}
+
+#screlo-toolbar a.off {
+    opacity: 0.5;
+}
+
+#screlo-toolbar a.hidden {
+    display: none;
+}
+
+#form-screlo-goto {
+    float: left;
+    clear: none;
+    margin-right: 10px;
+    display: inline;
+}
+
+#screlo-goto {
+    border: 2px solid #FFF;
+    border-radius: 4px;
+    background-color: #333;
+    color: #FFF;
+    width: 40px;
+    font-size: 12px;
+    padding: 4px 6px;
+    font-family: verdana, sans-serif;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 3px;
+    display: inline;
+}
+
+#screlo-toolbar a:hover, #screlo-toolbar a:focus, #screlo-goto:hover {
+    background-color: #444 !important;
+}
+
+#screlo-goto:focus {
+    border:2px solid #111;
+    background-color: #fff !important;
+    color: #000;
+    cursor: text;
+    text-align: left;
+}
+
+#screlo-toolbar span {
+    border-left: 1px solid #999;
+    display: block;
+    float: left;
+    height: 26px;
+    margin: 4px 6px 0 0;
+    width: 1px;
+}
+
+#screlo-toolbar a:last-child, #screlo-toolbar form:last-child {
+    margin-right: 0;
+}
+
+/* Marqueurs */
+
+span.screlo-marker {
+    display: inline;
+}
+
+span.screlo-marker:after {
+    font-weight: normal;
+    font-variant: normal;
+    font-style: : normal;
+    font-family: sans-serif;
+    font-size: 11px;
+    display: inline;
+    background-color: #aaa;
+    color: white;
+    padding: 3px;
+    border-radius: 4px;   
+    margin: 0 5px;
+    content: attr(data-screlo-marker-text);
+}
+
+span.screlo-marker:first-child:after, span.paranumber + span.screlo-marker:after {
+    margin-left: 0;
+}
+
+/* Picomodal et infos */
+
+.pico-content {
+    font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+    font-size: 1.25em;
+    padding: 3em;
+    background-color: white;
+    border-radius: 5px;
+    display: block;
+    left: 50%;
+    position: fixed;
+    top: 50px;
+    transform: translateX(-50%);
+    width: 600px;
+    z-index: 10001;
+}
+
+.pico-content a, .pico-content a:visited {
+    color: #168ed2;
+    text-decoration: underline;
+}
+
+.pico-content a:hover, .pico-content a:focus, .pico-content a:active {
+    color: #0ca7cc;
+}
+
+.pico-content h1 {
+    font-size: 1.6em;
+    line-height: 1.2em;
+    margin-bottom: 1em;
+    text-align: center;
+}
+
+.pico-content p {
+    margin: 1em 0;
+}
+
+.pico-content .infolinks {
+    border-left: 10px solid #000;
+    padding: 10px 10px 10px 30px;
+}
+
+.pico-content h2 {
+    font-size: 1.2em;
+    margin-bottom: 0.8em;
+}
+
+.pico-content .infolinks ul {
+    list-style-position: outside;
+    list-style-type: square;
+    margin-left: 30px;
+}
+
+.pico-content .screlo-typeinfos {
+    background-color: #aaa;
+    color: white;
+    padding: 1em;
+    border-radius: 4px;   
+    margin: 1em 0;
+}
+
+.pico-close {
+    cursor: pointer;
+    font-size: 26px;
+    height: 15px;
+    line-height: 15px;
+    position: absolute;
+    right: 5px;
+    text-align: center;
+    top: 10px;
+    width: 30px;
+}
+
+/* Niveaux d'erreurs */
+
+span.screlo-marker.warning:after, .screlo-notification.warning, .pico-content .screlo-typeinfos.screlo-warning {
+    background : #DF7401;
+}
+
+span.screlo-marker.danger:after, .screlo-notification.danger, .pico-content .screlo-typeinfos.screlo-danger {
+    background:  #d2322d;
+}
+
+span.screlo-marker.succes:after, .screlo-notification.succes, .pico-content .screlo-typeinfos.screlo-succes {
+    background: #7ABD18;
+}
+
+span.screlo-marker.print:after, .screlo-notification.print, .pico-content .screlo-typeinfos.screlo-print {
+    background: #9b55dd;
+}
+
+span.screlo-marker.screlo-exception:after, .screlo-notification.screlo-exception {
+    background: #000;
+}
+
+/* Repérer le nom de famille de l'auteur */
+
+span.familyName {
+    border-bottom: 3px black solid;
+}
+
+/* Colorer les liens pour une meilleure lisibilité */
+
+#main p a[href]:not(.footnotecall):not(.FootnoteSymbol) {
+    background-color: lightblue;
+}
+
+/* Niveau des headers explicite */
+
+#text h1.texte:before,
+#toc .tocSection1:before,
+#text h2.texte:before,
+#toc .tocSection2:before,
+#text h3.texte:before,
+#toc .tocSection3:before,
+#text h4.texte:before,
+#toc .tocSection4:before,
+#text h5.texte:before,
+#toc .tocSection5:before,
+#text h6.texte:before,
+#toc .tocSection6:before {
+    background-color: #000;
+    color: #FFF;
+    margin-right: 10px;
+    padding: 0 4px;
+}
+
+#text h1.texte:before,
+#toc .tocSection1:before {
+    content: "h1";
+}
+#text h2.texte:before,
+#toc .tocSection2:before {
+    content: "h2";
+}
+#text h3.texte:before,
+#toc .tocSection3:before {
+    content: "h3";
+}
+#text h4.texte:before,
+#toc .tocSection4:before {
+    content: "h4";
+}
+#text h5.texte:before,
+#toc .tocSection5:before {
+    content: "h5";
+}
+#text h6.texte:before,
+#toc .tocSection6:before {
+    content: "h6";
+}
+
+/* Debug de stylage */
+.TODO {
+    background:#FF9DF9;
+    cursor:help
+}
+.FIXME {
+    color:red;
+    background:#FF8
+}
+
+/* Loading */
+
+#screlo-loading {
+    display: none;
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    background: black url("https://rawgit.com/thomas-fab/screlo/master/img/loading.gif") no-repeat center center;
+    z-index:10001;
+    -moz-opacity: 0.8;
+    opacity:.80;
+    filter: alpha(opacity=80);
+}
+
+body.loading  #screlo-loading {
+    display: block;
+}
+
+/* Correct navEntities */
+.navEntities a.corrected {
+    box-shadow: 0 0 10px #7abd18 inset;
+}

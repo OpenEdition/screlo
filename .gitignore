@@ -1,4 +1,6 @@
 .jshintrc
+node_modules/
+npm-debug.log
 
 #################
 ## Eclipse
@@ -194,7 +196,7 @@ $RECYCLE.BIN/
 # Packages
 *.egg
 *.egg-info
-dist/
+# dist/
 build/
 eggs/
 parts/
