@@ -129,7 +129,7 @@ module.exports = function(grunt) {
             options: {
                 context : {
                     VERSION: '<%= pkg.version %>',
-                    UPDATE: 'https://github.com/brrd/screlo/raw/master/js/screlo.user.js',
+                    UPDATE: 'https://github.com/brrd/screlo/raw/master/dist/screlo.user.js',
                     CDN: cdn,
                     HOMEPAGE: '<%= pkg.homepage %>',
                     DESCRIPTION: '<%= pkg.description %>'
