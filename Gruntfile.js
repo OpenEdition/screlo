@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     var userpath,
         www,
         subfolder,
-        cdn = "https://rawgit.com/thomas-fab/screlo/master/",
+        cdn = "https://rawgit.com/brrd/screlo/master/",
         defaultTask;
    
     
@@ -24,7 +24,7 @@ module.exports = function(grunt) {
         cdn = "http://localhost/" + subfolder;
         defaultTask.push("copy:localhost");
     } else if (grunt.option("develop")) {
-        cdn = "https://rawgit.com/thomas-fab/screlo/develop/";
+        cdn = "https://rawgit.com/brrd/screlo/develop/";
     }
     
     if (!grunt.option("nowatch")) {
@@ -129,7 +129,7 @@ module.exports = function(grunt) {
             options: {
                 context : {
                     VERSION: '<%= pkg.version %>',
-                    UPDATE: 'https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js',
+                    UPDATE: 'https://github.com/brrd/screlo/raw/master/js/screlo.user.js',
                     CDN: cdn,
                     HOMEPAGE: '<%= pkg.homepage %>',
                     DESCRIPTION: '<%= pkg.description %>'

@@ -93,15 +93,15 @@
 }
 
 .screlo-notification-actions a[data-screlo-button="cycle"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/16/search.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/16/search.svg") no-repeat center;
 }
 
 .screlo-notification-actions a[data-screlo-button="info"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/16/question.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/16/question.svg") no-repeat center;
 }
 
 .screlo-notification-actions a[data-screlo-button="ignore"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/16/cancel-circle.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/16/cancel-circle.svg") no-repeat center;
 }
 
 /* Infos */
@@ -154,57 +154,57 @@
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="edit"], body.publications #screlo-toolbar a[data-screlo-button="edit"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/quill.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/quill.svg") no-repeat center;
     display: block;
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="download"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/download.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/download.svg") no-repeat center;
     display: block;
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="upload"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/upload.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/upload.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="about"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/info.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/info.svg") no-repeat center;
     display: block;
 }
 
 body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/rocket.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/rocket.svg") no-repeat center;
     display: block;
 }
 
 body.publications #screlo-toolbar a[data-screlo-button="clear"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/remove.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/remove.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="papier"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/newspaper.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/newspaper.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="gocontents"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/arrow-up-left.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/arrow-up-left.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="goprev"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/arrow-left.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/arrow-left.svg") no-repeat center;
     display: block;
 }
 
 #screlo-toolbar a[data-screlo-button="gonext"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/arrow-right.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/arrow-right.svg") no-repeat center;
     display: block;
 }
 
 body.screlo-has-marker #screlo-toolbar a[data-screlo-button="cycle"] {
-    background: url("https://rawgit.com/thomas-fab/screlo/master/img/svg/24/search.svg") no-repeat center;
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/search.svg") no-repeat center;
     display: block;
 }
 
@@ -459,7 +459,7 @@ span.familyName {
     left: 0%;
     width: 100%;
     height: 100%;
-    background: black url("https://rawgit.com/thomas-fab/screlo/master/img/loading.gif") no-repeat center center;
+    background: black url("https://rawgit.com/brrd/screlo/master/img/loading.gif") no-repeat center center;
     z-index:10001;
     -moz-opacity: 0.8;
     opacity:.80;

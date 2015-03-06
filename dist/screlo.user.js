@@ -4,8 +4,8 @@
 // @namespace   http://revues.org/
 // @include     /http:\/\/(?!(www|lodel|devel|formations))[a-z]+\.revues.org\/(?!(lodel))/
 // @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z]+\/(?!(lodel))/
-// @version     15.2.4
-// @updateURL	https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js
+// @version     15.3.0
+// @updateURL	https://github.com/brrd/screlo/raw/master/js/screlo.user.js
 // @grant       none
 // ==/UserScript==
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -616,17 +616,17 @@ var globals = {},
     tests = require("./tests-revues.js"); 
 
 
-globals.version = "15.2.4";
+globals.version = "15.3.0";
 
 // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 globals.schema =  "15.2.3";
 
 globals.appUrls = {
-    base: "https://rawgit.com/thomas-fab/screlo/master/",
-    stylesheet: "https://rawgit.com/thomas-fab/screlo/master/" + "dist/screlo.css",
-    update: "https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js",
-    homepage: "https://github.com/thomas-fab/screlo",
-    doc: "https://github.com/thomas-fab/screlo" + "/tree/master/doc"
+    base: "https://rawgit.com/brrd/screlo/master/",
+    stylesheet: "https://rawgit.com/brrd/screlo/master/" + "dist/screlo.css",
+    update: "https://github.com/brrd/screlo/raw/master/js/screlo.user.js",
+    homepage: "https://github.com/brrd/screlo",
+    doc: "https://github.com/brrd/screlo" + "/tree/master/doc"
 };
 
 

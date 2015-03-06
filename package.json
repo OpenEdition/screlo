@@ -1,6 +1,6 @@
 {
   "name": "screlo",
-  "version": "15.2.4",
+  "version": "15.3.0",
   "description": "Script de relecture pour Lodel",
   "main": "dist/screlo.js",
   "dependencies": {},
@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/thomas-fab/screlo.git"
+    "url": "https://github.com/brrd/screlo.git"
   },
   "keywords": [
     "lodel"
@@ -30,7 +30,7 @@
   "author": "Thomas Brouard (OpenEdition)",
   "license": "",
   "bugs": {
-    "url": "https://github.com/thomas-fab/screlo/issues"
+    "url": "https://github.com/brrd/screlo/issues"
   },
-  "homepage": "https://github.com/thomas-fab/screlo"
+  "homepage": "https://github.com/brrd/screlo"
 }

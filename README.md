@@ -1,4 +1,4 @@
-Screlo
+Screlo - Script de relecture pour Lodel
 ======
 
 ## Installation
@@ -10,7 +10,7 @@ Screlo
 - **Pour Firefox :** GreaseMonkey https://addons.mozilla.org/fr/firefox/addon/greasemonkey/
 - **Pour Chrome :** Tampermonkey https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=fr
 
-Étape 2 : ouvrir l'URL https://github.com/thomas-fab/screlo/raw/master/js/screlo.user.js avec le navigateur.
+Étape 2 : ouvrir l'URL https://github.com/brrd/screlo/raw/master/dist/screlo.user.js avec le navigateur.
 
 Étape 3 : accepter l'installation du script.
 
@@ -22,19 +22,18 @@ Pour rétablir un affichage normal de la page, désactiver les scripts utilisate
 
 ### Forcer les mises à jour
 
-Les mises à jour sont automatiques sous Firefox mais pas sous Chrome (bug #4). Pour forcer la mise à jour, utiliser le bouton "Informations" > "OK" puis accepter la réinstallation du script. 
+Les mises à jour sont automatiques sous Firefox mais pas sous Chrome (bug #4). Pour forcer la mise à jour, utiliser le bouton "A propos" > "Mise à jour" puis accepter la réinstallation du script. 
 
-### Vérifications
+### Documentation
 
-La liste complète des tests effectués par Screlo est disponible dans le menu "Informations".
+La liste complète des tests effectués par Screlo et des messages d'aide est disponible dans le dossier `doc` : https://github.com/brrd/screlo/raw/master/doc/ (document généré automatiquement d'après le code source).
 
 ## Développement
 
 1. Cloner le projet
-2. Installer Node.js : http://nodejs.org/
-3. Installer Grunt : `$ npm install -g grunt-cli` 
-4. Installer les dépendances de développement dans le répertoire du projet : `$ npm install`
-5. Lancer grunt : `$ grunt`
+2. Installer Grunt : `$ npm install -g grunt-cli` 
+3. Installer les dépendances de développement dans le répertoire du projet : `$ npm install`
+4. `$ grunt` pour la génération du projet (voir les options ci-dessous)
 
 ### Options Grunt
 
