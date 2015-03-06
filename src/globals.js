@@ -16,7 +16,7 @@ globals.appUrls = {
     stylesheet: "/* @echo CDN */" + "dist/screlo.css",
     update: "/* @echo UPDATE */",
     homepage: "/* @echo HOMEPAGE */",
-    doc: "/* @echo HOMEPAGE */" + "/tree/master/doc"
+    doc: "/* @echo HOMEPAGE */" + "/tree/master/docs"
 };
 
 

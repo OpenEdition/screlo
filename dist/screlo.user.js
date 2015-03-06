@@ -626,7 +626,7 @@ globals.appUrls = {
     stylesheet: "https://rawgit.com/brrd/screlo/master/" + "dist/screlo.css",
     update: "https://github.com/brrd/screlo/raw/master/js/screlo.user.js",
     homepage: "https://github.com/brrd/screlo",
-    doc: "https://github.com/brrd/screlo" + "/tree/master/doc"
+    doc: "https://github.com/brrd/screlo" + "/tree/master/docs"
 };
 
 

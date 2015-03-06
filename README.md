@@ -26,7 +26,7 @@ Les mises à jour sont automatiques sous Firefox mais pas sous Chrome (bug #4). 
 
 ### Documentation
 
-La liste complète des tests effectués par Screlo et des messages d'aide est disponible dans le dossier `doc` : https://github.com/brrd/screlo/raw/master/doc/ (document généré automatiquement d'après le code source).
+La liste complète des tests effectués par Screlo et des messages d'aide est disponible dans le dossier `docs` : https://github.com/brrd/screlo/tree/master/docs/ (document généré automatiquement d'après le code source).
 
 ## Développement
 
