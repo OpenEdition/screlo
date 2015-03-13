@@ -1,27 +1,22 @@
-// ############### TESTS REVUES.ORG ###############
-
 /*    
-    {
-        name: (string) Nom du test affiché dans la Notification.
-        id: (string) Identifiant numérique unique du test.
-        description: (string) Message d'aide.
-        links: (array) Tableau contenant les liens vers la documentation de la maison des revues de la forme : ["Texte du lien 1", "URL 1", "Texte du lien 2", "URL 2", etc.]
-        type: (string) Le type de la Notification qui sera retournée ("danger", "warning", "print", "success").
-        label: (string) Nom du test affiché par les Marker générés par le test.
-        labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
-        condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
-        action: (function(notif, root)) La fonction qui exécute le test. Retourne notif.
-            Le paramètre notif est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
-            Le paramètre root est l'élément du DOM qui sert de contexte au test. On utilise $(selecteur, root) dans la fonction action(). Attention : seul le contenu de #content est importé lors du test en ajax. Il faut donc appliquer les tests sur $("#main", root) ou tout simplement $(root), mais pas plus haut dans le DOM sinon le test ne fonctionnera pas avec Ajax.
-    }
+    Screlo - tests-revues
+    ==========
+    name: (string) Nom du test affiché dans la Notification.
+    id: (string) Identifiant numérique unique du test.
+    description: (string) Message d'aide.
+    links: (array) Tableau contenant les liens vers la documentation de la maison des revues de la forme : ["Texte du lien 1", "URL 1", "Texte du lien 2", "URL 2", etc.]
+    type: (string) Le type de la Notification qui sera retournée ("danger", "warning", "print", "success").
+    label: (string) Nom du test affiché par les Marker générés par le test.
+    labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
+    condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
+    action: (function(notif, root)) La fonction qui exécute le test. Retourne notif.
+        Le paramètre notif est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
+        Le paramètre root est l'élément du DOM qui sert de contexte au test. On utilise $(selecteur, root) dans la fonction action(). Attention : seul le contenu de #content est importé lors du test en ajax. Il faut donc appliquer les tests sur $("#main", root) ou tout simplement $(root), mais pas plus haut dans le DOM sinon le test ne fonctionnera pas avec Ajax.
 */
-
 
 var utils = require("./utils.js");
 
-
 module.exports = [
-
     {
         name: "Absence d'auteur",
         id: 1,
@@ -29,17 +24,13 @@ module.exports = [
         links: ["Utilisation de la métadonnée auteur", "http://maisondesrevues.org/80"],
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
-
             var champAuteur = $('#docAuthor', root);
-
             if(champAuteur.length === 0){
                 notif.activate();
             }
-
             return notif;
         }
     },
-
     {
         name: "Absence du fac-similé",
         id: 2,
@@ -48,15 +39,12 @@ module.exports = [
         type: "print",
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations && context.paper; },
         action: function (notif, context, root) {
-
             if($('#wDownload.facsimile', root).length === 0){
                 notif.activate();
             }
-
             return notif;
         }
     },
-
     {
         name: "Erreur de pagination",
         id: 3,
@@ -65,25 +53,17 @@ module.exports = [
         type: "print",
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations && context.paper; },
         action: function (notif, context, root) {
-
             if($('#docPagination', root).length === 0){
-
                 notif.name = "Pas de pagination";
                 notif.activate();
-
             } else if (!/^p\. [0-9-]*$/i.test($('#docPagination', root).text())) {
-
                 notif.name = "Mauvais format de pagination";
                 notif.activate();
-
             }
-
             return notif;
         }
     },
-
     // NOTE: Test #4 "Pas de date de publication électronique" supprimé. Ce test doit être recodé.
-
     {	
         name: "Absence de référence de l'œuvre commentée",
         id: 5,
@@ -91,16 +71,12 @@ module.exports = [
         links: ["Stylage des œuvres commentées", "http://maisondesrevues.org/88"],
         condition: function(context) { return context.classes.textes && (context.classes.compterendu || context.classes.notedelecture); },
         action: function (notif, context, root) {
-
             if ($("#docReference", root).length === 0) {
                 notif.activate();
             }
-
             return notif;
-
         }
     },
-
     {
         // NOTE: test obsolète (Lodel 0.9) à supprimer depuis OTX.
         name: "Utilisation de police(s) non Unicode",
@@ -113,17 +89,13 @@ module.exports = [
         label: "Police",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             var el = $('#main [style*="Symbol"], #main [style*="symbol"], #main [style*="Wingdings"], #main [style*="wingdings"], #main [style*="Webdings"], #main [style*="webdings"]', root);
-
             el.each(function() {
                 notif.addMarker(this).activate();
             });
-
             return notif;                        
         }
     },
-
     {
         name: "Retour à la ligne dans le titre ou dans un intertitre",
         id: 7,
@@ -136,16 +108,12 @@ module.exports = [
         label: "Retour à la ligne",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $('.texte:header br, h1#docTitle br', root).each( function() {
                 notif.addMarker(this).activate();
             });
-
             return notif;
-
         }
     },
-
     {
         name: "Titre d'illustration mal placé",
         id: 8,
@@ -155,20 +123,14 @@ module.exports = [
         label: "Titre mal placé",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $('table + .titreillustration, img + .titreillustration, div.textIcon + .titreillustration', root).each( function() {
-
                 if ($(this).next('table, img, div.textIcon').length === 0) { // titreillus apres illus = erreur, sauf si suivi d'illus
                     notif.addMarker(this).activate();
                 }
-
             });
-
             return notif;
-
         }
     },
-
     {
         name: "Légende d'illustration mal placée",
         id: 9,
@@ -178,16 +140,12 @@ module.exports = [
         label: "Légende mal placée",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $('.creditillustration + .legendeillustration, div.textIcon + .legendeillustration', root).each( function() {
                 notif.addMarker(this).activate();
             });
-
             return notif;
-
         }
     },
-
     {
         name: "Caractère minuscule en début de paragraphe",
         id: 10,
@@ -200,22 +158,15 @@ module.exports = [
         label: "Minuscule",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $('#text > .text > *:not(.textandnotes), #text > .text > .textandnotes > *, #text > .text > *:header', root).not('.citation,.paragraphesansretrait, blockquote, .sidenotes, ol, ul, li, table, table *').each( function() {
-
                 var firstChar = utils.getPText($(this)).charAt(0);
-
                 if (utils.latinize(firstChar).match(/^[a-z]/)) {
                     notif.addMarker(this).activate();
                 }
-
             });
-
             return notif;
-
         }
     },
-
     {
         name: "Mauvais style de citation",
         id: 11,
@@ -225,21 +176,15 @@ module.exports = [
         label: "Citation",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $('#text > .text > *:not(.textandnotes), #text > .text > .textandnotes > *', root).not('.citation, .epigraphe, blockquote, .sidenotes, ol, ul, li, :header').each( function() {
-
                 var string = utils.getPText($(this));
-
                 if (string.charAt(0).match(/[«"“]/) && string.slice(-20).match(/[”"»]/)) {
                     notif.addMarker(this).activate();
                 }
             });
-
             return notif;
-
         }
     },
-
     {
         // NOTE: Test "Listes mal formatées" amelioré pour éviter les faux positifs sur les initiales de noms propres. Ne matchent que les intiales de la forme /^[A-Z]\.\s/ qui s'inscrivent dans une suite qui commence par "A.", "B.", etc. ou "A:", B:"... 
         // TODO: Ce test est une vraie usine à gaz patchée et repatchée qu'il faudrait réécrire un jour.
@@ -318,7 +263,7 @@ module.exports = [
                 i,
                 prevLetter,
                 lastRecordedLetter;
-
+        
             collection.each( function(index) {
                 var string = utils.getPText($(this)),
                     infos = listInfos(string);
@@ -332,7 +277,6 @@ module.exports = [
                     };
                 }                            
             });
-
             for (i=0; i<collection.length; i++) {
                 if (alphaCollection[i]) {
                     prevLetter = getLetter(alphaCollection[i].symbol, -1);
@@ -345,18 +289,13 @@ module.exports = [
                     }
                 }
             }
-            
             err = onlyKeepSiblings(err);
-
             for (i=0; i<err.length; i++) {                
                 notif.addMarker(err[i]).activate();
             }
-
             return notif;
-
         }
     },
-
     {
         name: "Styles inconnus utilisés",
         id: 13,
@@ -369,7 +308,6 @@ module.exports = [
         label: "Style inconnu",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             var textWhitelist = "p.remerciements, p.texte, p.paragraphesansretrait, p.creditillustration, p.crditsillustration, p.epigraphe, p.citation, p.citationbis, p.citationter, p.titreillustration, p.legendeillustration, p.question, p.reponse, p.separateur, p.encadre";
 
             $('#text > .text p', root).each( function() {
@@ -378,12 +316,9 @@ module.exports = [
                     notif.addMarker(this).activate();
                 }
             });
-
             return notif;
-
         }
     },
-
     {
         // TODO: faire un test Note hors du corps de texte qui surcharge celui-ci
         name: "Incohérence dans la numérotation des notes",
@@ -393,10 +328,8 @@ module.exports = [
         type: "warning",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             var e = false,
                 debut = 0;
-
             $('#notes > p > a[id^=ftn]', root).each( function(index) {
                 if (index === 0) {
                     debut = parseInt($(this).text());
@@ -407,11 +340,9 @@ module.exports = [
                     }
                 }
             });
-
             return notif;
         }
     },
-
     {
         name: "Mauvais style de note",
         id: 15,
@@ -419,33 +350,25 @@ module.exports = [
         label: "Style inconnu",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $("#notes p:not(.notesbaspage):not(.notebaspage)", root).each( function() {
                 notif.label = "Style inconnu : " + $(this).attr("class");
                 notif.addMarker(this).activate();
             });
-
             return notif;
-
         }			
     },
-
     {
         name: "Intertitre dans une liste",
         id: 16,
         description: "Un ou plusieurs intertitres du document sont contenus dans une liste. Cela est souvent dû à une correction automatique de Word lors de l'insertion d'intertitres numérotés. Il faut désactiver la mise en forme “Liste” sur les intertitres concernés.",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $("#main ol :header, #main ul :header, #main li:header", root).each( function() {
                 notif.addMarker(this).activate();
             });
-
             return notif;
-
         }			
     },
-
     {
         name: "Ponctuation à la fin du titre ou d'un intertitre",
         id: 17,
@@ -455,19 +378,15 @@ module.exports = [
         labelPos: "after",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $('.texte:header, #docTitle, #docSubtitle, #docAltertitle > div', root).each( function() {
                 var text = $(this).text().trim();
                 if( text.match(/[\.:;=]$/) && !($(this).is('#docSubtitle') && text.match(/p\.$/)) ) { // Ne pas matcher le "p." des pages à la fin du sous-titre.
                     notif.addMarker(this).activate();
                 }
             });
-
             return notif;
-
         }			
     },
-
     {
         name: "Mises en formes locales sur le titre",
         id: 18,
@@ -476,19 +395,15 @@ module.exports = [
         type: "warning",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $('#docTitle, #docTitle *', root).each( function() {
                 if ($(this).attr("style")) {
                     notif.activate();
                     return false;
                 }
             });
-
             return notif;
-
         }			
     },
-
     {
         name: "Appel de note dans le titre",
         id: 19,
@@ -496,16 +411,12 @@ module.exports = [
         type: "warning",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             if ($('#docTitle .footnotecall', root).length !== 0) {
                 notif.activate();
             }
-
             return notif;
-
         }
     },
-
     {
         name: "Titre d'illustration stylé en légende",
         id: 20,
@@ -515,18 +426,14 @@ module.exports = [
         label: "Titre plutôt que légende",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $('.legendeillustration', root).each( function() {
                 if( $(this).text().match(/^(fig|tabl|illus|image|img|sch)/i) ) {
                     notif.addMarker(this).activate();
                 }
             });
-
             return notif;
-
         }			
     },
-
     {
         name: "Champs d'index Word",
         id: 21,
@@ -534,16 +441,12 @@ module.exports = [
         label: "Champ d'index",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $("a:contains('Error: Reference source not found'), a[href^='#id']", root).each( function() {
                 notif.addMarker(this).activate();
             });
-
             return notif;
-
         }			
     },
-
     {
         name: "Remerciement en note 1",
         id: 22,
@@ -553,19 +456,15 @@ module.exports = [
         type: "warning",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             var $el = $("#notes .notesbaspage:first", root),
                 str = $el.text(),
                 merci = /(merci|thank)/i; // TODO: compléter
-
             if (str.match(merci)) {
                 notif.addMarker($el.get(0)).activate();
             }
-
             return notif;
         }			
     },
-
     {
         name: "Composition des index",
         id: 23,
@@ -582,42 +481,34 @@ module.exports = [
                     var latinAlphanum = /[\u0030-\u0039\u0040-\u005A\u0061-\u007A\u00C0-\u00FF\u0100-\u017F\u0180-\u024F]/,
                         motCle = $(this).text().trim(),
                         alertes = [];
-
                     // Premier caractère invalide
                     // FIXME: ne fonctionne pas avec l'arabe
                     if (!motCle.substr(0,1).match(latinAlphanum)) {
                         alertes.push('Initiale');
                     }
-
                     // Point final
                     if (motCle.slice(-1) === '.') {
                         alertes.push('Point final');   
                     }
-
                     // Mauvais séparateurs
                     if (motCle.match(/[\-/;–—][\u0030-\u0039\u0040-\u005A\u0061-\u007A\u00C0-\u00FF\u0100-\u017F\u0180-\u024F \s]*[\-/;–—]/) && motCle.length > 20 ) {
                         alertes.push('Vérifier les séparateurs');   
                     }
-
                     if (alertes.length !== 0){
                         notif.label = alertes.join(' | ');
                         notif.addMarker(this).activate();
                     }
                 });
-
                 return notif;
             }
-
             if (context.isMotscles) {
                 notif = testerMotsCles($('#pageBody .entries ul li', root), notif);
             } else if (context.classes.textes) {
                 notif = testerMotsCles($('#entries .index a', root), notif);
             }
-
             return notif;
         }
     },
-
     {
         name: "Hierarchie du plan incohérente",
         description: "Les intertitres du document ne se suivent pas hiérarchiquement. Par exemple, il n'est pas correct d'utiliser un intertitre de deuxième niveau (“Titre 2”) qui n'aurait pas pour parent un intertitre de premier niveau (“Titre 1”) qui le précède dans le document.",
@@ -629,7 +520,6 @@ module.exports = [
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
             var precedent = 0;
-
             $('#toc div', root).each( function () {
                 var niveau = Number($(this).attr('class').slice(-1));
                 if (niveau > precedent + 1 || (precedent === 0 && niveau != 1)) {
@@ -637,11 +527,9 @@ module.exports = [
                 }
                 precedent = niveau;
             });
-
             return notif;
         }			
     },
-
     {
         name: "Vérifier les doublons",
         id: 25,
@@ -658,7 +546,6 @@ module.exports = [
             var arr = {},
                 text = "",
                 err = 0;
-
             $('#pageBody .entries ul li', root).each( function (index) {
                 text = utils.latinize($(this).text()).replace(/[\s;–—-]+/g, '').toLowerCase();
                 if (arr[text]) {
@@ -667,7 +554,6 @@ module.exports = [
                     arr[text] = [index];
                 }
             });
-
             $.each(arr, function (key, eqs) {
                 var i,
                     el;
@@ -679,11 +565,9 @@ module.exports = [
                     }
                 }
             });
-
             return notif;
         }			
     },
-
     {
         name: "Format de nom d'auteur",
         id: 26,
@@ -698,7 +582,6 @@ module.exports = [
         condition: function(context) { return context.classes.indexes || (context.classes.textes && !context.classes.actualite && !context.classes.informations); },
         action: function (notif, context, root) {
             var text = "";
-
             $('span.familyName', root).each( function () {
                 text = utils.latinize($(this).text().trim());
                 if (text === text.toUpperCase() || text.match(/[&!?)(*\/]/)) {
@@ -709,12 +592,9 @@ module.exports = [
 
                 }
             });
-
             return notif;
-
         }			
     },
-
     {
         name: "Auteur sans prénom",
         id: 27,
@@ -728,9 +608,7 @@ module.exports = [
         labelPos: "after",
         condition: function(context) { return context.classes.indexes || (context.classes.textes && !context.classes.actualite && !context.classes.informations); },
         action: function (notif, context, root) {
-
             var err = 0;
-
             $('span.familyName', root).each( function () {
                 if ($(this).text().trim() === $(this).parent().text().trim()) {
 
@@ -740,11 +618,9 @@ module.exports = [
 
                 }
             });
-
             return notif;
         }			
     },
-
     {
         name: "Format d'image non supporté",
         id: 28,
@@ -758,16 +634,12 @@ module.exports = [
         labelPos: "after",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $("img[src$='.wmf'], .image_error", root).each( function () {
                 notif.addMarker(this).activate();
             });
-
             return notif;
-
         }			
     },
-
     {
         name: "Intertitre sur plusieurs paragraphes",
         id: 29,
@@ -777,20 +649,14 @@ module.exports = [
         labelPos: "after",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $(".texte:header + .texte:header", root).each( function () {
-
                 if ($(this).prev('.texte:header')[0].nodeName === this.nodeName) {
                     notif.addMarker(this).activate();  
                 }
-
             });
-
             return notif;
-
         }			
     },
-
     {
         name: "Caractères Symbol",
         id: 30,
@@ -803,20 +669,14 @@ module.exports = [
         labelPos: "after",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             var symbolsRegex = 	/[]/g;
-            
             notif.addMarkersFromRegex(symbolsRegex);
-
             if (notif.count > 0) {
                 notif.activate();
             }
-
             return notif;
-
         }
     },
-
     {
         name: "Vérifier le stylage du résumé et des mots-clés",
         id: 31,
@@ -824,20 +684,16 @@ module.exports = [
         type: "warning",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             var nbMots = $("#entries .index h3", root).filter( function(i,e) {
                 return !$(e).text().match(/(Index|Índice|Indice|Personnes citées|Géographique|Thématique)/);
             }).length,
                 nbResumes = $("#abstract .tabContent", root).length;
-
             if (nbMots !== 0 && nbResumes !== 0 && nbMots !== nbResumes) {
                 notif.activate(); 
             }
-
             return notif;
         }			
     },
-
     {
         name: "Numéro sans couverture",
         id: 32,
@@ -849,15 +705,12 @@ module.exports = [
         condition: function(context) { return context.classes.numero && context.paper; },
         type: "print",
         action: function (notif, context, root) {
-
             if ($("#publiInformation img", root).length === 0) {
                 notif.activate();
             }
-
             return notif;
         }			
     },
-
     {
         name: "Pas de texte dans le document",
         id: 33,
@@ -865,18 +718,14 @@ module.exports = [
         links: ["La gestion des articles et de leur traduction", "http://maisondesrevues.org/581"],
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             var element = $("#docBody #text", root),
                 text = element.text().trim();
-
             if (element.length === 0 || text === "") {
                 notif.activate();
             }
-
             return notif;
         }
     },
-
     {
         name: "Document sans titre",
         id: 34,
@@ -884,18 +733,14 @@ module.exports = [
         links: ["L'ordre des métadonnées", "http://maisondesrevues.org/108"],
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             var element = $("#docTitle", root),
                 text = element.text().trim();
-
             if (element.length === 0 || text === "" || text === "Document sans titre") {
                 notif.activate();
             }
-
             return notif;
         }			
     },
-
     {
         name: "Lien(s) caché(s) vers Wikipedia",
         id: 35,
@@ -905,7 +750,6 @@ module.exports = [
         labelPos: "after",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-
             $("a[href*='wikipedia']", root).each( function () {
                 
                 // Ne pas compter les notes marginales pour éviter les doublons.
@@ -917,11 +761,9 @@ module.exports = [
                     notif.addMarker(this).activate();
                 }
             });
-
             return notif;
         }			
     },
-
     {
         name: "Lien(s) à vérifier",
         id: 36,
@@ -932,19 +774,16 @@ module.exports = [
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
             var url = "";
-
             $("#main p a[href]:not(.footnotecall, .FootnoteSymbol, [href^=mailto])", root).each( function () {
                 url = $(this).attr("href");
                 if (!utils.isValidUrl(url)) { 
                     notif.addMarker(this).activate();
                 }
             });
-
             return notif;
 
         }			
     },
-
     {
         name: "ISBN invalide",
         id: 37,
@@ -952,17 +791,14 @@ module.exports = [
         labelPos: "after",
         condition: function(context) { return context.classes.numero; },
         action: function (notif, context, root) {
-
             var element = $("#publiISBN").eq(0), 
                 isbn;
-
             if (element.length !== 0) {
                 isbn = element.text().replace("ISBN", "");
                 if ( !utils.isValidIsbn(isbn) ) {
                     notif.addMarker(element.get(0)).activate();
                 }
             }
-
             return notif;
         }			
     }//,
