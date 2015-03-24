@@ -20,15 +20,19 @@ function Checker (arg) {
     this.notifications = [];
     this.target = "#screlo-notifications";
     this.context = { classes: [] };
-    this.idPage = location.pathname.match(/(\d+)$/g); 
+    this.idPage = location.pathname.match(/(\d+)$/g);
+    this.numberOfTests = 0;
     
     // Trouver root et context
     if (utils.isNumber(arg)) {
         this.initFromAjax(arg);
-    } else if (typeof arg === "object") {
-        this.pushNotifications(arg);
-    } else {
+    } else if (typeof arg === "object" && arg.numberOfTests !== "undefined" && utils.isNumber(arg.numberOfTests) && arg.notifications && typeof arg.notifications === "object") {
+        this.numberOfTests = arg.numberOfTests;
+        this.pushNotifications(arg.notifications);
+    } else if (typeof arg === "undefined") {
         this.initFromPage();
+    } else {
+        console.error("Bad parameters in Checker's constructor");
     }
 }
 
@@ -40,7 +44,6 @@ Checker.prototype.initFromPage = function () {
 };
 
 Checker.prototype.initFromAjax = function (id) {
-    
     function ajaxFail(id) {      
         var failMessage = new Notification({
             name: "Impossible de charger ce document",
@@ -48,11 +51,9 @@ Checker.prototype.initFromAjax = function (id) {
         });
         this.notifications.push(failMessage);
     }
-    
     var url =  utils.getUrl("site") + id,
         chkr = this;
     this.idPage = id;
-    
     // NOTE: Comme Lodel utilise une vieille version de jquery (1.4) on ne peut pas utiliser $.get().done().fail().always(). On utilise donc $.ajax()
     $.ajax({
         url: url,
@@ -114,16 +115,13 @@ Checker.prototype.setContext = function (classes) {
 
 // Applique les tests
 Checker.prototype.process = function () {
-    
     function injectMarker(marker) {
         marker.inject();
     }
-
     var thisTest,
         notif,
-        res,
-        nbTests = 0;
-    
+        res;
+    this.numberOfTests = 0;
     if (!(this.root && this.context)) {
         console.log("Erreur lors du process(): attributs manquants dans Checker");
         return;
@@ -139,28 +137,13 @@ Checker.prototype.process = function () {
                 }
                 this.notifications.push(res);
             }
-            nbTests++;
+            this.numberOfTests++;
         }
-    }
-    if (this.notifications[0] === undefined && nbTests > 0 && (this.context.classes.textes || this.root !== document)) {
-        var successMessage = new Notification({
-            name: 'Aucune erreur détectée <span class="count">' + nbTests + ' tests</span>',
-            type: "succes"
-        });
-        this.notifications.push(successMessage);
     }
 };
 
-Checker.prototype.show = function () {
-    var notif,
-        actions;
-    if (!this.target || (this.target && $(this.target).length === 0)) {
-        console.log("Erreur: 'target' n'est pas défini ou n'existe pas.");
-        return;
-    }
-    if (!this.notifications || this.notifications && this.notifications.length === 0) {
-        return;
-    }
+// Ordonner this.notifications.
+Checker.prototype.sortNotifications = function () {
     this.notifications.sort( function (a, b) {
         var ordre = ['screlo-exception','danger','warning','print','succes'],
             typeA = ordre.indexOf(a.type),
@@ -169,8 +152,43 @@ Checker.prototype.show = function () {
         if (typeA < typeB) { return -1; }
         return 0;
     });
-    for (var i=0; i < this.notifications.length; i++) {
-        notif = this.notifications[i];
+};
+
+Checker.prototype.show = function () {
+    // Filter les notifications qui seront affichées. N'affecte pas this.notifications.
+    function filterNotifications (notifications) {
+        function filterPrint (notifications) {
+            var res = [];
+            for (var i=0; i<notifications.length; i++) {
+                if (notifications[i].type !== "print") {
+                    res.push(notifications[i]);
+                }
+            }
+            return res;
+        }
+        var notificationsToShow = globals.paper ? notifications : filterPrint(notifications);
+        if (notificationsToShow.length === 0 && that.numberOfTests > 0 && (that.context.classes.textes || that.root !== document)) {
+            var successMessage = new Notification({
+                name: 'Aucune erreur détectée <span class="count">' + that.numberOfTests + ' tests</span>',
+                type: "succes"
+            });
+            notificationsToShow.push(successMessage);
+        }
+        return notificationsToShow;
+    }
+    if (!this.target || (this.target && $(this.target).length === 0)) {
+        console.log("Erreur: 'target' n'est pas défini ou n'existe pas.");
+        return;
+    }
+    if (!this.notifications || this.notifications && this.notifications.length === 0) {
+        return;
+    }
+    this.sortNotifications();
+    var that = this,
+        notifs = filterNotifications(this.notifications),
+        notif;
+    for (var i=0; i < notifs.length; i++) {
+        notif = notifs[i];
         $(notif.getHtml()).appendTo(this.target);
     }
 };
@@ -178,7 +196,9 @@ Checker.prototype.show = function () {
 Checker.prototype.toCache = function () {
     var nomCourt = globals.nomCourt,
         id = this.idPage,
-        value = this.notifications.map(function (notification) {
+        value = {};
+        value.numberOfTests = this.numberOfTests;
+        value.notifications = this.notifications.map(function (notification) {
             return notification.export();
         });
     utils.cache.set(nomCourt, id, value);  

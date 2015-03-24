@@ -4,7 +4,7 @@
 // @namespace   http://revues.org/
 // @include     /http:\/\/(?!(www|lodel|devel|formations))[a-z]+\.revues.org\/(?!(lodel))/
 // @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z]+\/(?!(lodel))/
-// @version     15.3.0
+// @version     15.3.1
 // @updateURL	https://github.com/brrd/screlo/raw/master/dist/screlo.user.js
 // @grant       none
 // ==/UserScript==
@@ -31,15 +31,19 @@ function Checker (arg) {
     this.notifications = [];
     this.target = "#screlo-notifications";
     this.context = { classes: [] };
-    this.idPage = location.pathname.match(/(\d+)$/g); 
+    this.idPage = location.pathname.match(/(\d+)$/g);
+    this.numberOfTests = 0;
     
     // Trouver root et context
     if (utils.isNumber(arg)) {
         this.initFromAjax(arg);
-    } else if (typeof arg === "object") {
-        this.pushNotifications(arg);
-    } else {
+    } else if (typeof arg === "object" && arg.numberOfTests !== "undefined" && utils.isNumber(arg.numberOfTests) && arg.notifications && typeof arg.notifications === "object") {
+        this.numberOfTests = arg.numberOfTests;
+        this.pushNotifications(arg.notifications);
+    } else if (typeof arg === "undefined") {
         this.initFromPage();
+    } else {
+        console.error("Bad parameters in Checker's constructor");
     }
 }
 
@@ -51,7 +55,6 @@ Checker.prototype.initFromPage = function () {
 };
 
 Checker.prototype.initFromAjax = function (id) {
-    
     function ajaxFail(id) {      
         var failMessage = new Notification({
             name: "Impossible de charger ce document",
@@ -59,11 +62,9 @@ Checker.prototype.initFromAjax = function (id) {
         });
         this.notifications.push(failMessage);
     }
-    
     var url =  utils.getUrl("site") + id,
         chkr = this;
     this.idPage = id;
-    
     // NOTE: Comme Lodel utilise une vieille version de jquery (1.4) on ne peut pas utiliser $.get().done().fail().always(). On utilise donc $.ajax()
     $.ajax({
         url: url,
@@ -125,16 +126,13 @@ Checker.prototype.setContext = function (classes) {
 
 // Applique les tests
 Checker.prototype.process = function () {
-    
     function injectMarker(marker) {
         marker.inject();
     }
-
     var thisTest,
         notif,
-        res,
-        nbTests = 0;
-    
+        res;
+    this.numberOfTests = 0;
     if (!(this.root && this.context)) {
         console.log("Erreur lors du process(): attributs manquants dans Checker");
         return;
@@ -150,28 +148,13 @@ Checker.prototype.process = function () {
                 }
                 this.notifications.push(res);
             }
-            nbTests++;
+            this.numberOfTests++;
         }
-    }
-    if (this.notifications[0] === undefined && nbTests > 0 && (this.context.classes.textes || this.root !== document)) {
-        var successMessage = new Notification({
-            name: 'Aucune erreur détectée <span class="count">' + nbTests + ' tests</span>',
-            type: "succes"
-        });
-        this.notifications.push(successMessage);
     }
 };
 
-Checker.prototype.show = function () {
-    var notif,
-        actions;
-    if (!this.target || (this.target && $(this.target).length === 0)) {
-        console.log("Erreur: 'target' n'est pas défini ou n'existe pas.");
-        return;
-    }
-    if (!this.notifications || this.notifications && this.notifications.length === 0) {
-        return;
-    }
+// Ordonner this.notifications.
+Checker.prototype.sortNotifications = function () {
     this.notifications.sort( function (a, b) {
         var ordre = ['screlo-exception','danger','warning','print','succes'],
             typeA = ordre.indexOf(a.type),
@@ -180,8 +163,43 @@ Checker.prototype.show = function () {
         if (typeA < typeB) { return -1; }
         return 0;
     });
-    for (var i=0; i < this.notifications.length; i++) {
-        notif = this.notifications[i];
+};
+
+Checker.prototype.show = function () {
+    // Filter les notifications qui seront affichées. N'affecte pas this.notifications.
+    function filterNotifications (notifications) {
+        function filterPrint (notifications) {
+            var res = [];
+            for (var i=0; i<notifications.length; i++) {
+                if (notifications[i].type !== "print") {
+                    res.push(notifications[i]);
+                }
+            }
+            return res;
+        }
+        var notificationsToShow = globals.paper ? notifications : filterPrint(notifications);
+        if (notificationsToShow.length === 0 && that.numberOfTests > 0 && (that.context.classes.textes || that.root !== document)) {
+            var successMessage = new Notification({
+                name: 'Aucune erreur détectée <span class="count">' + that.numberOfTests + ' tests</span>',
+                type: "succes"
+            });
+            notificationsToShow.push(successMessage);
+        }
+        return notificationsToShow;
+    }
+    if (!this.target || (this.target && $(this.target).length === 0)) {
+        console.log("Erreur: 'target' n'est pas défini ou n'existe pas.");
+        return;
+    }
+    if (!this.notifications || this.notifications && this.notifications.length === 0) {
+        return;
+    }
+    this.sortNotifications();
+    var that = this,
+        notifs = filterNotifications(this.notifications),
+        notif;
+    for (var i=0; i < notifs.length; i++) {
+        notif = notifs[i];
         $(notif.getHtml()).appendTo(this.target);
     }
 };
@@ -189,7 +207,9 @@ Checker.prototype.show = function () {
 Checker.prototype.toCache = function () {
     var nomCourt = globals.nomCourt,
         id = this.idPage,
-        value = this.notifications.map(function (notification) {
+        value = {};
+        value.numberOfTests = this.numberOfTests;
+        value.notifications = this.notifications.map(function (notification) {
             return notification.export();
         });
     utils.cache.set(nomCourt, id, value);  
@@ -478,13 +498,13 @@ var globals = {},
     utils = require("./utils.js"),
     tests = require("./tests-revues.js"); 
 
-globals.version = "15.3.0";
+globals.version = "15.3.1";
 
-globals.schema =  "15.2.3"; // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
+globals.schema =  "15.3.0a"; // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
 globals.appUrls = {
-    base: "https://rawgit.com/brrd/screlo/master/",
-    stylesheet: "https://rawgit.com/brrd/screlo/master/" + "dist/screlo.css",
+    base: "http://localhost/screlo/",
+    stylesheet: "http://localhost/screlo/" + "dist/screlo.css",
     update: "https://github.com/brrd/screlo/raw/master/dist/screlo.user.js",
     homepage: "https://github.com/brrd/screlo",
     doc: "https://github.com/brrd/screlo" + "/tree/master/docs"
@@ -616,7 +636,7 @@ function fixNav () {
                     toc = $(this).find('ul.summary li:not(.fichiers) a:first-child').map( function() {
                     return $(this).attr('href');
                 }).get(),
-                    i = $.inArray(idPage, toc);
+                    i = $.inArray(idPage, toc); // FIXME: ne fonctionne pas pour les articles contenus dans des rubriques annuelles car a.goContents renvoit vers la rubrique ancetre et non la rubrique annuelle parente.
 
                 if (i !== -1) {
                     $('.navEntities a.goPrev, .navEntities a.goNext').remove();
@@ -717,7 +737,7 @@ module.exports = [
         description: "Aucun fac-similé n'est associé à ce document. Il est fortement recommandé de joindre aux documents un fac-similé PDF issu de la version imprimée lorsque c'est possible.",
         links: ["Fac-similés PDF issus de la version papier", "http://maisondesrevues.org/612"],
         type: "print",
-        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations && context.paper; },
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations },
         action: function (notif, context, root) {
             if($('#wDownload.facsimile', root).length === 0){
                 notif.activate();
@@ -731,7 +751,7 @@ module.exports = [
         description: "La pagination de la version papier est absente des métadonnées ou n'est pas correctement stylée. Si le document existe en version imprimée il est fortement recommandé d'en préciser la pagination au format attendu.",
         links: ["Pagination", "http://maisondesrevues.org/86"],
         type: "print",
-        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations && context.paper; },
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations },
         action: function (notif, context, root) {
             if($('#docPagination', root).length === 0){
                 notif.name = "Pas de pagination";
@@ -747,7 +767,7 @@ module.exports = [
     {	
         name: "Absence de référence de l'œuvre commentée",
         id: 5,
-        description: "La date de publication électronique est absente des métadonnées du numéro ou n'est pas correctement stylée. Il est impératif de renseigner cette métadonnée dans le formulaire d'édition du numéro ou de la rubrique.",
+        description: "Il est conseillé de mentionner la référence des œuvres commentées dans les comptes rendus et les notes de lecture en utilisant la métadonnée appropriée.",
         links: ["Stylage des œuvres commentées", "http://maisondesrevues.org/88"],
         condition: function(context) { return context.classes.textes && (context.classes.compterendu || context.classes.notedelecture); },
         action: function (notif, context, root) {
@@ -1382,7 +1402,7 @@ module.exports = [
             "Images des couvertures issues de l'édition papier", "http://maisondesrevues.org/512",
             "Attacher une couverture", "http://maisondesrevues.org/621"
         ],
-        condition: function(context) { return context.classes.numero && context.paper; },
+        condition: function(context) { return context.classes.numero; },
         type: "print",
         action: function (notif, context, root) {
             if ($("#publiInformation img", root).length === 0) {

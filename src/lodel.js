@@ -36,7 +36,7 @@ function fixNav () {
                     toc = $(this).find('ul.summary li:not(.fichiers) a:first-child').map( function() {
                     return $(this).attr('href');
                 }).get(),
-                    i = $.inArray(idPage, toc);
+                    i = $.inArray(idPage, toc); // FIXME: ne fonctionne pas pour les articles contenus dans des rubriques annuelles car a.goContents renvoit vers la rubrique ancetre et non la rubrique annuelle parente.
 
                 if (i !== -1) {
                     $('.navEntities a.goPrev, .navEntities a.goNext').remove();

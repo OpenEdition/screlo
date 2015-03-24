@@ -37,7 +37,7 @@ module.exports = [
         description: "Aucun fac-similé n'est associé à ce document. Il est fortement recommandé de joindre aux documents un fac-similé PDF issu de la version imprimée lorsque c'est possible.",
         links: ["Fac-similés PDF issus de la version papier", "http://maisondesrevues.org/612"],
         type: "print",
-        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations && context.paper; },
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations },
         action: function (notif, context, root) {
             if($('#wDownload.facsimile', root).length === 0){
                 notif.activate();
@@ -51,7 +51,7 @@ module.exports = [
         description: "La pagination de la version papier est absente des métadonnées ou n'est pas correctement stylée. Si le document existe en version imprimée il est fortement recommandé d'en préciser la pagination au format attendu.",
         links: ["Pagination", "http://maisondesrevues.org/86"],
         type: "print",
-        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations && context.paper; },
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations },
         action: function (notif, context, root) {
             if($('#docPagination', root).length === 0){
                 notif.name = "Pas de pagination";
@@ -67,7 +67,7 @@ module.exports = [
     {	
         name: "Absence de référence de l'œuvre commentée",
         id: 5,
-        description: "La date de publication électronique est absente des métadonnées du numéro ou n'est pas correctement stylée. Il est impératif de renseigner cette métadonnée dans le formulaire d'édition du numéro ou de la rubrique.",
+        description: "Il est conseillé de mentionner la référence des œuvres commentées dans les comptes rendus et les notes de lecture en utilisant la métadonnée appropriée.",
         links: ["Stylage des œuvres commentées", "http://maisondesrevues.org/88"],
         condition: function(context) { return context.classes.textes && (context.classes.compterendu || context.classes.notedelecture); },
         action: function (notif, context, root) {
@@ -702,7 +702,7 @@ module.exports = [
             "Images des couvertures issues de l'édition papier", "http://maisondesrevues.org/512",
             "Attacher une couverture", "http://maisondesrevues.org/621"
         ],
-        condition: function(context) { return context.classes.numero && context.paper; },
+        condition: function(context) { return context.classes.numero; },
         type: "print",
         action: function (notif, context, root) {
             if ($("#publiInformation img", root).length === 0) {
