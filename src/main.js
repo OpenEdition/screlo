@@ -19,6 +19,7 @@ if (!window.jQuery) {
             return false;
         }
         screloPlus.init(); // TODO: uniquement si userscript (grunt preprocess)
+        $("body").attr("data-screlo-version", globals.version);
         console.info("Screlo v." + globals.version + " loaded"); // TODO: preciser quelle version (user ou remote)
     });
 }

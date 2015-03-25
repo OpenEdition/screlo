@@ -104,7 +104,7 @@ cmd.toggleCache = function (id) {
         toggleState = !currentState;
     utils.cache.set(globals.nomCourt, id, toggleState);
     location.reload();
-}
+};
 
 cmd.showInfo = function ($clickElement) { 
     // TODO: à recoder (sélecteurs divers, css)   

@@ -29,6 +29,7 @@ function manageDom () {
                    "<a data-screlo-button='cycle' title='Aller au marqueur suivant'>Aller au marqueur suivant</a>",
                    "<a data-screlo-button='papier' title='Revue papier'" + papier + ">Revue papier</a>",
                    "<a data-screlo-button='about' title='A propos'>A propos</a>",
+                   "<a data-screlo-button='update' title='Mise à jour disponible' href='" + globals.appUrls.update + "'>Mise à jour disponible</a>",
                    "<a data-screlo-button='switch' title='Activer/désactiver l’outil de relecture'>Activer/désactiver l'outil de relecture</a>"],
         squel = "<div id='screlo-main'><ul id='screlo-notifications'></ul><ul id='screlo-infos'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
     $(squel).appendTo("body");
@@ -150,6 +151,11 @@ function debugStylage () {
     });
 }
 
+function checkForUpdate () {
+    var updateScript = globals.appUrls.base + "dist/screlo-update.js";
+    $.getScript(updateScript);
+}
+
 ui.init = function () {
     manageCss();
     manageDom();
@@ -160,6 +166,7 @@ ui.init = function () {
     manageToc();
     checkThisPage();    
     debugStylage();
+    checkForUpdate();
 };
 
 module.exports = ui;
