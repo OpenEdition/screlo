@@ -45,6 +45,20 @@ if (!globals.cacheIsValid) {
     utils.cache.set(nomCourt, "schema", globals.schema);
 }
 
+// TODO: factoriser active/paper
+globals.active = (function () {
+    var value = utils.cache.get(globals.nomCourt, "active");
+    if (typeof value !== "boolean") {
+        value = true;
+        utils.cache.set(globals.nomCourt, "active", value);
+    }
+    return value;
+})();
+
+if (globals.active) {
+    $("body").addClass("screlo-active"); // TODO: harmoniser l'ajout de classes
+}
+
 globals.paper = (function () {
     var value = utils.cache.get(globals.nomCourt, "paper");
     if (typeof value !== "boolean") {

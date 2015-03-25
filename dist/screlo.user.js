@@ -451,12 +451,12 @@ cmd.cycle = function (id) {
     }
 };
 
-cmd.paper = function () {
-    var currentState = utils.cache.get(globals.nomCourt, "paper"),
+cmd.toggleCache = function (id) {
+    var currentState = utils.cache.get(globals.nomCourt, id),
         toggleState = !currentState;
-    utils.cache.set(globals.nomCourt, "paper", toggleState);
+    utils.cache.set(globals.nomCourt, id, toggleState);
     location.reload();
-};
+}
 
 cmd.showInfo = function ($clickElement) { 
     // TODO: à recoder (sélecteurs divers, css)   
@@ -526,6 +526,20 @@ if (!globals.cacheIsValid) {
     var nomCourt = globals.nomCourt;
     utils.cache.clear(nomCourt);
     utils.cache.set(nomCourt, "schema", globals.schema);
+}
+
+// TODO: factoriser active/paper
+globals.active = (function () {
+    var value = utils.cache.get(globals.nomCourt, "active");
+    if (typeof value !== "boolean") {
+        value = true;
+        utils.cache.set(globals.nomCourt, "active", value);
+    }
+    return value;
+})();
+
+if (globals.active) {
+    $("body").addClass("screlo-active"); // TODO: harmoniser l'ajout de classes
 }
 
 globals.paper = (function () {
@@ -1537,8 +1551,7 @@ var ui = {},
     Checker = require("./Checker.js");
 
 function manageCss () {
-    $('head').append('<link rel="stylesheet" href="' + globals.appUrls.stylesheet + '" type="text/css" />');
-    
+    $('head').append('<link rel="stylesheet" href="' + globals.appUrls.stylesheet + '" type="text/css" />');    
     // Fix de maquette : certaines publications ont un style height inline sur #main qui pose problème lors de l'ajout de notifications.
     if ( $('#main[style*="height"]').length ) {
         var expectedHeight = $("#main").css("height");
@@ -1555,12 +1568,20 @@ function manageDom () {
                    "<a data-screlo-button='clear' title='Vider le cache pour ce site'>Vider le cache pour ce site</a>",
                    "<a data-screlo-button='cycle' title='Aller au marqueur suivant'>Aller au marqueur suivant</a>",
                    "<a data-screlo-button='papier' title='Revue papier'" + papier + ">Revue papier</a>",
-                   "<a data-screlo-button='about' title='A propos'>A propos</a>"],
+                   "<a data-screlo-button='about' title='A propos'>A propos</a>",
+                   "<a data-screlo-button='switch' title='Activer/désactiver l’outil de relecture'>Activer/désactiver l'outil de relecture</a>"],
         squel = "<div id='screlo-main'><ul id='screlo-notifications'></ul><ul id='screlo-infos'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
     $(squel).appendTo("body");
 }
 
 function manageEvents () {
+    $( "[data-screlo-button='switch']" ).click(function( event ) {
+        event.preventDefault();
+        cmd.toggleCache("active");
+    });
+    if (!globals.active) {
+        return false;
+    }
     $( "[data-screlo-button='about']" ).click(function( event ) {
         event.preventDefault();
         cmd.about();
@@ -1585,7 +1606,7 @@ function manageEvents () {
     });
     $( "[data-screlo-button='papier']" ).click(function( event ) {
         event.preventDefault();
-        cmd.paper();
+        cmd.toggleCache("paper");
     });
     $(".screlo-notification [data-screlo-button='info']").live("click", function (event) {
         event.preventDefault();            
@@ -1673,6 +1694,9 @@ ui.init = function () {
     manageCss();
     manageDom();
     manageEvents();
+    if (!globals.active) {
+        return false;
+    }
     manageToc();
     checkThisPage();    
     debugStylage();

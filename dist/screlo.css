@@ -154,44 +154,54 @@
     cursor: pointer;
 }
 
-body.textes #screlo-toolbar a[data-screlo-button="edit"], body.publications #screlo-toolbar a[data-screlo-button="edit"] {
+body.screlo-active.textes #screlo-toolbar a[data-screlo-button="edit"], body.screlo-active.publications #screlo-toolbar a[data-screlo-button="edit"] {
     background: url("http://localhost/screlo/img/svg/24/quill.svg") no-repeat center;
     display: table-cell;
 }
 
-body.textes #screlo-toolbar a[data-screlo-button="download"] {
+body.screlo-active.textes #screlo-toolbar a[data-screlo-button="download"] {
     background: url("http://localhost/screlo/img/svg/24/download.svg") no-repeat center;
     display: table-cell;
 }
 
-body.textes #screlo-toolbar a[data-screlo-button="upload"] {
+body.screlo-active.textes #screlo-toolbar a[data-screlo-button="upload"] {
     background: url("http://localhost/screlo/img/svg/24/upload.svg") no-repeat center;
     display: table-cell;
 }
 
-#screlo-toolbar a[data-screlo-button="about"] {
+body.screlo-active #screlo-toolbar a[data-screlo-button="about"] {
     background: url("http://localhost/screlo/img/svg/24/info.svg") no-repeat center;
     display: table-cell;
 }
 
-body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
+body.screlo-active.publications #screlo-toolbar a[data-screlo-button="ajax"] {
     background: url("http://localhost/screlo/img/svg/24/rocket.svg") no-repeat center;
     display: table-cell;
 }
 
-body.publications #screlo-toolbar a[data-screlo-button="clear"] {
+body.screlo-active.publications #screlo-toolbar a[data-screlo-button="clear"] {
     background: url("http://localhost/screlo/img/svg/24/remove.svg") no-repeat center;
     display: table-cell;
 }
 
-#screlo-toolbar a[data-screlo-button="papier"] {
+body.screlo-active #screlo-toolbar a[data-screlo-button="papier"] {
     background: url("http://localhost/screlo/img/svg/24/newspaper.svg") no-repeat center;
     display: table-cell;
 }
 
-body.screlo-has-marker #screlo-toolbar a[data-screlo-button="cycle"] {
+body.screlo-active.screlo-has-marker #screlo-toolbar a[data-screlo-button="cycle"] {
     background: url("http://localhost/screlo/img/svg/24/search.svg") no-repeat center;
     display: table-cell;
+}
+
+#screlo-toolbar a[data-screlo-button="switch"] {
+    background: url("http://localhost/screlo/img/svg/24/switch.svg") no-repeat center;
+    display: table-cell;
+    opacity: 0.5;
+}
+
+body.screlo-active #screlo-toolbar a[data-screlo-button="switch"] {
+    opacity: 0.8;
 }
 
 #screlo-toolbar a.off {
@@ -204,6 +214,7 @@ body.screlo-has-marker #screlo-toolbar a[data-screlo-button="cycle"] {
 
 #screlo-toolbar a:hover, #screlo-toolbar a:focus {
     background-color: #444 !important;
+    opacity: 1;
 }
 
 /* Marqueurs */

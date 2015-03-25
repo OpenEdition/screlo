@@ -99,12 +99,12 @@ cmd.cycle = function (id) {
     }
 };
 
-cmd.paper = function () {
-    var currentState = utils.cache.get(globals.nomCourt, "paper"),
+cmd.toggleCache = function (id) {
+    var currentState = utils.cache.get(globals.nomCourt, id),
         toggleState = !currentState;
-    utils.cache.set(globals.nomCourt, "paper", toggleState);
+    utils.cache.set(globals.nomCourt, id, toggleState);
     location.reload();
-};
+}
 
 cmd.showInfo = function ($clickElement) { 
     // TODO: à recoder (sélecteurs divers, css)   
