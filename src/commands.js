@@ -99,13 +99,6 @@ cmd.cycle = function (id) {
     }
 };
 
-cmd.quickAccess = function () {
-    var idAcces = $('input#screlo-goto').val();
-    if (typeof idAcces === 'string') {
-        window.location.href = utils.getUrl(idAcces);
-    }
-};
-
 cmd.paper = function () {
     var currentState = utils.cache.get(globals.nomCourt, "paper"),
         toggleState = !currentState;

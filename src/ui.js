@@ -29,12 +29,7 @@ function manageDom () {
                    "<a data-screlo-button='clear' title='Vider le cache pour ce site'>Vider le cache pour ce site</a>",
                    "<a data-screlo-button='cycle' title='Aller au marqueur suivant'>Aller au marqueur suivant</a>",
                    "<a data-screlo-button='papier' title='Revue papier'" + papier + ">Revue papier</a>",
-                   "<a data-screlo-button='about' title='A propos'>A propos</a>",
-                   "<span></span>",
-                   "<a data-screlo-button='gocontents' class='hidden' title='Parent'>Parent</a>", // TODO: sortir du core
-                   "<a data-screlo-button='goprev' class='hidden' title='Précédent'>Précédent</a>",
-                   "<a data-screlo-button='gonext' class='hidden' title='Suivant'>Suivant</a>",
-                   "<form id='form-screlo-goto'><input id='screlo-goto' type='text' data-screlo-action='go' placeholder='▶'/></form>"],
+                   "<a data-screlo-button='about' title='A propos'>A propos</a>"],
         squel = "<div id='screlo-main'><ul id='screlo-notifications'></ul><ul id='screlo-infos'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
     $(squel).appendTo("body");
 }
@@ -61,11 +56,6 @@ function manageEvents () {
     $( "[data-screlo-button='cycle']" ).click(function( event ) {
         event.preventDefault();
         cmd.cycle();
-    });
-    // TODO: séprarer du core de screlo
-    $( "#form-screlo-goto" ).submit(function( event ) {
-        event.preventDefault();
-        cmd.quickAccess();
     });
     $( "[data-screlo-button='papier']" ).click(function( event ) {
         event.preventDefault();
@@ -139,12 +129,27 @@ function checkThisPage () {
     chkr.toCache().show();
 }
 
+// Bookmarklet debugger (version light)
+function debugStylage () {  
+    // On recherche les P et SPAN vides (sauf COinS !)
+    $('p, span:not(.Z3988)').not('#screlo-main *').not('.screlo-marker').each(function() {
+        // Elements vides
+        var strEmpty = ($(this).get(0).tagName == 'P') ? 'paragraphe vide' : '\u00A0';
+        if (($(this).text().match(/^(nbsp|\s)*$/g) !== null) && ($(this).has('img').length === 0)) // FIXME: fonctionne pas bien sur les <p> car span.paranumber fait que le text est jamais vide
+            $(this).text(strEmpty).addClass('FIXME');
+        // Mises en forme locales
+        if ($(this).attr('style') !== undefined)
+            $(this).attr('title', $(this).attr('style')).addClass('TODO');
+    });
+}
+
 ui.init = function () {
     manageCss();
     manageDom();
     manageEvents();
     manageToc();
     checkThisPage();    
+    debugStylage();
 };
 
 module.exports = ui;

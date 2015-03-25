@@ -5,11 +5,12 @@
 /* Principal */
 
 #screlo-main {
-    width: auto;
+    width: 350px;
     position: fixed;
     bottom: 0;
     right: 20px;
     z-index: 1000;
+    padding-bottom: 44px;
 }
 
 /* Notifications */
@@ -17,7 +18,6 @@
 #screlo-notifications, #screlo-infos {
     padding: 0;
     margin: 0 0 0 auto;
-    max-width: 350px;
 }
 
 .screlo-notification, .screlo-info {
@@ -126,86 +126,72 @@
 #screlo-toolbar {
     width: auto;
     height: 34px;
-    padding: 5px 10px;
+    padding: 5px;
     border-radius: 4px 4px 0 0;
     background: #000;
     border-top: #000;
     color: #FFF;
     white-space: nowrap;
-
+    position: absolute;
+    bottom: 0;
+    right: 6px;
+    display: table;
+    border-collapse:separate;
+    border-spacing: 10px 0;
 }
 
 #screlo-toolbar button, #screlo-toolbar a {
     text-align: left;
     white-space: nowrap; 
     overflow: hidden;
-    display: inline-block;
+    display: none;
     text-indent: -9999px;
     width: 34px;
     height: 34px;
-    margin-right: 10px;
     background: #000;
     border:none;
     border-radius: 30px;
     cursor: pointer;
-    float: left;
-    clear: none;
-    display: none;
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="edit"], body.publications #screlo-toolbar a[data-screlo-button="edit"] {
     background: url("http://localhost/screlo/img/svg/24/quill.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="download"] {
     background: url("http://localhost/screlo/img/svg/24/download.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
 body.textes #screlo-toolbar a[data-screlo-button="upload"] {
     background: url("http://localhost/screlo/img/svg/24/upload.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
 #screlo-toolbar a[data-screlo-button="about"] {
     background: url("http://localhost/screlo/img/svg/24/info.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
 body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
     background: url("http://localhost/screlo/img/svg/24/rocket.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
 body.publications #screlo-toolbar a[data-screlo-button="clear"] {
     background: url("http://localhost/screlo/img/svg/24/remove.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
 #screlo-toolbar a[data-screlo-button="papier"] {
     background: url("http://localhost/screlo/img/svg/24/newspaper.svg") no-repeat center;
-    display: block;
-}
-
-#screlo-toolbar a[data-screlo-button="gocontents"] {
-    background: url("http://localhost/screlo/img/svg/24/arrow-up-left.svg") no-repeat center;
-    display: block;
-}
-
-#screlo-toolbar a[data-screlo-button="goprev"] {
-    background: url("http://localhost/screlo/img/svg/24/arrow-left.svg") no-repeat center;
-    display: block;
-}
-
-#screlo-toolbar a[data-screlo-button="gonext"] {
-    background: url("http://localhost/screlo/img/svg/24/arrow-right.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
 body.screlo-has-marker #screlo-toolbar a[data-screlo-button="cycle"] {
     background: url("http://localhost/screlo/img/svg/24/search.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
 #screlo-toolbar a.off {
@@ -216,51 +202,8 @@ body.screlo-has-marker #screlo-toolbar a[data-screlo-button="cycle"] {
     display: none;
 }
 
-#form-screlo-goto {
-    float: left;
-    clear: none;
-    margin-right: 10px;
-    display: inline;
-}
-
-#screlo-goto {
-    border: 2px solid #FFF;
-    border-radius: 4px;
-    background-color: #333;
-    color: #FFF;
-    width: 40px;
-    font-size: 12px;
-    padding: 4px 6px;
-    font-family: verdana, sans-serif;
-    cursor: pointer;
-    text-align: center;
-    margin-top: 3px;
-    display: inline;
-}
-
-#screlo-toolbar a:hover, #screlo-toolbar a:focus, #screlo-goto:hover {
+#screlo-toolbar a:hover, #screlo-toolbar a:focus {
     background-color: #444 !important;
-}
-
-#screlo-goto:focus {
-    border:2px solid #111;
-    background-color: #fff !important;
-    color: #000;
-    cursor: text;
-    text-align: left;
-}
-
-#screlo-toolbar span {
-    border-left: 1px solid #999;
-    display: block;
-    float: left;
-    height: 26px;
-    margin: 4px 6px 0 0;
-    width: 1px;
-}
-
-#screlo-toolbar a:last-child, #screlo-toolbar form:last-child {
-    margin-right: 0;
 }
 
 /* Marqueurs */
@@ -441,6 +384,7 @@ span.familyName {
 }
 
 /* Debug de stylage */
+
 .TODO {
     background:#FF9DF9;
     cursor:help
@@ -470,7 +414,29 @@ body.loading  #screlo-loading {
     display: block;
 }
 
-/* Correct navEntities */
+/* 
+    ScreloPlus
+*/
+
+#screlo-plus { 
+    z-index: 1000; 
+    display: block; 
+    position: fixed; 
+    top: 300px; 
+    left: 50%; 
+    width: 300px; 
+    margin-left: -175px; 
+    padding : 25px; 
+    background: #000; 
+    box-shadow: 0px 0px 50px 0px #656565;
+}
+
+#screlo-plus-goto {
+    font-size: 100px; 
+    width: 300px; 
+    text-align: center;
+}
+
 .navEntities a.corrected {
     box-shadow: 0 0 10px #7abd18 inset;
 }

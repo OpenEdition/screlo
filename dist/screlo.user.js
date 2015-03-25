@@ -2,8 +2,8 @@
 // @name        screlo
 // @description Script de relecture pour Lodel
 // @namespace   http://revues.org/
-// @include     /http:\/\/(?!(www|lodel|devel|formations))[a-z]+\.revues.org\/(?!(lodel))/
-// @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z]+\/(?!(lodel))/
+// @include     /http:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/(?!(lodel))/
+// @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z0-9-]+\/(?!(lodel))/
 // @version     15.3.1
 // @updateURL	https://github.com/brrd/screlo/raw/master/dist/screlo.user.js
 // @grant       none
@@ -451,13 +451,6 @@ cmd.cycle = function (id) {
     }
 };
 
-cmd.quickAccess = function () {
-    var idAcces = $('input#screlo-goto').val();
-    if (typeof idAcces === 'string') {
-        window.location.href = utils.getUrl(idAcces);
-    }
-};
-
 cmd.paper = function () {
     var currentState = utils.cache.get(globals.nomCourt, "paper"),
         toggleState = !currentState;
@@ -500,7 +493,7 @@ var globals = {},
 
 globals.version = "15.3.1";
 
-globals.schema =  "15.3.0a"; // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
+globals.schema =  "15.3.1"; // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
 globals.appUrls = {
     base: "http://localhost/screlo/",
@@ -599,59 +592,61 @@ globals.infos = (function () {
 module.exports = globals;
 },{"./tests-revues.js":8,"./utils.js":10}],6:[function(require,module,exports){
 /*
-    Screlo - lodel
-    ==========
-    Améliorations diverses de la Lodelia et outils supplémentaires.
+    SCRELO - Script de relecture pour Lodel
+    Thomas Brouard - OpenEdition
 */
+if (!window.jQuery) {
+    console.error("Screlo requires jQuery");
+} else {
+    $( function () {
+        // Vendor
+        require("./vendor/highlightRegex.js");
+        require("./vendor/picoModal.js");
 
-// Bookmarklet debugger (version light)
-function debugStylage () {  
-    // On recherche les P et SPAN vides (sauf COinS !)
-    $('p, span:not(.Z3988)').not('#screlo-main *').not('.screlo-marker').each(function() {
-        // Elements vides
-        var strEmpty = ($(this).get(0).tagName == 'P') ? 'paragraphe vide' : '\u00A0';
-        if (($(this).text().match(/^(nbsp|\s)*$/g) !== null) && ($(this).has('img').length === 0)) // FIXME: fonctionne pas bien sur les <p> car span.paranumber fait que le text est jamais vide
-            $(this).text(strEmpty).addClass('FIXME');
-        // Mises en forme locales
-        if ($(this).attr('style') !== undefined)
-            $(this).attr('title', $(this).attr('style')).addClass('TODO');
+        var globals = require("./globals.js"),
+            ui = require("./ui.js"),
+            screloPlus = require("./screlo-plus.js"); // TODO: uniquement si userscript (grunt preprocess)
+
+        ui.init();
+        screloPlus.init(); // TODO: uniquement si userscript (grunt preprocess)
+        console.info("Screlo v." + globals.version + " loaded"); // TODO: preciser quelle version (user ou remote)
     });
 }
+},{"./globals.js":5,"./screlo-plus.js":7,"./ui.js":9,"./vendor/highlightRegex.js":11,"./vendor/picoModal.js":12}],7:[function(require,module,exports){
+/*
+    ScreloPlus
+    ==========
+    Améliorations diverses de la Lodelia et outils supplémentaires. 
+    Fonctions indépendantes disponibles uniquement dans l'userscript.
+*/
+
+var screloPlus = { nav: {} };
 
 // Fixer le menu de navigation pour boucler sur tous les éléments
 function fixNav () {
-    
     function addNav(dirClass, url) {
         $('.navEntities').append($('<a></a>').addClass(dirClass + " corrected").attr('href', url));
+        screloPlus.nav[dirClass] = url;
     }
-
-    function navInToolbar(buttonId, url) {
-        $("#screlo-toolbar a[data-screlo-button='" + buttonId + "']").attr("href", url).removeClass("hidden");
-    }
-
     if ($('.navEntities .goContents').length !== 0) {
-        var tocUrl = $('.navEntities .goContents').attr('href'),
+        var tocUrl = screloPlus.nav.goContents = $('.navEntities .goContents').attr('href'),
             result =  $("<div></div>").load( tocUrl + " #main", function() {
                 var idPage = location.pathname.match(/(\d+)$/g)[0],
                     toc = $(this).find('ul.summary li:not(.fichiers) a:first-child').map( function() {
-                    return $(this).attr('href');
-                }).get(),
+                        return $(this).attr('href');
+                    }).get(),
                     i = $.inArray(idPage, toc); // FIXME: ne fonctionne pas pour les articles contenus dans des rubriques annuelles car a.goContents renvoit vers la rubrique ancetre et non la rubrique annuelle parente.
-
                 if (i !== -1) {
                     $('.navEntities a.goPrev, .navEntities a.goNext').remove();
                     if (i !== 0) {
                         addNav('goPrev', toc[i-1]);
-                        navInToolbar("goprev", toc[i-1]);
                     } 
                     if (i+1 !== toc.length) {
                         addNav('goNext', toc[i+1]);
-                        navInToolbar("gonext", toc[i+1]);
                     }
                     $('<span></span>').css({'float': 'left', 'margin': '2px 5px'}).text(Number(i+1) + '/' + Number(toc.length)).prependTo('.navEntities');
                 }
             });
-        navInToolbar("gocontents", tocUrl);
     }
 }
 
@@ -666,38 +661,62 @@ function sourceDepuisToc () {
     });    
 }
 
-// Tout lancer d'un seul coup. C'est cette fonction qui est renvoyée par le module.
-function improveLodel () {
-    debugStylage();
+// Raccourcis clavier
+function setHotkeys () {
+    function hideBox () {
+        $('#screlo-plus-goto').val('');
+        $('#screlo-plus').hide();
+    }
+    $(document).keydown(function(e) {
+        var slashChar = 111,
+            starChar = 106,
+            minusChar = 109,
+            escChar = 27;
+        if (document.activeElement === null || document.activeElement === document.body) {
+            if (e.which === starChar && screloPlus.nav.goPrev) {
+                e.preventDefault();
+                location.href = screloPlus.nav.goPrev;
+            } else if (e.which === minusChar && screloPlus.nav.goNext) {
+                e.preventDefault();
+                location.href = screloPlus.nav.goNext;
+            } else if (e.which === slashChar && screloPlus.nav.goContents) {
+                e.preventDefault();
+                location.href = screloPlus.nav.goContents;
+            } else if (e.which >= 97 && e.which <= 105) {
+                $('#screlo-plus').show();
+                $('#screlo-plus-goto').focus();
+            }
+        } else if (document.activeElement === $('#screlo-plus-goto').get(0) && e.which === escChar) {
+            $('#screlo-plus-goto').blur();
+            hideBox();
+        }
+    });
+    $('#screlo-plus-goto').blur( function () {
+        hideBox();
+    });
+}
+
+function addBox () {
+    var box = "<div id='screlo-plus' style='display:none'><form id='screlo-plus-goto-form'><input id='screlo-plus-goto' type='text' data-screlo-action='go' placeholder='▶'/></form></div>";
+    $(box).appendTo("body");
+    $( "#screlo-plus-goto-form" ).submit(function( event ) {
+        event.preventDefault();
+        var idAcces = $('input#screlo-plus-goto').val();
+        if (typeof idAcces === 'string') {
+            window.location.href = idAcces;
+        }
+    });
+}
+
+function init () {
+    addBox();
     fixNav();
+    setHotkeys();
     sourceDepuisToc();
 }
 
-module.exports = improveLodel;
-},{}],7:[function(require,module,exports){
-/*
-    SCRELO - Script de relecture pour Lodel
-    Thomas Brouard - OpenEdition
-*/
-
-if (!window.jQuery) {
-    console.error("Screlo requires jQuery");
-} else {
-    $( function () {
-        // Vendor
-        require("./vendor/highlightRegex.js");
-        require("./vendor/picoModal.js");
-
-        var globals = require("./globals.js"),
-            ui = require("./ui.js"),
-            improveLodel = require("./lodel.js");
-
-        ui.init();
-        improveLodel();         
-        console.info("Screlo v." + globals.version + " loaded");
-    });
-}
-},{"./globals.js":5,"./lodel.js":6,"./ui.js":9,"./vendor/highlightRegex.js":11,"./vendor/picoModal.js":12}],8:[function(require,module,exports){
+module.exports = { init: init };
+},{}],8:[function(require,module,exports){
 /*    
     Screlo - tests-revues
     ==========
@@ -898,7 +917,7 @@ module.exports = [
         action: function (notif, context, root) {
 
             function listInfos (string) {
-                var ulTest = string.match(/^([•∙◊–—>-])\s/),
+                var ulTest = string.match(/^([•●∙◊–—>-])\s/),
                     olTest = string.match(/^([0-9a-z]{1,3})[\/.):–—-]\s/i),
                     ALPHATest = string.match(/[A-Z][.:]\s/),
                     res = { 
@@ -1536,12 +1555,7 @@ function manageDom () {
                    "<a data-screlo-button='clear' title='Vider le cache pour ce site'>Vider le cache pour ce site</a>",
                    "<a data-screlo-button='cycle' title='Aller au marqueur suivant'>Aller au marqueur suivant</a>",
                    "<a data-screlo-button='papier' title='Revue papier'" + papier + ">Revue papier</a>",
-                   "<a data-screlo-button='about' title='A propos'>A propos</a>",
-                   "<span></span>",
-                   "<a data-screlo-button='gocontents' class='hidden' title='Parent'>Parent</a>", // TODO: sortir du core
-                   "<a data-screlo-button='goprev' class='hidden' title='Précédent'>Précédent</a>",
-                   "<a data-screlo-button='gonext' class='hidden' title='Suivant'>Suivant</a>",
-                   "<form id='form-screlo-goto'><input id='screlo-goto' type='text' data-screlo-action='go' placeholder='▶'/></form>"],
+                   "<a data-screlo-button='about' title='A propos'>A propos</a>"],
         squel = "<div id='screlo-main'><ul id='screlo-notifications'></ul><ul id='screlo-infos'></ul><div id='screlo-toolbar'>" + buttons.join('\n') + "</div></div><div id='screlo-loading' ></div>";
     $(squel).appendTo("body");
 }
@@ -1568,11 +1582,6 @@ function manageEvents () {
     $( "[data-screlo-button='cycle']" ).click(function( event ) {
         event.preventDefault();
         cmd.cycle();
-    });
-    // TODO: séprarer du core de screlo
-    $( "#form-screlo-goto" ).submit(function( event ) {
-        event.preventDefault();
-        cmd.quickAccess();
     });
     $( "[data-screlo-button='papier']" ).click(function( event ) {
         event.preventDefault();
@@ -1646,12 +1655,27 @@ function checkThisPage () {
     chkr.toCache().show();
 }
 
+// Bookmarklet debugger (version light)
+function debugStylage () {  
+    // On recherche les P et SPAN vides (sauf COinS !)
+    $('p, span:not(.Z3988)').not('#screlo-main *').not('.screlo-marker').each(function() {
+        // Elements vides
+        var strEmpty = ($(this).get(0).tagName == 'P') ? 'paragraphe vide' : '\u00A0';
+        if (($(this).text().match(/^(nbsp|\s)*$/g) !== null) && ($(this).has('img').length === 0)) // FIXME: fonctionne pas bien sur les <p> car span.paranumber fait que le text est jamais vide
+            $(this).text(strEmpty).addClass('FIXME');
+        // Mises en forme locales
+        if ($(this).attr('style') !== undefined)
+            $(this).attr('title', $(this).attr('style')).addClass('TODO');
+    });
+}
+
 ui.init = function () {
     manageCss();
     manageDom();
     manageEvents();
     manageToc();
     checkThisPage();    
+    debugStylage();
 };
 
 module.exports = ui;
@@ -2327,4 +2351,4 @@ module.exports = utils;
 
 }(window, document));
 
-},{}]},{},[7]);
+},{}]},{},[6]);

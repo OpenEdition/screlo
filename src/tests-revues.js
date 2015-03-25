@@ -198,7 +198,7 @@ module.exports = [
         action: function (notif, context, root) {
 
             function listInfos (string) {
-                var ulTest = string.match(/^([•∙◊–—>-])\s/),
+                var ulTest = string.match(/^([•●∙◊–—>-])\s/),
                     olTest = string.match(/^([0-9a-z]{1,3})[\/.):–—-]\s/i),
                     ALPHATest = string.match(/[A-Z][.:]\s/),
                     res = { 
