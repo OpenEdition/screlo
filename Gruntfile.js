@@ -9,9 +9,9 @@ module.exports = function(grunt) {
         defaultTask;
    
     
-/* Default task */
+    /* Default task */
     
-    defaultTask = ['copy:tmp', 'preprocess', 'browserify', 'concat:userscript', 'copy:css', 'clean'];
+    defaultTask = ['copy:tmp', 'preprocess', 'browserify', 'concat:userscript', 'copy:css', 'copy:updatescript', 'clean'];
     
     if (grunt.option("userpath")) { // Usage: $ grunt --userpath="C:\path_to_your_firefox_profile\gm_scripts\screlo" 
         userpath = grunt.option( "userpath" ).replace(/\\/g, "/");
@@ -39,43 +39,33 @@ module.exports = function(grunt) {
     grunt.registerTask('buildinfos', 'This task builds a markdown info page from the screlo tests source file.', function () {
         
         function getTestsInfos (tests) {
-
             function getInfo (test) {
                 var type = test.type || "danger",
                     links,
                     info = "";
-
                 if (!test) {
                     return false;
                 }
-
                 if (test.name) {
                     info += "## Test #" + test.id + " - " + test.name + "\n\n";
                 }
-
                 info += "Type : " + type + "\n\n";
-
                 info += test.description + "\n\n";
-
                 if (test.links && test.links.length >= 2) {
                     links = test.links;
                     info += "**À lire dans la documentation**\n\n";
-
                     for (var j=0; j<links.length; j=j+2) {
                         if (links[j] && links[j+1]) {
                             info += "* [" + links[j] + "](" + links[j+1] + ")\n";
                         }
                     }
-
                     info += "\n";
                 }
                 return info;
             }
-
             var infos = [],
                 thisId,
                 thisInfo;
-
             for (var i=0; i<tests.length; i++) {
                 if (tests[i].id && tests[i].description) {
                     thisId = tests[i].id;
@@ -83,21 +73,15 @@ module.exports = function(grunt) {
                     infos[thisId] = thisInfo;
                 }
             }
-
             return infos.join('\n');
-            
         }
-        
         var tests = require('./src/tests-revues.js'),
             header = "<!-- Attention : cette page est générée automatiquement à partir du code source de Screlo. Ne pas la modifier ici. -->\n\n# Tests Revues\n",
             content = header + getTestsInfos(tests);
-        
         grunt.file.write('docs/tests-revues.md', content);
-        
     });
     
-    
-/* Init config*/
+    /* Init config*/
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -112,6 +96,12 @@ module.exports = function(grunt) {
                 expand: true,
                 cwd: '.tmp/css/',
                 src: '*.css',
+                dest: 'dist/', 
+            },
+            updatescript: {
+                expand: true,
+                cwd: '.tmp/',
+                src: 'screlo-update.js',
                 dest: 'dist/', 
             },
             userscript: {

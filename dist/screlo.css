@@ -5,11 +5,12 @@
 /* Principal */
 
 #screlo-main {
-    width: auto;
+    width: 350px;
     position: fixed;
     bottom: 0;
     right: 20px;
     z-index: 1000;
+    padding-bottom: 44px;
 }
 
 /* Notifications */
@@ -17,7 +18,6 @@
 #screlo-notifications, #screlo-infos {
     padding: 0;
     margin: 0 0 0 auto;
-    max-width: 350px;
 }
 
 .screlo-notification, .screlo-info {
@@ -126,86 +126,117 @@
 #screlo-toolbar {
     width: auto;
     height: 34px;
-    padding: 5px 10px;
+    padding: 5px;
     border-radius: 4px 4px 0 0;
     background: #000;
     border-top: #000;
     color: #FFF;
     white-space: nowrap;
-
+    position: absolute;
+    bottom: 0;
+    right: 6px;
+    display: table;
+    border-collapse:separate;
+    border-spacing: 10px 0;
 }
 
 #screlo-toolbar button, #screlo-toolbar a {
     text-align: left;
     white-space: nowrap; 
     overflow: hidden;
-    display: inline-block;
+    display: none;
     text-indent: -9999px;
     width: 34px;
     height: 34px;
-    margin-right: 10px;
     background: #000;
     border:none;
     border-radius: 30px;
     cursor: pointer;
-    float: left;
-    clear: none;
-    display: none;
 }
 
-body.textes #screlo-toolbar a[data-screlo-button="edit"], body.publications #screlo-toolbar a[data-screlo-button="edit"] {
+body.screlo-active.textes #screlo-toolbar a[data-screlo-button="edit"], body.screlo-active.publications #screlo-toolbar a[data-screlo-button="edit"] {
     background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/quill.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
-body.textes #screlo-toolbar a[data-screlo-button="download"] {
+body.screlo-active.textes #screlo-toolbar a[data-screlo-button="download"] {
     background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/download.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
-body.textes #screlo-toolbar a[data-screlo-button="upload"] {
+body.screlo-active.textes #screlo-toolbar a[data-screlo-button="upload"] {
     background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/upload.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
-#screlo-toolbar a[data-screlo-button="about"] {
+body.screlo-active #screlo-toolbar a[data-screlo-button="about"] {
     background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/info.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
-body.publications #screlo-toolbar a[data-screlo-button="ajax"] {
+body.screlo-active.screlo-update #screlo-toolbar a[data-screlo-button="update"] {
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/yellow-gift.svg") no-repeat center;
+    display: table-cell;
+    animation: ring 8s 1s ease-in-out infinite;
+    transform-origin: 50%;
+}
+
+/* TODO: préfixer */
+@keyframes ring {
+    0% { transform: rotate(0); }
+    1% { transform: rotate(30deg); }
+    3% { transform: rotate(-28deg); }
+    5% { transform: rotate(34deg); }
+    7% { transform: rotate(-32deg); }
+    9% { transform: rotate(30deg); }
+    11% { transform: rotate(-28deg); }
+    13% { transform: rotate(26deg); }
+    15% { transform: rotate(-24deg); }
+    17% { transform: rotate(22deg); }
+    19% { transform: rotate(-20deg); }
+    21% { transform: rotate(18deg); }
+    23% { transform: rotate(-16deg); }
+    25% { transform: rotate(14deg); }
+    27% { transform: rotate(-12deg); }
+    29% { transform: rotate(10deg); }
+    31% { transform: rotate(-8deg); }
+    33% { transform: rotate(6deg); }
+    35% { transform: rotate(-4deg); }
+    37% { transform: rotate(2deg); }
+    39% { transform: rotate(-1deg); }
+    41% { transform: rotate(1deg); }
+    43% { transform: rotate(0); }
+    100% { transform: rotate(0); }
+}
+
+body.screlo-active.publications #screlo-toolbar a[data-screlo-button="ajax"] {
     background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/rocket.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
-body.publications #screlo-toolbar a[data-screlo-button="clear"] {
+body.screlo-active.publications #screlo-toolbar a[data-screlo-button="clear"] {
     background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/remove.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
-#screlo-toolbar a[data-screlo-button="papier"] {
+body.screlo-active #screlo-toolbar a[data-screlo-button="papier"] {
     background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/newspaper.svg") no-repeat center;
-    display: block;
+    display: table-cell;
 }
 
-#screlo-toolbar a[data-screlo-button="gocontents"] {
-    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/arrow-up-left.svg") no-repeat center;
-    display: block;
-}
-
-#screlo-toolbar a[data-screlo-button="goprev"] {
-    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/arrow-left.svg") no-repeat center;
-    display: block;
-}
-
-#screlo-toolbar a[data-screlo-button="gonext"] {
-    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/arrow-right.svg") no-repeat center;
-    display: block;
-}
-
-body.screlo-has-marker #screlo-toolbar a[data-screlo-button="cycle"] {
+body.screlo-active.screlo-has-marker #screlo-toolbar a[data-screlo-button="cycle"] {
     background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/search.svg") no-repeat center;
-    display: block;
+    display: table-cell;
+}
+
+#screlo-toolbar a[data-screlo-button="switch"] {
+    background: url("https://rawgit.com/brrd/screlo/master/img/svg/24/switch.svg") no-repeat center;
+    display: table-cell;
+    opacity: 0.5;
+}
+
+body.screlo-active #screlo-toolbar a[data-screlo-button="switch"] {
+    opacity: 1;
 }
 
 #screlo-toolbar a.off {
@@ -216,51 +247,9 @@ body.screlo-has-marker #screlo-toolbar a[data-screlo-button="cycle"] {
     display: none;
 }
 
-#form-screlo-goto {
-    float: left;
-    clear: none;
-    margin-right: 10px;
-    display: inline;
-}
-
-#screlo-goto {
-    border: 2px solid #FFF;
-    border-radius: 4px;
-    background-color: #333;
-    color: #FFF;
-    width: 40px;
-    font-size: 12px;
-    padding: 4px 6px;
-    font-family: verdana, sans-serif;
-    cursor: pointer;
-    text-align: center;
-    margin-top: 3px;
-    display: inline;
-}
-
-#screlo-toolbar a:hover, #screlo-toolbar a:focus, #screlo-goto:hover {
+#screlo-toolbar a:hover, #screlo-toolbar a:focus {
     background-color: #444 !important;
-}
-
-#screlo-goto:focus {
-    border:2px solid #111;
-    background-color: #fff !important;
-    color: #000;
-    cursor: text;
-    text-align: left;
-}
-
-#screlo-toolbar span {
-    border-left: 1px solid #999;
-    display: block;
-    float: left;
-    height: 26px;
-    margin: 4px 6px 0 0;
-    width: 1px;
-}
-
-#screlo-toolbar a:last-child, #screlo-toolbar form:last-child {
-    margin-right: 0;
+    opacity: 1;
 }
 
 /* Marqueurs */
@@ -385,69 +374,70 @@ span.screlo-marker.screlo-exception:after, .screlo-notification.screlo-exception
 
 /* Repérer le nom de famille de l'auteur */
 
-span.familyName {
+body.screlo-active span.familyName {
     border-bottom: 3px black solid;
 }
 
 /* Colorer les liens pour une meilleure lisibilité */
 
-#main p a[href]:not(.footnotecall):not(.FootnoteSymbol) {
+body.screlo-active #main p a[href]:not(.footnotecall):not(.FootnoteSymbol) {
     background-color: lightblue;
 }
 
 /* Niveau des headers explicite */
 
-#text h1.texte:before,
-#toc .tocSection1:before,
-#text h2.texte:before,
-#toc .tocSection2:before,
-#text h3.texte:before,
-#toc .tocSection3:before,
-#text h4.texte:before,
-#toc .tocSection4:before,
-#text h5.texte:before,
-#toc .tocSection5:before,
-#text h6.texte:before,
-#toc .tocSection6:before {
+body.screlo-active #text h1.texte:before,
+body.screlo-active #toc .tocSection1:before,
+body.screlo-active #text h2.texte:before,
+body.screlo-active #toc .tocSection2:before,
+body.screlo-active #text h3.texte:before,
+body.screlo-active #toc .tocSection3:before,
+body.screlo-active #text h4.texte:before,
+body.screlo-active #toc .tocSection4:before,
+body.screlo-active #text h5.texte:before,
+body.screlo-active #toc .tocSection5:before,
+body.screlo-active #text h6.texte:before,
+body.screlo-active #toc .tocSection6:before {
     background-color: #000;
     color: #FFF;
     margin-right: 10px;
     padding: 0 4px;
 }
 
-#text h1.texte:before,
-#toc .tocSection1:before {
-    content: "h1";
+body.screlo-active #text h1.texte:before,
+body.screlo-active #toc .tocSection1:before {
+    content: "Titre 1";
 }
-#text h2.texte:before,
-#toc .tocSection2:before {
-    content: "h2";
+body.screlo-active #text h2.texte:before,
+body.screlo-active #toc .tocSection2:before {
+    content: "Titre 2";
 }
-#text h3.texte:before,
-#toc .tocSection3:before {
-    content: "h3";
+body.screlo-active #text h3.texte:before,
+body.screlo-active #toc .tocSection3:before {
+    content: "Titre 3";
 }
-#text h4.texte:before,
-#toc .tocSection4:before {
-    content: "h4";
+body.screlo-active #text h4.texte:before,
+body.screlo-active #toc .tocSection4:before {
+    content: "Titre 4";
 }
-#text h5.texte:before,
-#toc .tocSection5:before {
-    content: "h5";
+body.screlo-active #text h5.texte:before,
+body.screlo-active #toc .tocSection5:before {
+    content: "Titre 5";
 }
-#text h6.texte:before,
-#toc .tocSection6:before {
-    content: "h6";
+body.screlo-active #text h6.texte:before,
+body.screlo-active #toc .tocSection6:before {
+    content: "Titre 6";
 }
 
 /* Debug de stylage */
-.TODO {
-    background:#FF9DF9;
-    cursor:help
+
+.screlo-todo {
+    background: #FF9DF9;
+    cursor: help;
 }
-.FIXME {
-    color:red;
-    background:#FF8
+.screlo-fixme {
+    color: red;
+    background: #FF8;
 }
 
 /* Loading */
@@ -466,11 +456,33 @@ span.familyName {
     filter: alpha(opacity=80);
 }
 
-body.loading  #screlo-loading {
+body.loading #screlo-loading {
     display: block;
 }
 
-/* Correct navEntities */
+/* 
+    ScreloPlus
+*/
+
+#screlo-plus { 
+    z-index: 1000; 
+    display: block; 
+    position: fixed; 
+    top: 300px; 
+    left: 50%; 
+    width: 300px; 
+    margin-left: -175px; 
+    padding : 25px; 
+    background: #000; 
+    box-shadow: 0px 0px 50px 0px #656565;
+}
+
+#screlo-plus-goto {
+    font-size: 100px; 
+    width: 300px; 
+    text-align: center;
+}
+
 .navEntities a.corrected {
     box-shadow: 0 0 10px #7abd18 inset;
 }
