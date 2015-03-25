@@ -339,59 +339,59 @@ span.screlo-marker.screlo-exception:after, .screlo-notification.screlo-exception
 
 /* Repérer le nom de famille de l'auteur */
 
-span.familyName {
+body.screlo-active span.familyName {
     border-bottom: 3px black solid;
 }
 
 /* Colorer les liens pour une meilleure lisibilité */
 
-#main p a[href]:not(.footnotecall):not(.FootnoteSymbol) {
+body.screlo-active #main p a[href]:not(.footnotecall):not(.FootnoteSymbol) {
     background-color: lightblue;
 }
 
 /* Niveau des headers explicite */
 
-#text h1.texte:before,
-#toc .tocSection1:before,
-#text h2.texte:before,
-#toc .tocSection2:before,
-#text h3.texte:before,
-#toc .tocSection3:before,
-#text h4.texte:before,
-#toc .tocSection4:before,
-#text h5.texte:before,
-#toc .tocSection5:before,
-#text h6.texte:before,
-#toc .tocSection6:before {
+body.screlo-active #text h1.texte:before,
+body.screlo-active #toc .tocSection1:before,
+body.screlo-active #text h2.texte:before,
+body.screlo-active #toc .tocSection2:before,
+body.screlo-active #text h3.texte:before,
+body.screlo-active #toc .tocSection3:before,
+body.screlo-active #text h4.texte:before,
+body.screlo-active #toc .tocSection4:before,
+body.screlo-active #text h5.texte:before,
+body.screlo-active #toc .tocSection5:before,
+body.screlo-active #text h6.texte:before,
+body.screlo-active #toc .tocSection6:before {
     background-color: #000;
     color: #FFF;
     margin-right: 10px;
     padding: 0 4px;
 }
 
-#text h1.texte:before,
-#toc .tocSection1:before {
-    content: "h1";
+body.screlo-active #text h1.texte:before,
+body.screlo-active #toc .tocSection1:before {
+    content: "Titre 1";
 }
-#text h2.texte:before,
-#toc .tocSection2:before {
-    content: "h2";
+body.screlo-active #text h2.texte:before,
+body.screlo-active #toc .tocSection2:before {
+    content: "Titre 2";
 }
-#text h3.texte:before,
-#toc .tocSection3:before {
-    content: "h3";
+body.screlo-active #text h3.texte:before,
+body.screlo-active #toc .tocSection3:before {
+    content: "Titre 3";
 }
-#text h4.texte:before,
-#toc .tocSection4:before {
-    content: "h4";
+body.screlo-active #text h4.texte:before,
+body.screlo-active #toc .tocSection4:before {
+    content: "Titre 4";
 }
-#text h5.texte:before,
-#toc .tocSection5:before {
-    content: "h5";
+body.screlo-active #text h5.texte:before,
+body.screlo-active #toc .tocSection5:before {
+    content: "Titre 5";
 }
-#text h6.texte:before,
-#toc .tocSection6:before {
-    content: "h6";
+body.screlo-active #text h6.texte:before,
+body.screlo-active #toc .tocSection6:before {
+    content: "Titre 6";
 }
 
 /* Debug de stylage */
@@ -421,7 +421,7 @@ span.familyName {
     filter: alpha(opacity=80);
 }
 
-body.loading  #screlo-loading {
+body.loading #screlo-loading {
     display: block;
 }
 
