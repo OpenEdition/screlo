@@ -201,7 +201,7 @@ body.screlo-active.screlo-has-marker #screlo-toolbar a[data-screlo-button="cycle
 }
 
 body.screlo-active #screlo-toolbar a[data-screlo-button="switch"] {
-    opacity: 0.8;
+    opacity: 1;
 }
 
 #screlo-toolbar a.off {

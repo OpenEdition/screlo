@@ -15,6 +15,9 @@ if (!window.jQuery) {
             screloPlus = require("./screlo-plus.js"); // TODO: uniquement si userscript (grunt preprocess)
 
         ui.init();
+        if (!globals.active) {
+            return false;
+        }
         screloPlus.init(); // TODO: uniquement si userscript (grunt preprocess)
         console.info("Screlo v." + globals.version + " loaded"); // TODO: preciser quelle version (user ou remote)
     });
