@@ -144,10 +144,10 @@ function debugStylage () {
         // Elements vides
         var strEmpty = ($(this).get(0).tagName == 'P') ? 'paragraphe vide' : '\u00A0';
         if (($(this).text().match(/^(nbsp|\s)*$/g) !== null) && ($(this).has('img').length === 0)) // FIXME: fonctionne pas bien sur les <p> car span.paranumber fait que le text est jamais vide
-            $(this).text(strEmpty).addClass('FIXME');
+            $(this).text(strEmpty).addClass('screlo-fixme');
         // Mises en forme locales
         if ($(this).attr('style') !== undefined)
-            $(this).attr('title', $(this).attr('style')).addClass('TODO');
+            $(this).attr('title', $(this).attr('style')).addClass('screlo-todo');
     });
 }
 

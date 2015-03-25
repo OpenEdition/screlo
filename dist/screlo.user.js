@@ -496,8 +496,8 @@ globals.version = "15.3.1";
 globals.schema =  "15.3.2"; // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
 globals.appUrls = {
-    base: "https://rawgit.com/brrd/screlo/develop/",
-    stylesheet: "https://rawgit.com/brrd/screlo/develop/" + "dist/screlo.css",
+    base: "https://rawgit.com/brrd/screlo/master/",
+    stylesheet: "https://rawgit.com/brrd/screlo/master/" + "dist/screlo.css",
     update: "https://github.com/brrd/screlo/raw/master/dist/screlo.user.js",
     homepage: "https://github.com/brrd/screlo",
     doc: "https://github.com/brrd/screlo" + "/tree/master/docs"
@@ -1688,10 +1688,10 @@ function debugStylage () {
         // Elements vides
         var strEmpty = ($(this).get(0).tagName == 'P') ? 'paragraphe vide' : '\u00A0';
         if (($(this).text().match(/^(nbsp|\s)*$/g) !== null) && ($(this).has('img').length === 0)) // FIXME: fonctionne pas bien sur les <p> car span.paranumber fait que le text est jamais vide
-            $(this).text(strEmpty).addClass('FIXME');
+            $(this).text(strEmpty).addClass('screlo-fixme');
         // Mises en forme locales
         if ($(this).attr('style') !== undefined)
-            $(this).attr('title', $(this).attr('style')).addClass('TODO');
+            $(this).attr('title', $(this).attr('style')).addClass('screlo-todo');
     });
 }
 

@@ -431,13 +431,13 @@ body.screlo-active #toc .tocSection6:before {
 
 /* Debug de stylage */
 
-.TODO {
-    background:#FF9DF9;
-    cursor:help
+.screlo-todo {
+    background: #FF9DF9;
+    cursor: help;
 }
-.FIXME {
-    color:red;
-    background:#FF8
+.screlo-fixme {
+    color: red;
+    background: #FF8;
 }
 
 /* Loading */
