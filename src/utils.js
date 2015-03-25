@@ -102,17 +102,23 @@ utils.getToc = function () {
 utils.cache = {};
 
 utils.cache.get = function (nomCourt, id) {
-    var key = nomCourt + "-" + id;
+    if (!id || !nomCourt) {
+        return false;
+    }
+    var key = "screlo-" + nomCourt + "-" + id;
     return JSON.parse(localStorage.getItem(key));
 };          
 
 utils.cache.set = function (nomCourt, id, value) {
-    var key = nomCourt + "-" + id;
+    if (!id || !nomCourt) {
+        return false;
+    }
+    var key = "screlo-" + nomCourt + "-" + id;
     localStorage.setItem(key, JSON.stringify(value));
 };      
 
 utils.cache.clear = function (nomCourt) {
-    var regex = new RegExp("^" + nomCourt + "-");
+    var regex = new RegExp("^screlo-" + nomCourt + "-");
     Object.keys(localStorage).forEach( function(key) {
         if (regex.test(key) || key === nomCourt) {
             localStorage.removeItem(key);
