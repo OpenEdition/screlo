@@ -801,28 +801,6 @@ module.exports = [
             }
             return notif;
         }			
-    },
-    {
-        name: "Test",
-        id: 999999,
-        source: "http://devel.revues.org/10/coma/688",
-        condition: function(context) { return true; },
-        action: function (notif, context, root) {
-            notif.name = $("#docTitle", root).text() + " (test A)";
-            notif.activate();
-            return notif;
-        }			
-    },
-    {
-        name: "Test2",
-        id: 999998,
-        source: "http://develz.revues.org/10/coma/688",
-        condition: function(context) { return true; },
-        action: function (notif, context, root) {
-            notif.name = $("#docTitle", root).text() + " (test B)";
-            notif.activate();
-            return notif;
-        }			
     }//,
 
 ]; 

@@ -171,46 +171,44 @@ Checker.prototype.sortNotifications = function () {
     });
 };
 
-Checker.prototype.show = function () {
-    // Filter les notifications qui seront affichées. N'affecte pas this.notifications.
-    function filterNotifications (notifications) {
-        function filterPrint (notifications) {
-            var res = [];
-            for (var i=0; i<notifications.length; i++) {
-                if (notifications[i].type !== "print") {
-                    res.push(notifications[i]);
-                }
+Checker.prototype.filterNotifications = function () {
+    function filterPrint (notifications) {
+        var res = [];
+        for (var i=0; i<notifications.length; i++) {
+            if (notifications[i].type !== "print") {
+                res.push(notifications[i]);
             }
-            return res;
         }
-        var notificationsToShow = globals.paper ? notifications : filterPrint(notifications);
-        if (notificationsToShow.length === 0 && that.numberOfTests > 0 && (that.context.classes.textes || that.root !== document)) {
-            var successMessage = new Notification({
-                name: 'Aucune erreur détectée <span class="count">' + that.numberOfTests + ' tests</span>',
-                type: "succes"
-            });
-            notificationsToShow.push(successMessage);
-        }
-        if (that.numberOfAjaxErrors) {
-            var notifName = that.numberOfAjaxErrors === 1 ? "Un test qui n'a pas pu aboutir a été ignoré <span class='count'>" + that.numberOfAjaxErrors + " test</span>" : "Des tests qui n'ont pas pu aboutir ont été ignorés <span class='count'>" + that.numberOfAjaxErrors + " tests</span>",
-                errorMessage = new Notification({
+        return res;
+    }
+    var notifications = this.notifications, 
+        notificationsToShow = globals.paper ? notifications : filterPrint(notifications);
+    if (notificationsToShow.length === 0 && this.numberOfTests > 0 && (this.context.classes.textes || this.root !== document)) {
+        var successMessage = new Notification({
+            name: 'Aucune erreur détectée <span class="count">' + this.numberOfTests + ' tests</span>',
+            type: "succes"
+        });
+        notificationsToShow.push(successMessage);
+    }
+    if (this.numberOfAjaxErrors) {
+        var notifName = this.numberOfAjaxErrors === 1 ? "Un test qui n'a pas pu aboutir a été ignoré <span class='count'>" + this.numberOfAjaxErrors + " test</span>" : "Des tests qui n'ont pas pu aboutir ont été ignorés <span class='count'>" + this.numberOfAjaxErrors + " tests</span>",
+            errorMessage = new Notification({
                 name: notifName,
                 type: "screlo-exception"
             });
-            notificationsToShow.push(errorMessage);
-        }
-        return notificationsToShow;
+        notificationsToShow.push(errorMessage);
     }
+    return notificationsToShow;
+};
+
+Checker.prototype.show = function () {
+    // Filter les notifications qui seront affichées. N'affecte pas this.notifications.
     if (!this.target || (this.target && $(this.target).length === 0)) {
         console.error("Erreur: 'target' n'est pas défini ou n'existe pas.");
         return;
     }
-    if (!this.notifications || this.notifications && this.notifications.length === 0) {
-        return;
-    }
     this.sortNotifications();
-    var that = this,
-        notifs = filterNotifications(this.notifications),
+    var notifs = this.filterNotifications(),
         notif;
     for (var i=0; i < notifs.length; i++) {
         notif = notifs[i];
