@@ -40,7 +40,7 @@ La pagination de la version papier est absente des métadonnées ou n'est pas co
 
 Type : danger
 
-La date de publication électronique est absente des métadonnées du numéro ou n'est pas correctement stylée. Il est impératif de renseigner cette métadonnée dans le formulaire d'édition du numéro ou de la rubrique.
+Il est conseillé de mentionner la référence des œuvres commentées dans les comptes rendus et les notes de lecture en utilisant la métadonnée appropriée.
 
 **À lire dans la documentation**
 

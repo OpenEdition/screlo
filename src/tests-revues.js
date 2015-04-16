@@ -25,7 +25,7 @@ module.exports = [
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
             var champAuteur = $('#docAuthor', root);
-            if(champAuteur.length === 0){
+            if (champAuteur.length === 0) {
                 notif.activate();
             }
             return notif;
@@ -37,7 +37,7 @@ module.exports = [
         description: "Aucun fac-similé n'est associé à ce document. Il est fortement recommandé de joindre aux documents un fac-similé PDF issu de la version imprimée lorsque c'est possible.",
         links: ["Fac-similés PDF issus de la version papier", "http://maisondesrevues.org/612"],
         type: "print",
-        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations },
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
             if($('#wDownload.facsimile', root).length === 0){
                 notif.activate();
@@ -51,7 +51,7 @@ module.exports = [
         description: "La pagination de la version papier est absente des métadonnées ou n'est pas correctement stylée. Si le document existe en version imprimée il est fortement recommandé d'en préciser la pagination au format attendu.",
         links: ["Pagination", "http://maisondesrevues.org/86"],
         type: "print",
-        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations },
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
             if($('#docPagination', root).length === 0){
                 notif.name = "Pas de pagination";
@@ -799,6 +799,28 @@ module.exports = [
                     notif.addMarker(element.get(0)).activate();
                 }
             }
+            return notif;
+        }			
+    },
+    {
+        name: "Test",
+        id: 999999,
+        source: "http://devel.revues.org/10/coma/688",
+        condition: function(context) { return true; },
+        action: function (notif, context, root) {
+            notif.name = $("#docTitle", root).text() + " (test A)";
+            notif.activate();
+            return notif;
+        }			
+    },
+    {
+        name: "Test2",
+        id: 999998,
+        source: "http://develz.revues.org/10/coma/688",
+        condition: function(context) { return true; },
+        action: function (notif, context, root) {
+            notif.name = $("#docTitle", root).text() + " (test B)";
+            notif.activate();
             return notif;
         }			
     }//,

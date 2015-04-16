@@ -8,6 +8,7 @@ var ui = {},
     cmd = require("./commands.js"),
     globals = require("./globals.js"),
     utils = require("./utils.js"),
+    Loader = require("./Loader.js"),
     Checker = require("./Checker.js");
 
 function manageCss () {
@@ -134,7 +135,9 @@ function manageToc () {
 
 function checkThisPage () {
     var chkr = new Checker();
-    chkr.toCache().show();
+    chkr.ready( function (chkr) {
+        chkr.toCache().show();     
+    });
 }
 
 // Bookmarklet debugger (version light)

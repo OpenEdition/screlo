@@ -21,6 +21,7 @@ function Notification (test, root) {
     this.active = false;
     this.infoExists = globals.infos[this.id] ? true : false;
     this.root = root;
+    this.source = test.source || "self";
 }
 
 Notification.prototype.getHtml = function () {

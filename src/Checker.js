@@ -4,7 +4,10 @@
     Cet objet est associé à un document unique (ie il faut créer un Checker par document à vérifier). 
     Il peut être généré de plusieurs façons :
         1. new Checker() : calcul automatique au chargement du document.
-        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document. Utiliser la méthode .ready(callback) pour afficher le Checker après l'initialisation.
+        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document ou une url. 
+    
+    Utiliser la méthode .ready(callback) pour afficher le Checker après l'initialisation.
+    
         3. new Checker(notifications) : où notifications est un Array contenant des Notification (notamment tirées du localStorage). Dans ce cas les attributs root et context ne sont pas définis.    
     La méthode this.show() permet l'affichage dans l'élément ciblé par le sélecteur this.target.
     La méthode this.toCache() permet l'enregistrement dans le localStorage.
@@ -16,78 +19,51 @@ var tests = require("./tests-revues.js"),
     globals = require("./globals.js");
 
 function Checker (arg) {
+    this.isDisplayedDocument = (typeof arg === "undefined");
+    this.id = arg || globals.page;
     this.isReady = false;
     this.notifications = [];
     this.target = "#screlo-notifications";
-    this.context = { classes: [] };
-    this.idPage = location.pathname.match(/(\d+)$/g);
+    this.context = { classes: {} };
+    this.sources = [];
     this.numberOfTests = 0;
+    this.numberOfAjaxErrors = 0;
     
-    // Trouver root et context
-    if (utils.isNumber(arg)) {
-        this.initFromAjax(arg);
-    } else if (typeof arg === "object" && arg.numberOfTests !== "undefined" && utils.isNumber(arg.numberOfTests) && arg.notifications && typeof arg.notifications === "object") {
-        this.numberOfTests = arg.numberOfTests;
+    // Si arg est un Array, il s'agit de notifications à charger (généralement depuis le cache). On ne procède alors à aucun test.
+    if (typeof arg === "object" && arg.numberOfTests !== "undefined" && utils.isNumber(arg.numberOfTests) && arg.notifications && typeof arg.notifications === "object") {
+        this.numberOfTests = arg.numberOfTests || 0;
+        this.numberOfAjaxErrors = arg.numberOfAjaxErrors || 0;
         this.pushNotifications(arg.notifications);
-    } else if (typeof arg === "undefined") {
-        this.initFromPage();
-    } else {
-        console.error("Bad parameters in Checker's constructor");
-    }
-}
-
-Checker.prototype.initFromPage = function () {
-    var classes = document.body.className.split(/\s+/);
-    this.root = document;
-    this.setContext(classes);
-    this.process();
-};
-
-Checker.prototype.initFromAjax = function (id) {
-    function ajaxFail(id) {      
-        var failMessage = new Notification({
-            name: "Impossible de charger ce document",
-            type: "screlo-exception"
+        return;
+    }         
+    
+    // Sinon on lance les tests
+    // 1. On charge le document
+    var that = this;
+    Loader.load(this.id, function (mainCheckerSource) {
+        // 2. On récupère le contexte qui déterminera les tests à exécuter
+        var classes = mainCheckerSource.bodyClasses;
+        that.setContext(classes);
+        // 3. On charge les sources supplémentaires nécessaires à ce Checker
+        var sourceUrl,
+            source;
+        for (var i = 0; i < tests.length; i++) {
+            thisTest = tests[i];
+            if (thisTest.condition(that.context)) {
+                sourceUrl = that.getSourceUrl(thisTest);
+                source = Loader.load(sourceUrl);
+                that.addSource(source);
+            }
+        }
+        // 4. Quand les sources sont toutes chargées on exécute les tests
+        Loader.onSourcesReady(that.sources, function (infos) {
+            that.process (function () {
+                // Et voilà !
+                that.isReady = true;
+            });
         });
-        this.notifications.push(failMessage);
-    }
-    var url =  utils.getUrl("site") + id,
-        chkr = this;
-    this.idPage = id;
-    // NOTE: Comme Lodel utilise une vieille version de jquery (1.4) on ne peut pas utiliser $.get().done().fail().always(). On utilise donc $.ajax()
-    $.ajax({
-        url: url,
-        timeout: 20000,
-        success: function(data) {
-            if (data && data.match(/\n.*(<body.*)\n/i) !== null) {
-                var body = data.match(/\n.*(<body.*)\n/i)[1].replace("body", "div"),
-                    classes = $(body).get(0).className.split(/\s+/),
-                    container = $("<div></div>").append($(data).find("#main"));                
-                chkr.root = container;
-                chkr.setContext(classes);
-                chkr.process();
-            } else {
-                ajaxFail();
-            }
-        },
-        error: function() {
-            ajaxFail();
-        },
-        complete: function() {
-            chkr.isReady = true;
-        }                
-    });
-};
-
-Checker.prototype.ready = function (callback) {   
-    var chkr = this,
-        interval = setInterval(function () {
-            if (chkr.isReady) {
-                callback(chkr);
-                clearInterval(interval);
-            }
-        }, 1000);
-};
+    });  
+}
 
 Checker.prototype.pushNotifications = function (notif) {
     // Récursif si tableau
@@ -104,6 +80,12 @@ Checker.prototype.pushNotifications = function (notif) {
     }
 };
 
+Checker.prototype.addSource = function (source) {
+    if (!source) { return false; }
+    this.sources.push(source);
+    return true;
+};
+
 Checker.prototype.setContext = function (classes) {       
     for ( var i=0; i < classes.length; i++ ) {
         this.context.classes[classes[i]] = true;
@@ -113,33 +95,68 @@ Checker.prototype.setContext = function (classes) {
     this.context.paper = globals.paper;
 };
 
-// Applique les tests
-Checker.prototype.process = function () {
-    function injectMarker(marker) {
-        marker.inject();
+Checker.prototype.getSourceUrl = function (test) {
+    if (test.source && typeof test.source === "function") {
+        return test.source(this.id);
+    } else if (test.source && typeof test.source === "string") {
+        return test.source;
     }
+    return this.id || globals.page;
+};
+
+Checker.prototype.process = function (callback) {
     var thisTest,
-        notif,
-        res;
-    this.numberOfTests = 0;
-    if (!(this.root && this.context)) {
-        console.log("Erreur lors du process(): attributs manquants dans Checker");
+        sourceUrl,
+        source,
+        root,
+        notif, 
+        res,
+        injectMarker = function (marker) {
+            marker.inject();
+        };
+    if (!this.context) {
+        console.error("Erreur lors de l'exécution des tests : le contexte n'est pas défini");
         return;
     }
-    for (var i = 0; i < tests.length; i++) {
+    for (var i=0; i<tests.length; i++) {
         thisTest = tests[i];
-        if (thisTest.condition(this.context)) {
-            notif = new Notification(thisTest, this.root);
-            res = thisTest.action(notif, this.context, this.root);
-            if (res.active) {
-                if (res.markers.length > 0) {
-                    res.markers.forEach( injectMarker );
-                }
-                this.notifications.push(res);
-            }
-            this.numberOfTests++;
+        sourceUrl = this.getSourceUrl(thisTest);
+        source = Loader.getSource(sourceUrl);
+        if (source.isError) {
+            this.numberOfAjaxErrors++;
+            continue;
         }
+        if (!thisTest.condition(this.context)) {
+            continue;
+        }
+        root = source.root;
+        notif = new Notification(thisTest, root);
+        res = thisTest.action(notif, this.context, root); // NOTE: les deux derniers arguments sont déjà dans notif (je crois). Il serait mieux de ne pas les repasser encore.
+        if (res.active) {
+            if (res.markers.length > 0) {
+                res.markers.forEach( injectMarker );
+            }
+            this.notifications.push(res);
+        }
+        this.numberOfTests++;
     }
+    if (callback && typeof callback === "function") {
+        callback();
+    }
+};
+
+// TODO: utiliser le meme processus que pour Loader
+Checker.prototype.ready = function (callback) { 
+    var that = this,
+        checkIfReady = function () {
+            if (that.isReady) {
+                callback(that);
+                return;
+            } else {    
+                setTimeout(checkIfReady, 1000);
+            }
+        };
+    checkIfReady();
 };
 
 // Ordonner this.notifications.
@@ -174,10 +191,18 @@ Checker.prototype.show = function () {
             });
             notificationsToShow.push(successMessage);
         }
+        if (that.numberOfAjaxErrors) {
+            var notifName = that.numberOfAjaxErrors === 1 ? "Un test qui n'a pas pu aboutir a été ignoré <span class='count'>" + that.numberOfAjaxErrors + " test</span>" : "Des tests qui n'ont pas pu aboutir ont été ignorés <span class='count'>" + that.numberOfAjaxErrors + " tests</span>",
+                errorMessage = new Notification({
+                name: notifName,
+                type: "screlo-exception"
+            });
+            notificationsToShow.push(errorMessage);
+        }
         return notificationsToShow;
     }
     if (!this.target || (this.target && $(this.target).length === 0)) {
-        console.log("Erreur: 'target' n'est pas défini ou n'existe pas.");
+        console.error("Erreur: 'target' n'est pas défini ou n'existe pas.");
         return;
     }
     if (!this.notifications || this.notifications && this.notifications.length === 0) {
@@ -195,9 +220,10 @@ Checker.prototype.show = function () {
 
 Checker.prototype.toCache = function () {
     var nomCourt = globals.nomCourt,
-        id = this.idPage,
+        id = this.id,
         value = {};
         value.numberOfTests = this.numberOfTests;
+        value.numberOfAjaxErrors = this.numberOfAjaxErrors;
         value.notifications = this.notifications.map(function (notification) {
             return notification.export();
         });

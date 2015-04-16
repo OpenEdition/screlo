@@ -30,6 +30,12 @@ globals.nomCourt = (function () {
     }
 })();
 
+globals.page = (function () {
+    var url = location.pathname,
+        match = url.match(/(\d+)$/g);
+    return match ? match[0] : url;
+})();
+
 globals.hash = window.location.hash.substring(1);
 
 globals.cacheIsValid = (function () {

@@ -15,7 +15,10 @@
     Cet objet est associé à un document unique (ie il faut créer un Checker par document à vérifier). 
     Il peut être généré de plusieurs façons :
         1. new Checker() : calcul automatique au chargement du document.
-        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document. Utiliser la méthode .ready(callback) pour afficher le Checker après l'initialisation.
+        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document ou une url. 
+    
+    Utiliser la méthode .ready(callback) pour afficher le Checker après l'initialisation.
+    
         3. new Checker(notifications) : où notifications est un Array contenant des Notification (notamment tirées du localStorage). Dans ce cas les attributs root et context ne sont pas définis.    
     La méthode this.show() permet l'affichage dans l'élément ciblé par le sélecteur this.target.
     La méthode this.toCache() permet l'enregistrement dans le localStorage.
@@ -27,78 +30,51 @@ var tests = require("./tests-revues.js"),
     globals = require("./globals.js");
 
 function Checker (arg) {
+    this.isDisplayedDocument = (typeof arg === "undefined");
+    this.id = arg || globals.page;
     this.isReady = false;
     this.notifications = [];
     this.target = "#screlo-notifications";
-    this.context = { classes: [] };
-    this.idPage = location.pathname.match(/(\d+)$/g);
+    this.context = { classes: {} };
+    this.sources = [];
     this.numberOfTests = 0;
+    this.numberOfAjaxErrors = 0;
     
-    // Trouver root et context
-    if (utils.isNumber(arg)) {
-        this.initFromAjax(arg);
-    } else if (typeof arg === "object" && arg.numberOfTests !== "undefined" && utils.isNumber(arg.numberOfTests) && arg.notifications && typeof arg.notifications === "object") {
-        this.numberOfTests = arg.numberOfTests;
+    // Si arg est un Array, il s'agit de notifications à charger (généralement depuis le cache). On ne procède alors à aucun test.
+    if (typeof arg === "object" && arg.numberOfTests !== "undefined" && utils.isNumber(arg.numberOfTests) && arg.notifications && typeof arg.notifications === "object") {
+        this.numberOfTests = arg.numberOfTests || 0;
+        this.numberOfAjaxErrors = arg.numberOfAjaxErrors || 0;
         this.pushNotifications(arg.notifications);
-    } else if (typeof arg === "undefined") {
-        this.initFromPage();
-    } else {
-        console.error("Bad parameters in Checker's constructor");
-    }
-}
-
-Checker.prototype.initFromPage = function () {
-    var classes = document.body.className.split(/\s+/);
-    this.root = document;
-    this.setContext(classes);
-    this.process();
-};
-
-Checker.prototype.initFromAjax = function (id) {
-    function ajaxFail(id) {      
-        var failMessage = new Notification({
-            name: "Impossible de charger ce document",
-            type: "screlo-exception"
+        return;
+    }         
+    
+    // Sinon on lance les tests
+    // 1. On charge le document
+    var that = this;
+    Loader.load(this.id, function (mainCheckerSource) {
+        // 2. On récupère le contexte qui déterminera les tests à exécuter
+        var classes = mainCheckerSource.bodyClasses;
+        that.setContext(classes);
+        // 3. On charge les sources supplémentaires nécessaires à ce Checker
+        var sourceUrl,
+            source;
+        for (var i = 0; i < tests.length; i++) {
+            thisTest = tests[i];
+            if (thisTest.condition(that.context)) {
+                sourceUrl = that.getSourceUrl(thisTest);
+                source = Loader.load(sourceUrl);
+                that.addSource(source);
+            }
+        }
+        // 4. Quand les sources sont toutes chargées on exécute les tests
+        Loader.onSourcesReady(that.sources, function (infos) {
+            that.process (function () {
+                // Et voilà !
+                that.isReady = true;
+            });
         });
-        this.notifications.push(failMessage);
-    }
-    var url =  utils.getUrl("site") + id,
-        chkr = this;
-    this.idPage = id;
-    // NOTE: Comme Lodel utilise une vieille version de jquery (1.4) on ne peut pas utiliser $.get().done().fail().always(). On utilise donc $.ajax()
-    $.ajax({
-        url: url,
-        timeout: 20000,
-        success: function(data) {
-            if (data && data.match(/\n.*(<body.*)\n/i) !== null) {
-                var body = data.match(/\n.*(<body.*)\n/i)[1].replace("body", "div"),
-                    classes = $(body).get(0).className.split(/\s+/),
-                    container = $("<div></div>").append($(data).find("#main"));                
-                chkr.root = container;
-                chkr.setContext(classes);
-                chkr.process();
-            } else {
-                ajaxFail();
-            }
-        },
-        error: function() {
-            ajaxFail();
-        },
-        complete: function() {
-            chkr.isReady = true;
-        }                
-    });
-};
-
-Checker.prototype.ready = function (callback) {   
-    var chkr = this,
-        interval = setInterval(function () {
-            if (chkr.isReady) {
-                callback(chkr);
-                clearInterval(interval);
-            }
-        }, 1000);
-};
+    });  
+}
 
 Checker.prototype.pushNotifications = function (notif) {
     // Récursif si tableau
@@ -115,6 +91,12 @@ Checker.prototype.pushNotifications = function (notif) {
     }
 };
 
+Checker.prototype.addSource = function (source) {
+    if (!source) { return false; }
+    this.sources.push(source);
+    return true;
+};
+
 Checker.prototype.setContext = function (classes) {       
     for ( var i=0; i < classes.length; i++ ) {
         this.context.classes[classes[i]] = true;
@@ -124,33 +106,68 @@ Checker.prototype.setContext = function (classes) {
     this.context.paper = globals.paper;
 };
 
-// Applique les tests
-Checker.prototype.process = function () {
-    function injectMarker(marker) {
-        marker.inject();
+Checker.prototype.getSourceUrl = function (test) {
+    if (test.source && typeof test.source === "function") {
+        return test.source(this.id);
+    } else if (test.source && typeof test.source === "string") {
+        return test.source;
     }
+    return this.id || globals.page;
+};
+
+Checker.prototype.process = function (callback) {
     var thisTest,
-        notif,
-        res;
-    this.numberOfTests = 0;
-    if (!(this.root && this.context)) {
-        console.log("Erreur lors du process(): attributs manquants dans Checker");
+        sourceUrl,
+        source,
+        root,
+        notif, 
+        res,
+        injectMarker = function (marker) {
+            marker.inject();
+        };
+    if (!this.context) {
+        console.error("Erreur lors de l'exécution des tests : le contexte n'est pas défini");
         return;
     }
-    for (var i = 0; i < tests.length; i++) {
+    for (var i=0; i<tests.length; i++) {
         thisTest = tests[i];
-        if (thisTest.condition(this.context)) {
-            notif = new Notification(thisTest, this.root);
-            res = thisTest.action(notif, this.context, this.root);
-            if (res.active) {
-                if (res.markers.length > 0) {
-                    res.markers.forEach( injectMarker );
-                }
-                this.notifications.push(res);
-            }
-            this.numberOfTests++;
+        sourceUrl = this.getSourceUrl(thisTest);
+        source = Loader.getSource(sourceUrl);
+        if (source.isError) {
+            this.numberOfAjaxErrors++;
+            continue;
         }
+        if (!thisTest.condition(this.context)) {
+            continue;
+        }
+        root = source.root;
+        notif = new Notification(thisTest, root);
+        res = thisTest.action(notif, this.context, root); // NOTE: les deux derniers arguments sont déjà dans notif (je crois). Il serait mieux de ne pas les repasser encore.
+        if (res.active) {
+            if (res.markers.length > 0) {
+                res.markers.forEach( injectMarker );
+            }
+            this.notifications.push(res);
+        }
+        this.numberOfTests++;
     }
+    if (callback && typeof callback === "function") {
+        callback();
+    }
+};
+
+// TODO: utiliser le meme processus que pour Loader
+Checker.prototype.ready = function (callback) { 
+    var that = this,
+        checkIfReady = function () {
+            if (that.isReady) {
+                callback(that);
+                return;
+            } else {    
+                setTimeout(checkIfReady, 1000);
+            }
+        };
+    checkIfReady();
 };
 
 // Ordonner this.notifications.
@@ -185,10 +202,18 @@ Checker.prototype.show = function () {
             });
             notificationsToShow.push(successMessage);
         }
+        if (that.numberOfAjaxErrors) {
+            var notifName = that.numberOfAjaxErrors === 1 ? "Un test qui n'a pas pu aboutir a été ignoré <span class='count'>" + that.numberOfAjaxErrors + " test</span>" : "Des tests qui n'ont pas pu aboutir ont été ignorés <span class='count'>" + that.numberOfAjaxErrors + " tests</span>",
+                errorMessage = new Notification({
+                name: notifName,
+                type: "screlo-exception"
+            });
+            notificationsToShow.push(errorMessage);
+        }
         return notificationsToShow;
     }
     if (!this.target || (this.target && $(this.target).length === 0)) {
-        console.log("Erreur: 'target' n'est pas défini ou n'existe pas.");
+        console.error("Erreur: 'target' n'est pas défini ou n'existe pas.");
         return;
     }
     if (!this.notifications || this.notifications && this.notifications.length === 0) {
@@ -206,9 +231,10 @@ Checker.prototype.show = function () {
 
 Checker.prototype.toCache = function () {
     var nomCourt = globals.nomCourt,
-        id = this.idPage,
+        id = this.id,
         value = {};
         value.numberOfTests = this.numberOfTests;
+        value.numberOfAjaxErrors = this.numberOfAjaxErrors;
         value.notifications = this.notifications.map(function (notification) {
             return notification.export();
         });
@@ -217,7 +243,81 @@ Checker.prototype.toCache = function () {
 };
 
 module.exports = Checker;
-},{"./Notification.js":3,"./globals.js":5,"./tests-revues.js":8,"./utils.js":10}],2:[function(require,module,exports){
+},{"./Notification.js":4,"./globals.js":7,"./tests-revues.js":10,"./utils.js":12}],2:[function(require,module,exports){
+/*
+    Loader
+    ==========
+    Gère l'import des documents dans lesquels sont effectués les tests.
+*/
+
+var Source = require("./Source.js");
+
+// TODO: ici Loader est volontairement attaché au contexte global. Il faudrait placer dans un namespace 'screlo'.
+Loader = {
+    sources: {},
+    getSource: function (id) {
+        return id.constructor === Source ? id : this.sources[id];
+    },
+    // Same as above with an array of sources
+    getSources: function (urls) {
+        var that = this,
+            mapFunc = (function () {
+                return that.getSource;
+            })();
+        return urls.map(mapFunc);
+    },
+    load: function (id, callback) {
+        if (this.getSource(id)) {
+            return false;
+        }
+        var source = new Source(id, callback);
+        this.sources[id] = source; // TODO: il faudrait normaliser les id pour éviter les doublons
+        return source;
+    },
+    infos: function (sourcesArray) {
+        var res = {
+                all: sourcesArray,
+                ready: [],
+                error: [],
+                success: [],
+                allReady: undefined
+            },
+            thisSource;
+        for (var i=0; i<sourcesArray.length; i++) {
+            thisSource = sourcesArray[i];
+            if (thisSource.isReady) {
+                res.ready.push(thisSource);
+            } else {
+                continue;
+            }
+            if (thisSource.isError) {
+                res.error.push(thisSource);
+            }
+            if (thisSource.isSuccess) {
+                res.success.push(thisSource);
+            }
+        }
+        res.allReady = (res.ready.length === res.all.length);
+        return res;
+    },
+    onSourcesReady: function (sourcesArray, callback) {
+        var that = this,
+            checkIfReady = function () {
+                var infos = that.infos(sourcesArray),
+                    flag = infos.allReady;
+                if (flag) {
+                    callback(infos);
+                    return;
+                } else {    
+                    setTimeout(checkIfReady, 1000);
+                }
+            };
+        checkIfReady();
+    }
+};
+
+module.exports = Loader;
+},{"./Source.js":5}],3:[function(require,module,exports){
 /*
     Screlo - Marker
     ==========
@@ -251,7 +351,7 @@ Marker.prototype.inject = function () {
 };
 
 module.exports = Marker;
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /*
     Screlo - Notification
     ==========
@@ -275,6 +375,7 @@ function Notification (test, root) {
     this.active = false;
     this.infoExists = globals.infos[this.id] ? true : false;
     this.root = root;
+    this.source = test.source || "self";
 }
 
 Notification.prototype.getHtml = function () {
@@ -349,7 +450,57 @@ Notification.prototype.activate = function () {
 };
 
 module.exports = Notification;
-},{"./Marker.js":2,"./globals.js":5}],4:[function(require,module,exports){
+},{"./Marker.js":3,"./globals.js":7}],5:[function(require,module,exports){
+var globals = require("./globals.js");
+
+function Source (id, callback) {
+    callback = typeof callback === "function" ? callback : undefined;
+    var isSelf = id === globals.page;
+    this.id = id;
+    this.bodyClasses = isSelf ? document.body.className.split(/\s+/) : undefined;
+    this.root = isSelf ? document : undefined;
+    this.isReady = isSelf;
+    this.isSuccess = isSelf;
+    this.isError = false;
+    if (!isSelf) {
+        this.load(callback);
+    } else if (callback) {
+        callback(this);
+    }
+}
+
+Source.prototype.load = function (callback) {
+    var that = this,
+        url = this.id;
+    $.ajax({
+        url: url,
+        timeout: 20000,
+        success: function(data) {
+            if (data && data.match(/\n.*(<body.*)\n/i) !== null) {
+                var body = data.match(/\n.*(<body.*)\n/i)[1].replace("body", "div"),
+                    bodyClasses = $(body).get(0).className.split(/\s+/),
+                    container = $("<div></div>").append($(data).find("#main")); // TODO: ça va foirer car #main n'existe pas dans le backoffice. Il faut chercher #lodel-container               
+                that.root = container.get(0);
+                that.bodyClasses = bodyClasses;
+                that.isSuccess = true;
+            } else {
+                that.isError = true;
+            }
+        },
+        error: function() {
+            that.isError = true;
+        },
+        complete: function() {
+            that.isReady = true;
+            if (callback) {
+                callback(that);
+            }
+        }                
+    });
+};
+
+module.exports = Source;
+},{"./globals.js":7}],6:[function(require,module,exports){
 /*
     Screlo - commands
     ==========
@@ -480,7 +631,7 @@ cmd.showInfo = function ($clickElement) {
 };
 
 module.exports = cmd;
-},{"./Checker.js":1,"./globals.js":5,"./tests-revues.js":8,"./utils.js":10}],5:[function(require,module,exports){
+},{"./Checker.js":1,"./globals.js":7,"./tests-revues.js":10,"./utils.js":12}],7:[function(require,module,exports){
 /*
     Screlo - globals
     ==========
@@ -496,8 +647,8 @@ globals.version = "15.3.1";
 globals.schema =  "15.3.2"; // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
 globals.appUrls = {
-    base: "https://rawgit.com/brrd/screlo/master/",
-    stylesheet: "https://rawgit.com/brrd/screlo/master/" + "dist/screlo.css",
+    base: "http://localhost/screlo/",
+    stylesheet: "http://localhost/screlo/" + "dist/screlo.css",
     update: "https://github.com/brrd/screlo/raw/master/dist/screlo.user.js",
     homepage: "https://github.com/brrd/screlo",
     doc: "https://github.com/brrd/screlo" + "/tree/master/docs"
@@ -511,6 +662,12 @@ globals.nomCourt = (function () {
     } else {
         return host.substr(0, host.indexOf('.'));
     }
+})();
+
+globals.page = (function () {
+    var url = location.pathname,
+        match = url.match(/(\d+)$/g);
+    return match ? match[0] : url;
 })();
 
 globals.hash = window.location.hash.substring(1);
@@ -604,7 +761,7 @@ globals.infos = (function () {
 })();
 
 module.exports = globals;
-},{"./tests-revues.js":8,"./utils.js":10}],6:[function(require,module,exports){
+},{"./tests-revues.js":10,"./utils.js":12}],8:[function(require,module,exports){
 /*
     SCRELO - Script de relecture pour Lodel
     Thomas Brouard - OpenEdition
@@ -630,7 +787,7 @@ if (!window.jQuery) {
         console.info("Screlo v." + globals.version + " loaded"); // TODO: preciser quelle version (user ou remote)
     });
 }
-},{"./globals.js":5,"./screlo-plus.js":7,"./ui.js":9,"./vendor/highlightRegex.js":11,"./vendor/picoModal.js":12}],7:[function(require,module,exports){
+},{"./globals.js":7,"./screlo-plus.js":9,"./ui.js":11,"./vendor/highlightRegex.js":13,"./vendor/picoModal.js":14}],9:[function(require,module,exports){
 /*
     ScreloPlus
     ==========
@@ -734,7 +891,7 @@ function init () {
 }
 
 module.exports = { init: init };
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /*    
     Screlo - tests-revues
     ==========
@@ -762,7 +919,7 @@ module.exports = [
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
             var champAuteur = $('#docAuthor', root);
-            if(champAuteur.length === 0){
+            if (champAuteur.length === 0) {
                 notif.activate();
             }
             return notif;
@@ -774,7 +931,7 @@ module.exports = [
         description: "Aucun fac-similé n'est associé à ce document. Il est fortement recommandé de joindre aux documents un fac-similé PDF issu de la version imprimée lorsque c'est possible.",
         links: ["Fac-similés PDF issus de la version papier", "http://maisondesrevues.org/612"],
         type: "print",
-        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations },
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
             if($('#wDownload.facsimile', root).length === 0){
                 notif.activate();
@@ -788,7 +945,7 @@ module.exports = [
         description: "La pagination de la version papier est absente des métadonnées ou n'est pas correctement stylée. Si le document existe en version imprimée il est fortement recommandé d'en préciser la pagination au format attendu.",
         links: ["Pagination", "http://maisondesrevues.org/86"],
         type: "print",
-        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations },
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
             if($('#docPagination', root).length === 0){
                 notif.name = "Pas de pagination";
@@ -1538,10 +1695,32 @@ module.exports = [
             }
             return notif;
         }			
+    },
+    {
+        name: "Test",
+        id: 999999,
+        source: "http://devel.revues.org/10/coma/688",
+        condition: function(context) { return true; },
+        action: function (notif, context, root) {
+            notif.name = $("#docTitle", root).text() + " (test A)";
+            notif.activate();
+            return notif;
+        }			
+    },
+    {
+        name: "Test2",
+        id: 999998,
+        source: "http://develz.revues.org/10/coma/688",
+        condition: function(context) { return true; },
+        action: function (notif, context, root) {
+            notif.name = $("#docTitle", root).text() + " (test B)";
+            notif.activate();
+            return notif;
+        }			
     }//,
 
 ]; 
-},{"./utils.js":10}],9:[function(require,module,exports){
+},{"./utils.js":12}],11:[function(require,module,exports){
 /*
     Screlo - ui
     ==========
@@ -1552,6 +1731,7 @@ var ui = {},
     cmd = require("./commands.js"),
     globals = require("./globals.js"),
     utils = require("./utils.js"),
+    Loader = require("./Loader.js"),
     Checker = require("./Checker.js");
 
 function manageCss () {
@@ -1678,7 +1858,9 @@ function manageToc () {
 
 function checkThisPage () {
     var chkr = new Checker();
-    chkr.toCache().show();
+    chkr.ready( function (chkr) {
+        chkr.toCache().show();     
+    });
 }
 
 // Bookmarklet debugger (version light)
@@ -1714,7 +1896,7 @@ ui.init = function () {
 };
 
 module.exports = ui;
-},{"./Checker.js":1,"./commands.js":4,"./globals.js":5,"./utils.js":10}],10:[function(require,module,exports){
+},{"./Checker.js":1,"./Loader.js":2,"./commands.js":6,"./globals.js":7,"./utils.js":12}],12:[function(require,module,exports){
 /*
     Screlo - utils
     ==========
@@ -1722,10 +1904,6 @@ module.exports = ui;
 */
 
 var utils = {};
-
-utils.pageId = function () {
-    return location.pathname.match(/(\d+)$/g);
-};
 
 utils.isNumber = function (n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
@@ -1844,7 +2022,7 @@ utils.cache.clear = function (nomCourt) {
 };
 
 module.exports = utils;
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*
  * jQuery Highlight Regex Plugin v0.1.2
  *
@@ -1973,7 +2151,7 @@ module.exports = utils;
   }
 })( jQuery );
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /**
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2392,4 +2570,4 @@ module.exports = utils;
 
 }(window, document));
 
-},{}]},{},[6]);
+},{}]},{},[8]);

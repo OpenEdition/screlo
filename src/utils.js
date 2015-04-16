@@ -6,10 +6,6 @@
 
 var utils = {};
 
-utils.pageId = function () {
-    return location.pathname.match(/(\d+)$/g);
-};
-
 utils.isNumber = function (n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
 };

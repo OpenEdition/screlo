@@ -372,6 +372,10 @@ span.screlo-marker.screlo-exception:after, .screlo-notification.screlo-exception
     background: #000;
 }
 
+.screlo-notification.screlo-succes, .screlo-notification.screlo-exception {
+    padding-right: 70px;
+}
+
 /* Repérer le nom de famille de l'auteur */
 
 body.screlo-active span.familyName {
