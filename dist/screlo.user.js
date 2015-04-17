@@ -56,13 +56,13 @@ function Checker (arg) {
         var classes = mainCheckerSource.bodyClasses;
         that.setContext(classes);
         // 3. On charge les sources supplémentaires nécessaires à ce Checker
-        var sourceUrl,
+        var sourceId,
             source;
         for (var i = 0; i < tests.length; i++) {
             thisTest = tests[i];
             if (thisTest.condition(that.context)) {
-                sourceUrl = that.getSourceUrl(thisTest);
-                source = Loader.load(sourceUrl);
+                sourceId = that.getSourceId(thisTest);
+                source = Loader.load(sourceId);
                 that.addSource(source);
             }
         }
@@ -106,7 +106,7 @@ Checker.prototype.setContext = function (classes) {
     this.context.paper = globals.paper;
 };
 
-Checker.prototype.getSourceUrl = function (test) {
+Checker.prototype.getSourceId = function (test) {
     if (test.source && typeof test.source === "function") {
         return test.source(this.id);
     } else if (test.source && typeof test.source === "string") {
@@ -117,7 +117,7 @@ Checker.prototype.getSourceUrl = function (test) {
 
 Checker.prototype.process = function (callback) {
     var thisTest,
-        sourceUrl,
+        sourceId,
         source,
         root,
         notif, 
@@ -131,13 +131,13 @@ Checker.prototype.process = function (callback) {
     }
     for (var i=0; i<tests.length; i++) {
         thisTest = tests[i];
-        sourceUrl = this.getSourceUrl(thisTest);
-        source = Loader.getSource(sourceUrl);
-        if (source.isError) {
-            this.numberOfAjaxErrors++;
+        if (!thisTest.condition(this.context)) {
             continue;
         }
-        if (!thisTest.condition(this.context)) {
+        sourceId = this.getSourceId(thisTest);
+        source = Loader.getSource(sourceId);
+        if (source.isError) {
+            this.numberOfAjaxErrors++;
             continue;
         }
         root = source.root;
@@ -265,9 +265,10 @@ Loader = {
         return urls.map(mapFunc);
     },
     load: function (id, callback) {
-        if (this.getSource(id)) {
+        if (this.sources[id]) {
             return false;
         }
+        this.sources[id] = true; // NOTE: valeur temporaire pour bloquer les requêtes suivantes avec le même id. Si on attend la construction de Source plusieurs requêtes ont le temps de passer.
         var source = new Source(id, callback);
         this.sources[id] = source; // TODO: il faudrait normaliser les id pour éviter les doublons
         return source;
@@ -453,8 +454,12 @@ var globals = require("./globals.js");
 
 function Source (id, callback) {
     callback = typeof callback === "function" ? callback : undefined;
-    var isSelf = id === globals.page;
+    var isSelf,
+        split = id.split(/\s+/);
     this.id = id;
+    this.url = split[0];
+    this.selector = split.length === 2 ? split[1] : "#main";
+    isSelf = this.url === globals.page;
     this.bodyClasses = isSelf ? document.body.className.split(/\s+/) : undefined;
     this.root = isSelf ? document : undefined;
     this.isReady = isSelf;
@@ -469,7 +474,7 @@ function Source (id, callback) {
 
 Source.prototype.load = function (callback) {
     var that = this,
-        url = this.id;
+        url = this.url;
     $.ajax({
         url: url,
         timeout: 20000,
@@ -477,7 +482,7 @@ Source.prototype.load = function (callback) {
             if (data && data.match(/\n.*(<body.*)\n/i) !== null) {
                 var body = data.match(/\n.*(<body.*)\n/i)[1].replace("body", "div"),
                     bodyClasses = $(body).get(0).className.split(/\s+/),
-                    container = $("<div></div>").append($(data).find("#main")); // TODO: ça va foirer car #main n'existe pas dans le backoffice. Il faut chercher #lodel-container               
+                    container = $("<div>" + data + "</div>").find(that.selector);
                 that.root = container.get(0);
                 that.bodyClasses = bodyClasses;
                 that.isSuccess = true;
@@ -642,7 +647,7 @@ var globals = {},
 
 globals.version = "15.3.1";
 
-globals.schema =  "15.3.2"; // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
+globals.schema =  "15.4.0"; // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
 globals.appUrls = {
     base: "http://localhost/screlo/",
@@ -900,6 +905,7 @@ module.exports = { init: init };
     type: (string) Le type de la Notification qui sera retournée ("danger", "warning", "print", "success").
     label: (string) Nom du test affiché par les Marker générés par le test.
     labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
+    source: l'url de la source des tests, qui est soit une string, soit une function(idDuChecker) qui renvoit une string. Il est possible (et recommandé) de préciser un sélecteur à la fin de l'url, séparé par une espace, de la forme : "http://exemple.revues.org/lodel/edition/index.php?do=view&id=123 #mon-selecteur". Le sélecteur par défaut est "#main". Remarque: deux sources avec la même url mais deux sélecteurs différents produiront deux requêtes, il faut donc veiller à toujours employer le même sélecteur pour chaque type de source afin d'éviter les requêtes inutiles. Par exemple pour l'espace d'édition on utilisera TOUJOURS "#lodel-container".
     condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
     action: (function(notif, root)) La fonction qui exécute le test. Retourne notif.
         Le paramètre notif est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
@@ -955,7 +961,20 @@ module.exports = [
             return notif;
         }
     },
-    // NOTE: Test #4 "Pas de date de publication électronique" supprimé. Ce test doit être recodé.
+    {
+        name: "Absence de la date de publication électronique",
+        id: 4,
+        description: "Ce numéro n'a pas de date de publication électronique. Il est indispensable d'ajouter cette information dans le formulaire d'édition des métadonnées du numéro.",
+        links: ["Dates de publication", "http://maisondesrevues.org/84"],
+        source: function (id) { return utils.getUrl("site") + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
+        condition: function(context) { return context.classes.numero; },
+        action: function (notif, context, root) {
+            if ($("input#datepubli", root).val().trim() === "") { // TODO: on peut aussi checker le format de la date
+                notif.activate();
+            }
+            return notif;
+        }
+    },
     {	
         name: "Absence de référence de l'œuvre commentée",
         id: 5,
@@ -1885,6 +1904,7 @@ utils.isNumber = function (n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
 };
 
+// TODO: il faudrait calculer ça une bonne fois pour toutes
 utils.getUrl = function (quoi) {
     var h = location.href,
         p = location.pathname,

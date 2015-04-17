@@ -21,9 +21,10 @@ Loader = {
         return urls.map(mapFunc);
     },
     load: function (id, callback) {
-        if (this.getSource(id)) {
+        if (this.sources[id]) {
             return false;
         }
+        this.sources[id] = true; // NOTE: valeur temporaire pour bloquer les requêtes suivantes avec le même id. Si on attend la construction de Source plusieurs requêtes ont le temps de passer.
         var source = new Source(id, callback);
         this.sources[id] = source; // TODO: il faudrait normaliser les id pour éviter les doublons
         return source;

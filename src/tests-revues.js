@@ -8,6 +8,7 @@
     type: (string) Le type de la Notification qui sera retournée ("danger", "warning", "print", "success").
     label: (string) Nom du test affiché par les Marker générés par le test.
     labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
+    source: l'url de la source des tests, qui est soit une string, soit une function(idDuChecker) qui renvoit une string. Il est possible (et recommandé) de préciser un sélecteur à la fin de l'url, séparé par une espace, de la forme : "http://exemple.revues.org/lodel/edition/index.php?do=view&id=123 #mon-selecteur". Le sélecteur par défaut est "#main". Remarque: deux sources avec la même url mais deux sélecteurs différents produiront deux requêtes, il faut donc veiller à toujours employer le même sélecteur pour chaque type de source afin d'éviter les requêtes inutiles. Par exemple pour l'espace d'édition on utilisera TOUJOURS "#lodel-container".
     condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
     action: (function(notif, root)) La fonction qui exécute le test. Retourne notif.
         Le paramètre notif est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
@@ -63,7 +64,20 @@ module.exports = [
             return notif;
         }
     },
-    // NOTE: Test #4 "Pas de date de publication électronique" supprimé. Ce test doit être recodé.
+    {
+        name: "Absence de la date de publication électronique",
+        id: 4,
+        description: "Ce numéro n'a pas de date de publication électronique. Il est indispensable d'ajouter cette information dans le formulaire d'édition des métadonnées du numéro.",
+        links: ["Dates de publication", "http://maisondesrevues.org/84"],
+        source: function (id) { return utils.getUrl("site") + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
+        condition: function(context) { return context.classes.numero; },
+        action: function (notif, context, root) {
+            if ($("input#datepubli", root).val().trim() === "") { // TODO: on peut aussi checker le format de la date
+                notif.activate();
+            }
+            return notif;
+        }
+    },
     {	
         name: "Absence de référence de l'œuvre commentée",
         id: 5,

@@ -10,6 +10,7 @@ utils.isNumber = function (n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
 };
 
+// TODO: il faudrait calculer ça une bonne fois pour toutes
 utils.getUrl = function (quoi) {
     var h = location.href,
         p = location.pathname,

@@ -45,13 +45,13 @@ function Checker (arg) {
         var classes = mainCheckerSource.bodyClasses;
         that.setContext(classes);
         // 3. On charge les sources supplémentaires nécessaires à ce Checker
-        var sourceUrl,
+        var sourceId,
             source;
         for (var i = 0; i < tests.length; i++) {
             thisTest = tests[i];
             if (thisTest.condition(that.context)) {
-                sourceUrl = that.getSourceUrl(thisTest);
-                source = Loader.load(sourceUrl);
+                sourceId = that.getSourceId(thisTest);
+                source = Loader.load(sourceId);
                 that.addSource(source);
             }
         }
@@ -95,7 +95,7 @@ Checker.prototype.setContext = function (classes) {
     this.context.paper = globals.paper;
 };
 
-Checker.prototype.getSourceUrl = function (test) {
+Checker.prototype.getSourceId = function (test) {
     if (test.source && typeof test.source === "function") {
         return test.source(this.id);
     } else if (test.source && typeof test.source === "string") {
@@ -106,7 +106,7 @@ Checker.prototype.getSourceUrl = function (test) {
 
 Checker.prototype.process = function (callback) {
     var thisTest,
-        sourceUrl,
+        sourceId,
         source,
         root,
         notif, 
@@ -120,13 +120,13 @@ Checker.prototype.process = function (callback) {
     }
     for (var i=0; i<tests.length; i++) {
         thisTest = tests[i];
-        sourceUrl = this.getSourceUrl(thisTest);
-        source = Loader.getSource(sourceUrl);
-        if (source.isError) {
-            this.numberOfAjaxErrors++;
+        if (!thisTest.condition(this.context)) {
             continue;
         }
-        if (!thisTest.condition(this.context)) {
+        sourceId = this.getSourceId(thisTest);
+        source = Loader.getSource(sourceId);
+        if (source.isError) {
+            this.numberOfAjaxErrors++;
             continue;
         }
         root = source.root;
