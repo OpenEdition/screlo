@@ -101,7 +101,6 @@ Checker.prototype.setContext = function (classes) {
     for ( var i=0; i < classes.length; i++ ) {
         this.context.classes[classes[i]] = true;
     }
-    this.context.admin = ($('#lodel-container').length !== 0);
     this.context.isMotscles = $("body").hasClass("indexes") && $("body").is("[class*='motscles']");
     this.context.paper = globals.paper;
 };
@@ -625,6 +624,14 @@ cmd.cycle = function (id) {
     }
 };
 
+cmd.askForLogin = function () {
+    var gotoLogin = confirm("Il est nécessaire d'être connecté à Lodel pour utiliser les outils de relecture. Souhaitez-vous vous connecter ?");
+    if (gotoLogin) {
+        utils.cache.set(globals.nomCourt, "active", true);
+        location.href = utils.getUrl("site") + "lodel/edition/login.php?url_retour=/" + globals.page;
+    }
+};
+
 cmd.toggleCache = function (id) {
     var currentState = utils.cache.get(globals.nomCourt, id),
         toggleState = !currentState;
@@ -667,7 +674,7 @@ var globals = {},
 
 globals.version = "15.3.1";
 
-globals.schema =  "15.4.0"; // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
+globals.schema =  "15.4.0b"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
 globals.appUrls = {
     base: "http://localhost/screlo/",
@@ -695,6 +702,8 @@ globals.page = (function () {
 
 globals.hash = window.location.hash.substring(1);
 
+globals.admin = ($('#lodel-container').length !== 0);
+
 globals.cacheIsValid = (function () {
     var nomCourt = globals.nomCourt,
         cacheSchema = utils.cache.get(nomCourt, "schema");
@@ -716,7 +725,7 @@ globals.active = (function () {
         utils.cache.set(globals.nomCourt, "active", value);
     }
     return value;
-})();
+})() && globals.admin; // Pas actif si on n'est pas connecté à Lodel.
 
 if (globals.active) {
     $("body").addClass("screlo-active"); // TODO: harmoniser l'ajout de classes
@@ -1777,6 +1786,10 @@ function manageDom () {
 function manageEvents () {
     $( "[data-screlo-button='switch']" ).click(function( event ) {
         event.preventDefault();
+        if (!globals.admin) {
+            cmd.askForLogin();
+            return;
+        }
         cmd.toggleCache("active");
     });
     if (!globals.active) {
@@ -1867,7 +1880,7 @@ function manageToc () {
         somethingLoaded = fromCache(toc[i], $target);   
     }
     if (somethingLoaded) {
-        $("<li id='screlo-infocache' class='screlo-info'>Les notifications dans la table des matières ont été chargées à partir du cache du navigateur. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-infos");
+        $("<li id='screlo-infocache' class='screlo-info'>Les notifications affichées dans la table des matières ont été chargées à partir du cache du navigateur. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-infos");
     }
 }
 

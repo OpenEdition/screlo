@@ -39,6 +39,10 @@ function manageDom () {
 function manageEvents () {
     $( "[data-screlo-button='switch']" ).click(function( event ) {
         event.preventDefault();
+        if (!globals.admin) {
+            cmd.askForLogin();
+            return;
+        }
         cmd.toggleCache("active");
     });
     if (!globals.active) {
@@ -129,7 +133,7 @@ function manageToc () {
         somethingLoaded = fromCache(toc[i], $target);   
     }
     if (somethingLoaded) {
-        $("<li id='screlo-infocache' class='screlo-info'>Les notifications dans la table des matières ont été chargées à partir du cache du navigateur. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-infos");
+        $("<li id='screlo-infocache' class='screlo-info'>Les notifications affichées dans la table des matières ont été chargées à partir du cache du navigateur. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-infos");
     }
 }
 

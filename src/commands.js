@@ -99,6 +99,14 @@ cmd.cycle = function (id) {
     }
 };
 
+cmd.askForLogin = function () {
+    var gotoLogin = confirm("Il est nécessaire d'être connecté à Lodel pour utiliser les outils de relecture. Souhaitez-vous vous connecter ?");
+    if (gotoLogin) {
+        utils.cache.set(globals.nomCourt, "active", true);
+        location.href = utils.getUrl("site") + "lodel/edition/login.php?url_retour=/" + globals.page;
+    }
+};
+
 cmd.toggleCache = function (id) {
     var currentState = utils.cache.get(globals.nomCourt, id),
         toggleState = !currentState;

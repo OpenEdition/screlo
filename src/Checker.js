@@ -90,7 +90,6 @@ Checker.prototype.setContext = function (classes) {
     for ( var i=0; i < classes.length; i++ ) {
         this.context.classes[classes[i]] = true;
     }
-    this.context.admin = ($('#lodel-container').length !== 0);
     this.context.isMotscles = $("body").hasClass("indexes") && $("body").is("[class*='motscles']");
     this.context.paper = globals.paper;
 };
