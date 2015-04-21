@@ -95,8 +95,9 @@ Checker.prototype.setContext = function (classes) {
 };
 
 Checker.prototype.getSourceId = function (test) {
+    var site = utils.getUrl("site");
     if (test.source && typeof test.source === "function") {
-        return test.source(this.id);
+        return test.source(site, this.id);
     } else if (test.source && typeof test.source === "string") {
         return test.source;
     }

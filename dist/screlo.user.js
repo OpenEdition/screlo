@@ -106,8 +106,9 @@ Checker.prototype.setContext = function (classes) {
 };
 
 Checker.prototype.getSourceId = function (test) {
+    var site = utils.getUrl("site");
     if (test.source && typeof test.source === "function") {
-        return test.source(this.id);
+        return test.source(site, this.id);
     } else if (test.source && typeof test.source === "string") {
         return test.source;
     }
@@ -995,7 +996,7 @@ module.exports = [
         id: 4,
         description: "Ce numéro n'a pas de date de publication électronique. Il est indispensable d'ajouter cette information dans le formulaire d'édition des métadonnées du numéro.",
         links: ["Dates de publication", "http://maisondesrevues.org/84"],
-        source: function (id) { return utils.getUrl("site") + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
+        source: function (site, id) { return site + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
         condition: function(context) { return context.classes.numero; },
         action: function (notif, context, root) {
             if ($("input#datepubli", root).val().trim() === "") { // TODO: on peut aussi checker le format de la date
@@ -1741,6 +1742,43 @@ module.exports = [
             }
             return notif;
         }			
+    },
+    {
+        name: "Absence de la métadonnée de langue",
+        id: 38,
+        description: "La langue de ce document ou de cette publication n'est pas correctement définie dans les métadonnées. Dans le cas d'une publication, la langue doit être sélectionnée dans le formulaire d'édition des métadonnées. Dans le cas d'un document, il faut styler la métadonnée “Langue” dans le document source.",
+        links: [
+            "Composition de la métadonnée “Langue”", "http://maisondesrevues.org/85",
+            "Ordre des métadonnées", "http://maisondesrevues.org/108"
+        ],
+        source: function (site, id) { return site + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
+        condition: function(context) { return context.classes.numero || context.classes.textes; },
+        action: function (notif, context, root) {
+            var $element = $("select#langue", root);
+            if ($element.length === 1 && $element.val().trim() === "") {
+                notif.activate();
+            }
+            return notif;
+        }
+    },
+    {
+        name: "Fac-similé non PDF",
+        id: 39,
+        type: "danger",
+        description: "Le fichier attaché en tant que fac-similé n'est pas un document PDF. Le fac-similé doit obligatoirement être au format PDF.",
+        links: [
+            "Fac-similés PDF issus de la version papier", "http://maisondesrevues.org/612"
+        ],
+        source: function (site, id) { return site + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
+        action: function (notif, context, root) {
+            var $element = $("label[for='alterfichier'] ~ .oneItem > .imageKeepDelete > strong:eq(0)", root),
+                fileName = $element.length === 1 ? $element.text() : undefined;
+            if (typeof fileName === "string" && /\.pdf$/i.test(fileName) === false) {
+                notif.activate();
+            }
+            return notif;
+        }
     }//,
 
 ]; 
