@@ -27,11 +27,15 @@ Source.prototype.load = function (callback) {
         url: url,
         timeout: 20000,
         success: function(data) {
+            var body, bodyClasses, container, root;
             if (data && data.match(/\n.*(<body.*)\n/i) !== null) {
-                var body = data.match(/\n.*(<body.*)\n/i)[1].replace("body", "div"),
-                    bodyClasses = $(body).get(0).className.split(/\s+/),
-                    container = $("<div>" + data + "</div>").find(that.selector);
-                that.root = container.get(0);
+                body = data.match(/\n.*(<body.*)\n/i)[1].replace("body", "div");
+                bodyClasses = $(body).get(0).className.split(/\s+/);
+                container = $("<div>" + data + "</div>").find(that.selector);
+                root = container.get(0);
+            } 
+            if (root) {
+                that.root = root;
                 that.bodyClasses = bodyClasses;
                 that.isSuccess = true;
             } else {
