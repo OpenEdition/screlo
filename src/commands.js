@@ -103,7 +103,7 @@ cmd.askForLogin = function () {
     var gotoLogin = confirm("Il est nécessaire d'être connecté à Lodel pour utiliser les outils de relecture. Souhaitez-vous vous connecter ?");
     if (gotoLogin) {
         utils.cache.set(globals.nomCourt, "active", true);
-        location.href = utils.getUrl("site") + "lodel/edition/login.php?url_retour=/" + globals.page;
+        location.href = utils.getUrl("site") + "lodel/edition/login.php?url_retour=" + location.pathname;
     }
 };
 
