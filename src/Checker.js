@@ -145,7 +145,6 @@ Checker.prototype.process = function (callback) {
     }
 };
 
-// TODO: utiliser le meme processus que pour Loader
 Checker.prototype.ready = function (callback) { 
     var that = this,
         checkIfReady = function () {
@@ -171,6 +170,7 @@ Checker.prototype.sortNotifications = function () {
     });
 };
 
+// Filter les notifications qui seront affichées. N'affecte pas this.notifications.
 Checker.prototype.filterNotifications = function () {
     function filterPrint (notifications) {
         var res = [];
@@ -183,7 +183,7 @@ Checker.prototype.filterNotifications = function () {
     }
     var notifications = this.notifications, 
         notificationsToShow = globals.paper ? notifications : filterPrint(notifications);
-    if (notificationsToShow.length === 0 && this.numberOfTests > 0 && (this.context.classes.textes || this.root !== document)) {
+    if (notificationsToShow.length === 0 && this.numberOfTests > 0 && (this.context.classes.textes || !this.isDisplayedDocument)) { // NOTE: On n'affiche pas le message de succès sur la table des matières pour éviter la confusion entre relecture des métadonnées de la publication et relecture de ses documents.
         var successMessage = new Notification({
             name: 'Aucune erreur détectée <span class="count">' + this.numberOfTests + ' tests</span>',
             type: "succes"
@@ -201,12 +201,28 @@ Checker.prototype.filterNotifications = function () {
     return notificationsToShow;
 };
 
-Checker.prototype.show = function () {
-    // Filter les notifications qui seront affichées. N'affecte pas this.notifications.
+Checker.prototype.hasTarget = function () {
     if (!this.target || (this.target && $(this.target).length === 0)) {
         console.error("Erreur: 'target' n'est pas défini ou n'existe pas.");
-        return;
+        return false;
     }
+    return true;
+};
+
+Checker.prototype.setLoading = function () {
+    if (!this.hasTarget()) { return; }
+    $(this.target).addClass("screlo-loading");
+    return this;
+};
+
+Checker.prototype.unsetLoading = function () {
+    if (!this.hasTarget()) { return; }
+    $(this.target).removeClass("screlo-loading");
+    return this;
+};
+
+Checker.prototype.show = function () {
+    if (!this.hasTarget()) { return; }
     this.sortNotifications();
     var notifs = this.filterNotifications(),
         notif;

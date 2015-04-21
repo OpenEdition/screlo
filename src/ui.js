@@ -129,14 +129,15 @@ function manageToc () {
         somethingLoaded = fromCache(toc[i], $target);   
     }
     if (somethingLoaded) {
-        $("<li id='screlo-infocache' class='screlo-info'>Notifications chargées à partir du cache du navigateur. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-infos");
+        $("<li id='screlo-infocache' class='screlo-info'>Les notifications dans la table des matières ont été chargées à partir du cache du navigateur. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-infos");
     }
 }
 
 function checkThisPage () {
     var chkr = new Checker();
+    chkr.setLoading();
     chkr.ready( function (chkr) {
-        chkr.toCache().show();     
+        chkr.toCache().unsetLoading().show();     
     });
 }
 
