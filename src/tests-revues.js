@@ -12,7 +12,7 @@
     condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
     action: (function(notif, root)) La fonction qui exécute le test. Retourne notif quand le test s'est correctement passé ou false pour notifier l'utilisateur d'une exception (ie les éléments n'ont pas été retrouvés dans le DOM).
         Le paramètre notif est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
-        Le paramètre root est l'élément du DOM qui sert de contexte au test. On utilise $(selecteur, root) dans la fonction action(). Attention : seul le contenu de #content est importé lors du test en ajax. Il faut donc appliquer les tests sur $("#main", root) ou tout simplement $(root), mais pas plus haut dans le DOM sinon le test ne fonctionnera pas avec Ajax.
+        Le paramètre root est l'élément du DOM qui sert de contexte au test. On utilise $(selecteur, root) dans la fonction action(). Par défaut root = $("#main").
 */
 
 var utils = require("./utils.js");
@@ -608,11 +608,9 @@ module.exports = [
             $('span.familyName', root).each( function () {
                 text = utils.latinize($(this).text().trim());
                 if (text === text.toUpperCase() || text.match(/[&!?)(*\/]/)) {
-
                     if (!context.classes.textes || $(this).is('#docAuthor *, #docTranslator *')) {
                         notif.addMarker(this).activate();
                     }
-
                 }
             });
             return notif;
@@ -778,12 +776,10 @@ module.exports = [
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
             $("a[href*='wikipedia']", root).each( function () {
-                
                 // Ne pas compter les notes marginales pour éviter les doublons.
                 if ($(this).parents(".sidenotes").length !== 0) {
                     return; // continue
                 }
-                
                 if ($(this).text().trim() !== decodeURIComponent($(this).attr("href").trim())) {
                     notif.addMarker(this).activate();
                 }
@@ -801,7 +797,7 @@ module.exports = [
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
             var url = "";
-            $("#main p a[href]:not(.footnotecall, .FootnoteSymbol, [href^=mailto])", root).each( function () {
+            $("p a[href]:not(.footnotecall, .FootnoteSymbol, [href^=mailto])", root).each( function () {
                 url = $(this).attr("href");
                 if (!utils.isValidUrl(url)) { 
                     notif.addMarker(this).activate();
@@ -841,7 +837,7 @@ module.exports = [
         condition: function(context) { return context.classes.numero || context.classes.textes; },
         action: function (notif, context, root) {
             var $element = $("select#langue", root);
-            if ($element.length === 0) {
+            if ($element.length === 0) { // TODO: ça va bloquer quand on va passer au nouveau ME
                 return false;
             }
             if ($element.eq(0).val().trim() === "") {

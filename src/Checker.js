@@ -27,12 +27,12 @@ function Checker (arg) {
     this.context = { classes: {} };
     this.sources = [];
     this.numberOfTests = 0;
-    this.numberOfExceptions = 0;
+    this.exceptions = [];
     
     // Si arg est un Array, il s'agit de notifications à charger (généralement depuis le cache). On ne procède alors à aucun test.
     if (typeof arg === "object" && arg.numberOfTests !== "undefined" && utils.isNumber(arg.numberOfTests) && arg.notifications && typeof arg.notifications === "object") {
         this.numberOfTests = arg.numberOfTests || 0;
-        this.numberOfExceptions = arg.numberOfExceptions || 0;
+        this.exceptions = arg.exceptions || [];
         this.pushNotifications(arg.notifications);
         return;
     }         
@@ -126,14 +126,14 @@ Checker.prototype.process = function (callback) {
         sourceId = this.getSourceId(thisTest);
         source = Loader.getSource(sourceId);
         if (source.isError) {
-            this.numberOfExceptions++;
+            this.exceptions.push("Source " + sourceId);
             continue;
         }
         root = source.root;
         notif = new Notification(thisTest, root);
         res = thisTest.action(notif, this.context, root); // NOTE: les deux derniers arguments sont déjà dans notif (je crois). Il serait mieux de ne pas les repasser encore.
         if (!res || !res instanceof Notification) { // Si le test ne renvoit pas une notification alors il est ignoré et l'utilisateur en est averti. Permet de notifier des anomalies en renvoyant false, par exemple quand un élément n'est pas trouvé dans la page alors qu'il devrait y être.
-            this.numberOfExceptions++;
+            this.exceptions.push("Test " + notif.id);
             continue;
         }
         if (res.active) {
@@ -194,13 +194,14 @@ Checker.prototype.filterNotifications = function () {
         });
         notificationsToShow.push(successMessage);
     }
-    if (this.numberOfExceptions) {
-        var notifName = this.numberOfExceptions === 1 ? "Un test qui n'a pas pu aboutir a été ignoré <span class='count'>" + this.numberOfExceptions + " test</span>" : "Des tests qui n'ont pas pu aboutir ont été ignorés <span class='count'>" + this.numberOfExceptions + " tests</span>",
+    if (this.exceptions.length > 0) {
+        var notifName = this.exceptions.length === 1 ? "Un test qui n'a pas pu aboutir a été ignoré <span class='count'>" + this.exceptions.length + " test</span>" : "Des tests qui n'ont pas pu aboutir ont été ignorés <span class='count'>" + this.exceptions.length + " tests</span>",
             errorMessage = new Notification({
                 name: notifName,
                 type: "screlo-exception"
             });
         notificationsToShow.push(errorMessage);
+        console.error("Les actions suivantes ont été ignorées : " +  this.exceptions.join(", "));
     }
     return notificationsToShow;
 };
@@ -241,7 +242,7 @@ Checker.prototype.toCache = function () {
         id = this.id,
         value = {};
         value.numberOfTests = this.numberOfTests;
-        value.numberOfExceptions = this.numberOfExceptions;
+        value.exceptions = this.exceptions;
         value.notifications = this.notifications.map(function (notification) {
             return notification.export();
         });
