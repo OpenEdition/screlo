@@ -251,7 +251,7 @@ Les intertitres du document ne se suivent pas hiérarchiquement. Par exemple, il
 * [Stylage des intertitres](http://maisondesrevues.org/90)
 
 
-## Test #25 - Vérifier les doublons
+## Test #25 - Vérifier les doublons d'index
 
 Type : warning
 

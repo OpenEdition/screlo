@@ -10,7 +10,7 @@ var globals = {},
 
 globals.version = "/* @echo VERSION */";
 
-globals.schema =  "15.4.0b"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
+globals.schema =  "15.4.0c"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
 globals.appUrls = {
     base: "/* @echo CDN */",

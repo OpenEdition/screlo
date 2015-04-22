@@ -38,12 +38,12 @@ function Checker (arg) {
     this.context = { classes: {} };
     this.sources = [];
     this.numberOfTests = 0;
-    this.numberOfAjaxErrors = 0;
+    this.numberOfExceptions = 0;
     
     // Si arg est un Array, il s'agit de notifications à charger (généralement depuis le cache). On ne procède alors à aucun test.
     if (typeof arg === "object" && arg.numberOfTests !== "undefined" && utils.isNumber(arg.numberOfTests) && arg.notifications && typeof arg.notifications === "object") {
         this.numberOfTests = arg.numberOfTests || 0;
-        this.numberOfAjaxErrors = arg.numberOfAjaxErrors || 0;
+        this.numberOfExceptions = arg.numberOfExceptions || 0;
         this.pushNotifications(arg.notifications);
         return;
     }         
@@ -137,12 +137,16 @@ Checker.prototype.process = function (callback) {
         sourceId = this.getSourceId(thisTest);
         source = Loader.getSource(sourceId);
         if (source.isError) {
-            this.numberOfAjaxErrors++;
+            this.numberOfExceptions++;
             continue;
         }
         root = source.root;
         notif = new Notification(thisTest, root);
         res = thisTest.action(notif, this.context, root); // NOTE: les deux derniers arguments sont déjà dans notif (je crois). Il serait mieux de ne pas les repasser encore.
+        if (!res || !res instanceof Notification) { // Si le test ne renvoit pas une notification alors il est ignoré et l'utilisateur en est averti. Permet de notifier des anomalies en renvoyant false, par exemple quand un élément n'est pas trouvé dans la page alors qu'il devrait y être.
+            this.numberOfExceptions++;
+            continue;
+        }
         if (res.active) {
             if (res.markers.length > 0) {
                 res.markers.forEach( injectMarker );
@@ -201,8 +205,8 @@ Checker.prototype.filterNotifications = function () {
         });
         notificationsToShow.push(successMessage);
     }
-    if (this.numberOfAjaxErrors) {
-        var notifName = this.numberOfAjaxErrors === 1 ? "Un test qui n'a pas pu aboutir a été ignoré <span class='count'>" + this.numberOfAjaxErrors + " test</span>" : "Des tests qui n'ont pas pu aboutir ont été ignorés <span class='count'>" + this.numberOfAjaxErrors + " tests</span>",
+    if (this.numberOfExceptions) {
+        var notifName = this.numberOfExceptions === 1 ? "Un test qui n'a pas pu aboutir a été ignoré <span class='count'>" + this.numberOfExceptions + " test</span>" : "Des tests qui n'ont pas pu aboutir ont été ignorés <span class='count'>" + this.numberOfExceptions + " tests</span>",
             errorMessage = new Notification({
                 name: notifName,
                 type: "screlo-exception"
@@ -248,7 +252,7 @@ Checker.prototype.toCache = function () {
         id = this.id,
         value = {};
         value.numberOfTests = this.numberOfTests;
-        value.numberOfAjaxErrors = this.numberOfAjaxErrors;
+        value.numberOfExceptions = this.numberOfExceptions;
         value.notifications = this.notifications.map(function (notification) {
             return notification.export();
         });
@@ -675,7 +679,7 @@ var globals = {},
 
 globals.version = "15.3.1";
 
-globals.schema =  "15.4.0b"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
+globals.schema =  "15.4.0c"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
 globals.appUrls = {
     base: "http://localhost/screlo/",
@@ -937,7 +941,7 @@ module.exports = { init: init };
     labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
     source: l'url de la source des tests, qui est soit une string, soit une function(idDuChecker) qui renvoit une string. Il est possible (et recommandé) de préciser un sélecteur à la fin de l'url, séparé par une espace, de la forme : "http://exemple.revues.org/lodel/edition/index.php?do=view&id=123 #mon-selecteur". Le sélecteur par défaut est "#main". Remarque: deux sources avec la même url mais deux sélecteurs différents produiront deux requêtes, il faut donc veiller à toujours employer le même sélecteur pour chaque type de source afin d'éviter les requêtes inutiles. Par exemple pour l'espace d'édition on utilisera TOUJOURS "#lodel-container".
     condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
-    action: (function(notif, root)) La fonction qui exécute le test. Retourne notif.
+    action: (function(notif, root)) La fonction qui exécute le test. Retourne notif quand le test s'est correctement passé ou false pour notifier l'utilisateur d'une exception (ie les éléments n'ont pas été retrouvés dans le DOM).
         Le paramètre notif est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
         Le paramètre root est l'élément du DOM qui sert de contexte au test. On utilise $(selecteur, root) dans la fonction action(). Attention : seul le contenu de #content est importé lors du test en ajax. Il faut donc appliquer les tests sur $("#main", root) ou tout simplement $(root), mais pas plus haut dans le DOM sinon le test ne fonctionnera pas avec Ajax.
 */
@@ -992,6 +996,7 @@ module.exports = [
         }
     },
     {
+        // TODO: Checker aussi le format de la date + étendre aux deux types de dates + étendre aux textes
         name: "Absence de la date de publication électronique",
         id: 4,
         description: "Ce numéro n'a pas de date de publication électronique. Il est indispensable d'ajouter cette information dans le formulaire d'édition des métadonnées du numéro.",
@@ -999,7 +1004,11 @@ module.exports = [
         source: function (site, id) { return site + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
         condition: function(context) { return context.classes.numero; },
         action: function (notif, context, root) {
-            if ($("input#datepubli", root).val().trim() === "") { // TODO: on peut aussi checker le format de la date
+            var $element = $("input#datepubli", root);
+            if ($element.length === 0) {
+                return false;
+            }
+            if ($element.val().trim() === "") {
                 notif.activate();
             }
             return notif;
@@ -1019,7 +1028,7 @@ module.exports = [
         }
     },
     {
-        // NOTE: test obsolète (Lodel 0.9) à supprimer depuis OTX.
+        // NOTE: test obsolète (Lodel 0.9)
         name: "Utilisation de police(s) non Unicode",
         id: 6,
         description: "Ce document contient des polices non Unicode qui ne sont pas compatibles avec un affichage sur Internet. Il est nécessaire d'utiliser des polices respectant la norme Unicode dans ce document.",
@@ -1030,7 +1039,7 @@ module.exports = [
         label: "Police",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            var el = $('#main [style*="Symbol"], #main [style*="symbol"], #main [style*="Wingdings"], #main [style*="wingdings"], #main [style*="Webdings"], #main [style*="webdings"]', root);
+            var el = $('[style*="Symbol"], [style*="symbol"], [style*="Wingdings"], [style*="wingdings"], [style*="Webdings"], [style*="webdings"]', root);
             el.each(function() {
                 notif.addMarker(this).activate();
             });
@@ -1304,7 +1313,7 @@ module.exports = [
         description: "Un ou plusieurs intertitres du document sont contenus dans une liste. Cela est souvent dû à une correction automatique de Word lors de l'insertion d'intertitres numérotés. Il faut désactiver la mise en forme “Liste” sur les intertitres concernés.",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            $("#main ol :header, #main ul :header, #main li:header", root).each( function() {
+            $("ol :header, ul :header, li:header", root).each( function() {
                 notif.addMarker(this).activate();
             });
             return notif;
@@ -1326,7 +1335,7 @@ module.exports = [
                 }
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Mises en formes locales sur le titre",
@@ -1336,7 +1345,11 @@ module.exports = [
         type: "warning",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            $('#docTitle, #docTitle *', root).each( function() {
+            var $element = $('#docTitle, #docTitle *', root);
+            if ($element.length === 0) {
+                return false;
+            }
+            $element.each( function() {
                 if ($(this).attr("style")) {
                     notif.activate();
                     return false;
@@ -1472,7 +1485,7 @@ module.exports = [
         }			
     },
     {
-        name: "Vérifier les doublons",
+        name: "Vérifier les doublons d'index",
         id: 25,
         description: "Certaines entrées d'index sont peut-être des doublons. ",
         links: [
@@ -1674,9 +1687,13 @@ module.exports = [
         links: ["L'ordre des métadonnées", "http://maisondesrevues.org/108"],
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            var element = $("#docTitle", root),
-                text = element.text().trim();
-            if (element.length === 0 || text === "" || text === "Document sans titre") {
+            var $element = $("#docTitle", root),
+                text;
+            if ($element.length === 0) {
+                return false;
+            }
+            text = $element.text().trim();
+            if (text === "" || text === "Document sans titre") {
                 notif.activate();
             }
             return notif;
@@ -1732,7 +1749,7 @@ module.exports = [
         labelPos: "after",
         condition: function(context) { return context.classes.numero; },
         action: function (notif, context, root) {
-            var element = $("#publiISBN").eq(0), 
+            var element = $("#publiISBN", root).eq(0), 
                 isbn;
             if (element.length !== 0) {
                 isbn = element.text().replace("ISBN", "");
@@ -1755,7 +1772,10 @@ module.exports = [
         condition: function(context) { return context.classes.numero || context.classes.textes; },
         action: function (notif, context, root) {
             var $element = $("select#langue", root);
-            if ($element.length === 1 && $element.val().trim() === "") {
+            if ($element.length === 0) {
+                return false;
+            }
+            if ($element.eq(0).val().trim() === "") {
                 notif.activate();
             }
             return notif;
@@ -1773,7 +1793,7 @@ module.exports = [
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
             var $element = $("label[for='alterfichier'] ~ .oneItem > .imageKeepDelete > strong:eq(0)", root),
-                fileName = $element.length === 1 ? $element.text() : undefined;
+                fileName = $element.length === 0 ? $element.eq(0).text() : undefined;
             if (typeof fileName === "string" && /\.pdf$/i.test(fileName) === false) {
                 notif.activate();
             }

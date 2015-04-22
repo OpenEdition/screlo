@@ -10,7 +10,7 @@
     labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
     source: l'url de la source des tests, qui est soit une string, soit une function(idDuChecker) qui renvoit une string. Il est possible (et recommandé) de préciser un sélecteur à la fin de l'url, séparé par une espace, de la forme : "http://exemple.revues.org/lodel/edition/index.php?do=view&id=123 #mon-selecteur". Le sélecteur par défaut est "#main". Remarque: deux sources avec la même url mais deux sélecteurs différents produiront deux requêtes, il faut donc veiller à toujours employer le même sélecteur pour chaque type de source afin d'éviter les requêtes inutiles. Par exemple pour l'espace d'édition on utilisera TOUJOURS "#lodel-container".
     condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
-    action: (function(notif, root)) La fonction qui exécute le test. Retourne notif.
+    action: (function(notif, root)) La fonction qui exécute le test. Retourne notif quand le test s'est correctement passé ou false pour notifier l'utilisateur d'une exception (ie les éléments n'ont pas été retrouvés dans le DOM).
         Le paramètre notif est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
         Le paramètre root est l'élément du DOM qui sert de contexte au test. On utilise $(selecteur, root) dans la fonction action(). Attention : seul le contenu de #content est importé lors du test en ajax. Il faut donc appliquer les tests sur $("#main", root) ou tout simplement $(root), mais pas plus haut dans le DOM sinon le test ne fonctionnera pas avec Ajax.
 */
@@ -65,6 +65,7 @@ module.exports = [
         }
     },
     {
+        // TODO: Checker aussi le format de la date + étendre aux deux types de dates + étendre aux textes
         name: "Absence de la date de publication électronique",
         id: 4,
         description: "Ce numéro n'a pas de date de publication électronique. Il est indispensable d'ajouter cette information dans le formulaire d'édition des métadonnées du numéro.",
@@ -72,7 +73,11 @@ module.exports = [
         source: function (site, id) { return site + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
         condition: function(context) { return context.classes.numero; },
         action: function (notif, context, root) {
-            if ($("input#datepubli", root).val().trim() === "") { // TODO: on peut aussi checker le format de la date
+            var $element = $("input#datepubli", root);
+            if ($element.length === 0) {
+                return false;
+            }
+            if ($element.val().trim() === "") {
                 notif.activate();
             }
             return notif;
@@ -92,7 +97,7 @@ module.exports = [
         }
     },
     {
-        // NOTE: test obsolète (Lodel 0.9) à supprimer depuis OTX.
+        // NOTE: test obsolète (Lodel 0.9)
         name: "Utilisation de police(s) non Unicode",
         id: 6,
         description: "Ce document contient des polices non Unicode qui ne sont pas compatibles avec un affichage sur Internet. Il est nécessaire d'utiliser des polices respectant la norme Unicode dans ce document.",
@@ -103,7 +108,7 @@ module.exports = [
         label: "Police",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            var el = $('#main [style*="Symbol"], #main [style*="symbol"], #main [style*="Wingdings"], #main [style*="wingdings"], #main [style*="Webdings"], #main [style*="webdings"]', root);
+            var el = $('[style*="Symbol"], [style*="symbol"], [style*="Wingdings"], [style*="wingdings"], [style*="Webdings"], [style*="webdings"]', root);
             el.each(function() {
                 notif.addMarker(this).activate();
             });
@@ -377,7 +382,7 @@ module.exports = [
         description: "Un ou plusieurs intertitres du document sont contenus dans une liste. Cela est souvent dû à une correction automatique de Word lors de l'insertion d'intertitres numérotés. Il faut désactiver la mise en forme “Liste” sur les intertitres concernés.",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            $("#main ol :header, #main ul :header, #main li:header", root).each( function() {
+            $("ol :header, ul :header, li:header", root).each( function() {
                 notif.addMarker(this).activate();
             });
             return notif;
@@ -399,7 +404,7 @@ module.exports = [
                 }
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Mises en formes locales sur le titre",
@@ -409,7 +414,11 @@ module.exports = [
         type: "warning",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            $('#docTitle, #docTitle *', root).each( function() {
+            var $element = $('#docTitle, #docTitle *', root);
+            if ($element.length === 0) {
+                return false;
+            }
+            $element.each( function() {
                 if ($(this).attr("style")) {
                     notif.activate();
                     return false;
@@ -545,7 +554,7 @@ module.exports = [
         }			
     },
     {
-        name: "Vérifier les doublons",
+        name: "Vérifier les doublons d'index",
         id: 25,
         description: "Certaines entrées d'index sont peut-être des doublons. ",
         links: [
@@ -747,9 +756,13 @@ module.exports = [
         links: ["L'ordre des métadonnées", "http://maisondesrevues.org/108"],
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            var element = $("#docTitle", root),
-                text = element.text().trim();
-            if (element.length === 0 || text === "" || text === "Document sans titre") {
+            var $element = $("#docTitle", root),
+                text;
+            if ($element.length === 0) {
+                return false;
+            }
+            text = $element.text().trim();
+            if (text === "" || text === "Document sans titre") {
                 notif.activate();
             }
             return notif;
@@ -805,7 +818,7 @@ module.exports = [
         labelPos: "after",
         condition: function(context) { return context.classes.numero; },
         action: function (notif, context, root) {
-            var element = $("#publiISBN").eq(0), 
+            var element = $("#publiISBN", root).eq(0), 
                 isbn;
             if (element.length !== 0) {
                 isbn = element.text().replace("ISBN", "");
@@ -828,7 +841,10 @@ module.exports = [
         condition: function(context) { return context.classes.numero || context.classes.textes; },
         action: function (notif, context, root) {
             var $element = $("select#langue", root);
-            if ($element.length === 1 && $element.val().trim() === "") {
+            if ($element.length === 0) {
+                return false;
+            }
+            if ($element.eq(0).val().trim() === "") {
                 notif.activate();
             }
             return notif;
@@ -846,7 +862,7 @@ module.exports = [
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
             var $element = $("label[for='alterfichier'] ~ .oneItem > .imageKeepDelete > strong:eq(0)", root),
-                fileName = $element.length === 1 ? $element.text() : undefined;
+                fileName = $element.length === 0 ? $element.eq(0).text() : undefined;
             if (typeof fileName === "string" && /\.pdf$/i.test(fileName) === false) {
                 notif.activate();
             }
