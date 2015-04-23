@@ -578,23 +578,20 @@ cmd.about = function () {
 };
 
 cmd.ajax = function () {
-    
     function ajaxStart () {      
         $("#screlo-notifications #screlo-infocache").remove();
         $(".screlo-ajax-notifications").empty();
         $("body").addClass("loading");
-        $("#screlo-infocache").remove();   
-    }
-    
+        $("#screlo-infocache").remove();
+        $("[data-screlo-button='ajax']").hide();
+    } 
     function isDone (count) {
         return (count === toc.length);
-    }
-    
+    } 
     function ajaxEnd () {
         $("body").removeClass("loading");
         $(".complete").removeClass("complete");
     }
-    
     function doChecker (id) {
         var chkr = new Checker(id);
         chkr.target = "ul#relecture" + id;   
@@ -606,7 +603,6 @@ cmd.ajax = function () {
             }
         });   
     }
-
     var toc = globals.toc,
         doneCheckers = 0,
         id;  
