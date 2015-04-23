@@ -4,7 +4,7 @@
 // @namespace   http://revues.org/
 // @include     /http:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/(?!(lodel))/
 // @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z0-9-]+\/(?!(lodel))/
-// @version     15.3.1
+// @version     15.4.0
 // @updateURL	https://github.com/brrd/screlo/raw/master/dist/screlo.user.js
 // @grant       none
 // ==/UserScript==
@@ -692,13 +692,13 @@ var globals = {},
     utils = require("./utils.js"),
     tests = require("./tests-revues.js"); 
 
-globals.version = "15.3.1";
+globals.version = "15.4.0";
 
 globals.schema =  "15.4.0d"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
 globals.appUrls = {
-    base: "http://localhost/screlo/",
-    stylesheet: "http://localhost/screlo/" + "dist/screlo.css",
+    base: "https://rawgit.com/brrd/screlo/master/",
+    stylesheet: "https://rawgit.com/brrd/screlo/master/" + "dist/screlo.css",
     update: "https://github.com/brrd/screlo/raw/master/dist/screlo.user.js",
     homepage: "https://github.com/brrd/screlo",
     doc: "https://github.com/brrd/screlo" + "/tree/master/docs"
