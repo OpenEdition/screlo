@@ -2,21 +2,22 @@ var globals = require("./globals.js");
 
 function Source (id, callback) {
     callback = typeof callback === "function" ? callback : undefined;
-    var isSelf,
-        split = id.split(/\s+/);
+    var split = id.split(/\s+/);
     this.id = id;
     this.url = split[0];
+    this.isCurrentLocation = this.url === globals.page;
     this.selector = split.length === 2 ? split[1] : "#main";
-    isSelf = this.url === globals.page;
-    this.bodyClasses = isSelf ? document.body.className.split(/\s+/) : undefined;
-    this.root = isSelf ? document : undefined;
-    this.isReady = isSelf;
-    this.isSuccess = isSelf;
-    this.isError = false;
-    if (!isSelf) {
+    this.bodyClasses = this.root = this.bodyClasses = null;
+    this.isReady = this.isSuccess = this.isError = false;
+    if (this.isCurrentLocation) {
+        this.bodyClasses = document.body.className.split(/\s+/);
+        this.root = $(this.selector).get(0);
+        this.isReady = this.isSuccess = true;
+        if (callback) {
+            callback(this);
+        }
+    } else {
         this.load(callback);
-    } else if (callback) {
-        callback(this);
     }
 }
 

@@ -139,7 +139,7 @@ Checker.prototype.process = function (callback) {
         if (source.isError) {
             this.exceptions.push("Source " + sourceId);
             continue;
-        }
+        } 
         root = source.root;
         notif = new Notification(thisTest, root);
         res = thisTest.action(notif, this.context, root); // NOTE: les deux derniers arguments sont déjà dans notif (je crois). Il serait mieux de ne pas les repasser encore.
@@ -394,14 +394,14 @@ function Notification (test, root) {
     this.count = test.count || 0; // NOTE: always use count instead of markers.length
     this.active = false;
     this.infoExists = globals.infos[this.id] ? true : false;
-    this.root = root;
-    this.source = test.source || "self";
+    this.root = root instanceof jQuery ? root.get(0) : root;
+    this.isCurrentLocation = this.root ? $.contains(document, this.root) : false;
 }
 
 Notification.prototype.getHtml = function () {
     // TODO: revoir les css (noms de classes de l'ensemble)
     var count = this.count > 0 ? " <span class='count'>" + this.count + "</span>" : "",
-        cycle = this.root === document && this.count > 0 ? "<a data-screlo-button='cycle'>Rechercher dans le document</a>" : "",
+        cycle = this.isCurrentLocation && this.count > 0 ? "<a data-screlo-button='cycle'>Rechercher dans le document</a>" : "",
         info = this.infoExists ? "<a data-screlo-button='info'>Aide</a>" : "",
         ignore = "<a data-screlo-button='ignore'>Ignorer</a>",
         actions = cycle || info ? "<div class='screlo-notification-actions'>" + cycle + info + "</div>" : "", // TODO: ajouter ignore
@@ -410,7 +410,7 @@ Notification.prototype.getHtml = function () {
 };
 
 Notification.prototype.addMarker = function (element) {
-    if (this.root === document) {
+    if (this.isCurrentLocation) {
         this.markers.push(
             new Marker ({
                 id: this.id,
@@ -437,9 +437,14 @@ Notification.prototype.countMatches = function (regex, $parent) {
 };
 
 Notification.prototype.addMarkersFromRegex = function (regex, $parent) {
-    $parent = $parent || $(this.root);
+    $parent = $parent || this.root;
+    $parent = !($parent instanceof jQuery) ? $($parent) : $parent;
+    if (!$parent) {
+        console.error("Notification.root n'existe pas");   
+        return false;
+    }
     // En cas d'exécution Ajax seul le nombre d'erreurs nous intéresse
-    if (this.root !== document) {
+    if (!this.isCurrentLocation) {
         this.countMatches(regex, $parent);
         return this;
     }
@@ -475,21 +480,22 @@ var globals = require("./globals.js");
 
 function Source (id, callback) {
     callback = typeof callback === "function" ? callback : undefined;
-    var isSelf,
-        split = id.split(/\s+/);
+    var split = id.split(/\s+/);
     this.id = id;
     this.url = split[0];
+    this.isCurrentLocation = this.url === globals.page;
     this.selector = split.length === 2 ? split[1] : "#main";
-    isSelf = this.url === globals.page;
-    this.bodyClasses = isSelf ? document.body.className.split(/\s+/) : undefined;
-    this.root = isSelf ? document : undefined;
-    this.isReady = isSelf;
-    this.isSuccess = isSelf;
-    this.isError = false;
-    if (!isSelf) {
+    this.bodyClasses = this.root = this.bodyClasses = null;
+    this.isReady = this.isSuccess = this.isError = false;
+    if (this.isCurrentLocation) {
+        this.bodyClasses = document.body.className.split(/\s+/);
+        this.root = $(this.selector).get(0);
+        this.isReady = this.isSuccess = true;
+        if (callback) {
+            callback(this);
+        }
+    } else {
         this.load(callback);
-    } else if (callback) {
-        callback(this);
     }
 }
 

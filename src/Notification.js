@@ -20,14 +20,14 @@ function Notification (test, root) {
     this.count = test.count || 0; // NOTE: always use count instead of markers.length
     this.active = false;
     this.infoExists = globals.infos[this.id] ? true : false;
-    this.root = root;
-    this.source = test.source || "self";
+    this.root = root instanceof jQuery ? root.get(0) : root;
+    this.isCurrentLocation = this.root ? $.contains(document, this.root) : false;
 }
 
 Notification.prototype.getHtml = function () {
     // TODO: revoir les css (noms de classes de l'ensemble)
     var count = this.count > 0 ? " <span class='count'>" + this.count + "</span>" : "",
-        cycle = this.root === document && this.count > 0 ? "<a data-screlo-button='cycle'>Rechercher dans le document</a>" : "",
+        cycle = this.isCurrentLocation && this.count > 0 ? "<a data-screlo-button='cycle'>Rechercher dans le document</a>" : "",
         info = this.infoExists ? "<a data-screlo-button='info'>Aide</a>" : "",
         ignore = "<a data-screlo-button='ignore'>Ignorer</a>",
         actions = cycle || info ? "<div class='screlo-notification-actions'>" + cycle + info + "</div>" : "", // TODO: ajouter ignore
@@ -36,7 +36,7 @@ Notification.prototype.getHtml = function () {
 };
 
 Notification.prototype.addMarker = function (element) {
-    if (this.root === document) {
+    if (this.isCurrentLocation) {
         this.markers.push(
             new Marker ({
                 id: this.id,
@@ -63,9 +63,14 @@ Notification.prototype.countMatches = function (regex, $parent) {
 };
 
 Notification.prototype.addMarkersFromRegex = function (regex, $parent) {
-    $parent = $parent || $(this.root);
+    $parent = $parent || this.root;
+    $parent = !($parent instanceof jQuery) ? $($parent) : $parent;
+    if (!$parent) {
+        console.error("Notification.root n'existe pas");   
+        return false;
+    }
     // En cas d'exécution Ajax seul le nombre d'erreurs nous intéresse
-    if (this.root !== document) {
+    if (!this.isCurrentLocation) {
         this.countMatches(regex, $parent);
         return this;
     }

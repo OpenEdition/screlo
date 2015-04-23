@@ -128,7 +128,7 @@ Checker.prototype.process = function (callback) {
         if (source.isError) {
             this.exceptions.push("Source " + sourceId);
             continue;
-        }
+        } 
         root = source.root;
         notif = new Notification(thisTest, root);
         res = thisTest.action(notif, this.context, root); // NOTE: les deux derniers arguments sont déjà dans notif (je crois). Il serait mieux de ne pas les repasser encore.
