@@ -1,7 +1,8 @@
 /*
-    Loader
+    Screlo - Loader
     ==========
     Gère l'import des documents dans lesquels sont effectués les tests.
+    Loader a notamment pour fonction d'éviter de charger deux fois la même source.
 */
 
 var Source = require("./Source.js");

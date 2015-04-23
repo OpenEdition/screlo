@@ -1,18 +1,21 @@
 /*    
     Screlo - tests-revues
     ==========
-    name: (string) Nom du test affiché dans la Notification.
-    id: (string) Identifiant numérique unique du test.
-    description: (string) Message d'aide.
-    links: (array) Tableau contenant les liens vers la documentation de la maison des revues de la forme : ["Texte du lien 1", "URL 1", "Texte du lien 2", "URL 2", etc.]
-    type: (string) Le type de la Notification qui sera retournée ("danger", "warning", "print", "success").
-    label: (string) Nom du test affiché par les Marker générés par le test.
-    labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
-    source: l'url de la source des tests, qui est soit une string, soit une function(idDuChecker) qui renvoit une string. Il est possible (et recommandé) de préciser un sélecteur à la fin de l'url, séparé par une espace, de la forme : "http://exemple.revues.org/lodel/edition/index.php?do=view&id=123 #mon-selecteur". Le sélecteur par défaut est "#main". Remarque: deux sources avec la même url mais deux sélecteurs différents produiront deux requêtes, il faut donc veiller à toujours employer le même sélecteur pour chaque type de source afin d'éviter les requêtes inutiles. Par exemple pour l'espace d'édition on utilisera TOUJOURS "#lodel-container".
-    condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
-    action: (function(notif, root)) La fonction qui exécute le test. Retourne notif quand le test s'est correctement passé ou false pour notifier l'utilisateur d'une exception (ie les éléments n'ont pas été retrouvés dans le DOM).
-        Le paramètre notif est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
-        Le paramètre root est l'élément du DOM qui sert de contexte au test. On utilise $(selecteur, root) dans la fonction action(). Par défaut root = $("#main").
+    Définition des tests pour les revues. 
+    Les attributs disponibles sont :
+        * name: (string) Nom du test affiché dans la Notification.
+        * id: (string) Identifiant numérique unique du test.
+        * description: (string) Message d'aide.
+        * links: (array) Tableau contenant les liens vers la documentation de la maison des revues de la forme : ["Texte du lien 1", "URL 1", "Texte du lien 2", "URL 2", etc.]
+        * type: (string) Le type de la Notification qui sera retournée ("danger", "warning", "print", "success").
+        * label: (string) Nom du test affiché par les Marker générés par le test.
+        * labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
+        * source: (string ou function) l'url de la source des tests, qui est soit une string, soit une function(urlDuSite, idDuChecker) qui renvoit une string. Il est possible (et recommandé) de préciser un sélecteur à la fin de l'url, séparé par une espace, de la forme : "http://exemple.revues.org/lodel/edition/index.php?do=view&id=123 #mon-selecteur". Le sélecteur par défaut est "#main". 
+        Remarque importante : deux sources avec la même url mais deux sélecteurs différents produiront deux requêtes, il faut donc veiller à toujours employer le même sélecteur pour chaque url afin d'éviter les requêtes inutiles, quitte à utiliser un même sélecteur de plus haut niveau dans le DOM pour tous les tests. Par exemple pour l'espace d'édition on utilisera TOUJOURS "#lodel-container".
+        * condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
+        * action: (function(notif, root)) La fonction qui exécute le test. Retourne notif quand le test s'est correctement passé ou false pour notifier l'utilisateur d'une anomalie (par exemple des éléments qui n'ont pas été retrouvés dans la maquette alors qu'il auraient dû).
+            * Le paramètre 'notif' est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
+            * Le paramètre 'root' est l'élément du DOM qui sert de contexte au test. On utilise TOUJOURS $(selecteur, root) dans le corps de la fonction action(). Par défaut root = $("#main").
 */
 
 var utils = require("./utils.js");
@@ -40,7 +43,7 @@ module.exports = [
         type: "print",
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
-            if($('#wDownload.facsimile', root).length === 0){
+            if($('#wDownload.facsimile, #text > .text.facsimile > a', root).length === 0){
                 notif.activate();
             }
             return notif;
@@ -859,7 +862,7 @@ module.exports = [
         action: function (notif, context, root) {
             var $element = $("label[for='alterfichier'] ~ .oneItem > .imageKeepDelete > strong:eq(0)", root),
                 fileName = $element.length === 0 ? $element.eq(0).text() : undefined;
-            if (typeof fileName === "string" && /\.pdf$/i.test(fileName) === false) {
+            if ($element.length > 0 && typeof fileName === "string" && /\.pdf$/i.test(fileName) === false) {
                 notif.activate();
             }
             return notif;

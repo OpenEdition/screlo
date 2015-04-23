@@ -12,16 +12,15 @@
 /*
     Screlo - Checker
     ==========
-    Cet objet est associé à un document unique (ie il faut créer un Checker par document à vérifier). 
+    Cet objet est associé à un document unique (ie il faut créer un checker par document à vérifier). 
     Il peut être généré de plusieurs façons :
         1. new Checker() : calcul automatique au chargement du document.
-        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document ou une url. 
-    
-    Utiliser la méthode .ready(callback) pour afficher le Checker après l'initialisation.
-    
-        3. new Checker(notifications) : où notifications est un Array contenant des Notification (notamment tirées du localStorage). Dans ce cas les attributs root et context ne sont pas définis.    
-    La méthode this.show() permet l'affichage dans l'élément ciblé par le sélecteur this.target.
-    La méthode this.toCache() permet l'enregistrement dans le localStorage.
+        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document ou une url.     
+        3. new Checker(notifications) : où notifications est un array contenant des notifications. Dans ce cas les attributs root et context ne sont pas définis et les tests ne sont pas exécutés. C'est cette construction qui est utilisée pour afficher des notifications depuis le cache (localStorage).
+    La méthode checker.ready(callback) permet d'appeler une fonction quand le checker a terminé le chargement des sources et l'exécution des tests. Linstance de Checker est passé en unique paramètre du callback. Les deux méthodes suivantes peuvent alors être appelées :
+        * La méthode checker.show() permet l'affichage dans l'élément ciblé par le sélecteur checker.target
+        * La méthode checker.toCache() permet l'enregistrement du checker dans le localStorage.
+    Deux méthodes checker.setLoading() et checker.unsetLoading() affichent/masquent l'indicateur de progression dans l'élément checker.target. NOTE: pas implémenté pour la relecture de la ToC où un seul indicateur s'affiche pour tous les checkers de la page.
 */
 
 var tests = require("./tests-revues.js"),
@@ -144,7 +143,7 @@ Checker.prototype.process = function (callback) {
         notif = new Notification(thisTest, root);
         res = thisTest.action(notif, this.context, root); // NOTE: les deux derniers arguments sont déjà dans notif (je crois). Il serait mieux de ne pas les repasser encore.
         if (!res || !res instanceof Notification) { // Si le test ne renvoit pas une notification alors il est ignoré et l'utilisateur en est averti. Permet de notifier des anomalies en renvoyant false, par exemple quand un élément n'est pas trouvé dans la page alors qu'il devrait y être.
-            this.exceptions.push("Test " + notif.id);
+            this.exceptions.push("Test #" + notif.id);
             continue;
         }
         if (res.active) {
@@ -171,6 +170,7 @@ Checker.prototype.ready = function (callback) {
             }
         };
     checkIfReady();
+    return this;
 };
 
 // Ordonner this.notifications.
@@ -212,7 +212,6 @@ Checker.prototype.filterNotifications = function () {
                 type: "screlo-exception"
             });
         notificationsToShow.push(errorMessage);
-        console.error("Les actions suivantes ont été ignorées : " +  this.exceptions.join(", "));
     }
     return notificationsToShow;
 };
@@ -241,11 +240,16 @@ Checker.prototype.show = function () {
     if (!this.hasTarget()) { return; }
     this.sortNotifications();
     var notifs = this.filterNotifications(),
-        notif;
+        notif,
+        $element;
     for (var i=0; i < notifs.length; i++) {
         notif = notifs[i];
-        $(notif.getHtml()).appendTo(this.target);
+        $element = $(notif.getHtml()).appendTo(this.target);
+        if (notif.type === "screlo-exception") {
+            $element.attr("title", "Anomalies rencontrées : " +  this.exceptions.join(", "));
+        }
     }
+    return this;
 };
 
 Checker.prototype.toCache = function () {
@@ -264,9 +268,10 @@ Checker.prototype.toCache = function () {
 module.exports = Checker;
 },{"./Notification.js":4,"./globals.js":7,"./tests-revues.js":10,"./utils.js":12}],2:[function(require,module,exports){
 /*
-    Loader
+    Screlo - Loader
     ==========
     Gère l'import des documents dans lesquels sont effectués les tests.
+    Loader a notamment pour fonction d'éviter de charger deux fois la même source.
 */
 
 var Source = require("./Source.js");
@@ -476,6 +481,13 @@ Notification.prototype.activate = function () {
 
 module.exports = Notification;
 },{"./Marker.js":3,"./globals.js":7}],5:[function(require,module,exports){
+/*
+    Screlo - Source
+    ==========
+    Représente une source chargée avant l'exécution des tests.
+    Le HTML chargé est contenu dans source.root. C'est cet élément qui sera passé en argument 'root' lors de l'exécution de chaque test pour lequel test.source === source.id.
+*/
+
 var globals = require("./globals.js");
 
 function Source (id, callback) {
@@ -939,18 +951,21 @@ module.exports = { init: init };
 /*    
     Screlo - tests-revues
     ==========
-    name: (string) Nom du test affiché dans la Notification.
-    id: (string) Identifiant numérique unique du test.
-    description: (string) Message d'aide.
-    links: (array) Tableau contenant les liens vers la documentation de la maison des revues de la forme : ["Texte du lien 1", "URL 1", "Texte du lien 2", "URL 2", etc.]
-    type: (string) Le type de la Notification qui sera retournée ("danger", "warning", "print", "success").
-    label: (string) Nom du test affiché par les Marker générés par le test.
-    labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
-    source: l'url de la source des tests, qui est soit une string, soit une function(idDuChecker) qui renvoit une string. Il est possible (et recommandé) de préciser un sélecteur à la fin de l'url, séparé par une espace, de la forme : "http://exemple.revues.org/lodel/edition/index.php?do=view&id=123 #mon-selecteur". Le sélecteur par défaut est "#main". Remarque: deux sources avec la même url mais deux sélecteurs différents produiront deux requêtes, il faut donc veiller à toujours employer le même sélecteur pour chaque type de source afin d'éviter les requêtes inutiles. Par exemple pour l'espace d'édition on utilisera TOUJOURS "#lodel-container".
-    condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
-    action: (function(notif, root)) La fonction qui exécute le test. Retourne notif quand le test s'est correctement passé ou false pour notifier l'utilisateur d'une exception (ie les éléments n'ont pas été retrouvés dans le DOM).
-        Le paramètre notif est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
-        Le paramètre root est l'élément du DOM qui sert de contexte au test. On utilise $(selecteur, root) dans la fonction action(). Par défaut root = $("#main").
+    Définition des tests pour les revues. 
+    Les attributs disponibles sont :
+        * name: (string) Nom du test affiché dans la Notification.
+        * id: (string) Identifiant numérique unique du test.
+        * description: (string) Message d'aide.
+        * links: (array) Tableau contenant les liens vers la documentation de la maison des revues de la forme : ["Texte du lien 1", "URL 1", "Texte du lien 2", "URL 2", etc.]
+        * type: (string) Le type de la Notification qui sera retournée ("danger", "warning", "print", "success").
+        * label: (string) Nom du test affiché par les Marker générés par le test.
+        * labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
+        * source: (string ou function) l'url de la source des tests, qui est soit une string, soit une function(urlDuSite, idDuChecker) qui renvoit une string. Il est possible (et recommandé) de préciser un sélecteur à la fin de l'url, séparé par une espace, de la forme : "http://exemple.revues.org/lodel/edition/index.php?do=view&id=123 #mon-selecteur". Le sélecteur par défaut est "#main". 
+        Remarque importante : deux sources avec la même url mais deux sélecteurs différents produiront deux requêtes, il faut donc veiller à toujours employer le même sélecteur pour chaque url afin d'éviter les requêtes inutiles, quitte à utiliser un même sélecteur de plus haut niveau dans le DOM pour tous les tests. Par exemple pour l'espace d'édition on utilisera TOUJOURS "#lodel-container".
+        * condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
+        * action: (function(notif, root)) La fonction qui exécute le test. Retourne notif quand le test s'est correctement passé ou false pour notifier l'utilisateur d'une anomalie (par exemple des éléments qui n'ont pas été retrouvés dans la maquette alors qu'il auraient dû).
+            * Le paramètre 'notif' est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
+            * Le paramètre 'root' est l'élément du DOM qui sert de contexte au test. On utilise TOUJOURS $(selecteur, root) dans le corps de la fonction action(). Par défaut root = $("#main").
 */
 
 var utils = require("./utils.js");
@@ -978,7 +993,7 @@ module.exports = [
         type: "print",
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
-            if($('#wDownload.facsimile', root).length === 0){
+            if($('#wDownload.facsimile, #text > .text.facsimile > a', root).length === 0){
                 notif.activate();
             }
             return notif;
@@ -1797,7 +1812,7 @@ module.exports = [
         action: function (notif, context, root) {
             var $element = $("label[for='alterfichier'] ~ .oneItem > .imageKeepDelete > strong:eq(0)", root),
                 fileName = $element.length === 0 ? $element.eq(0).text() : undefined;
-            if (typeof fileName === "string" && /\.pdf$/i.test(fileName) === false) {
+            if ($element.length > 0 && typeof fileName === "string" && /\.pdf$/i.test(fileName) === false) {
                 notif.activate();
             }
             return notif;

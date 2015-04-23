@@ -1,16 +1,15 @@
 /*
     Screlo - Checker
     ==========
-    Cet objet est associé à un document unique (ie il faut créer un Checker par document à vérifier). 
+    Cet objet est associé à un document unique (ie il faut créer un checker par document à vérifier). 
     Il peut être généré de plusieurs façons :
         1. new Checker() : calcul automatique au chargement du document.
-        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document ou une url. 
-    
-    Utiliser la méthode .ready(callback) pour afficher le Checker après l'initialisation.
-    
-        3. new Checker(notifications) : où notifications est un Array contenant des Notification (notamment tirées du localStorage). Dans ce cas les attributs root et context ne sont pas définis.    
-    La méthode this.show() permet l'affichage dans l'élément ciblé par le sélecteur this.target.
-    La méthode this.toCache() permet l'enregistrement dans le localStorage.
+        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document ou une url.     
+        3. new Checker(notifications) : où notifications est un array contenant des notifications. Dans ce cas les attributs root et context ne sont pas définis et les tests ne sont pas exécutés. C'est cette construction qui est utilisée pour afficher des notifications depuis le cache (localStorage).
+    La méthode checker.ready(callback) permet d'appeler une fonction quand le checker a terminé le chargement des sources et l'exécution des tests. Linstance de Checker est passé en unique paramètre du callback. Les deux méthodes suivantes peuvent alors être appelées :
+        * La méthode checker.show() permet l'affichage dans l'élément ciblé par le sélecteur checker.target
+        * La méthode checker.toCache() permet l'enregistrement du checker dans le localStorage.
+    Deux méthodes checker.setLoading() et checker.unsetLoading() affichent/masquent l'indicateur de progression dans l'élément checker.target. NOTE: pas implémenté pour la relecture de la ToC où un seul indicateur s'affiche pour tous les checkers de la page.
 */
 
 var tests = require("./tests-revues.js"),
@@ -133,7 +132,7 @@ Checker.prototype.process = function (callback) {
         notif = new Notification(thisTest, root);
         res = thisTest.action(notif, this.context, root); // NOTE: les deux derniers arguments sont déjà dans notif (je crois). Il serait mieux de ne pas les repasser encore.
         if (!res || !res instanceof Notification) { // Si le test ne renvoit pas une notification alors il est ignoré et l'utilisateur en est averti. Permet de notifier des anomalies en renvoyant false, par exemple quand un élément n'est pas trouvé dans la page alors qu'il devrait y être.
-            this.exceptions.push("Test " + notif.id);
+            this.exceptions.push("Test #" + notif.id);
             continue;
         }
         if (res.active) {
@@ -160,6 +159,7 @@ Checker.prototype.ready = function (callback) {
             }
         };
     checkIfReady();
+    return this;
 };
 
 // Ordonner this.notifications.
@@ -201,7 +201,6 @@ Checker.prototype.filterNotifications = function () {
                 type: "screlo-exception"
             });
         notificationsToShow.push(errorMessage);
-        console.error("Les actions suivantes ont été ignorées : " +  this.exceptions.join(", "));
     }
     return notificationsToShow;
 };
@@ -230,11 +229,16 @@ Checker.prototype.show = function () {
     if (!this.hasTarget()) { return; }
     this.sortNotifications();
     var notifs = this.filterNotifications(),
-        notif;
+        notif,
+        $element;
     for (var i=0; i < notifs.length; i++) {
         notif = notifs[i];
-        $(notif.getHtml()).appendTo(this.target);
+        $element = $(notif.getHtml()).appendTo(this.target);
+        if (notif.type === "screlo-exception") {
+            $element.attr("title", "Anomalies rencontrées : " +  this.exceptions.join(", "));
+        }
     }
+    return this;
 };
 
 Checker.prototype.toCache = function () {

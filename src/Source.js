@@ -1,3 +1,10 @@
+/*
+    Screlo - Source
+    ==========
+    Représente une source chargée avant l'exécution des tests.
+    Le HTML chargé est contenu dans source.root. C'est cet élément qui sera passé en argument 'root' lors de l'exécution de chaque test pour lequel test.source === source.id.
+*/
+
 var globals = require("./globals.js");
 
 function Source (id, callback) {
