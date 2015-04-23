@@ -10,7 +10,7 @@ var globals = {},
 
 globals.version = "/* @echo VERSION */";
 
-globals.schema =  "15.3.2"; // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
+globals.schema =  "15.4.0d"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
 globals.appUrls = {
     base: "/* @echo CDN */",
@@ -30,7 +30,15 @@ globals.nomCourt = (function () {
     }
 })();
 
+globals.page = (function () {
+    var url = location.pathname,
+        match = url.match(/(\d+)$/g);
+    return match ? match[0] : url;
+})();
+
 globals.hash = window.location.hash.substring(1);
+
+globals.admin = ($('#lodel-container').length !== 0);
 
 globals.cacheIsValid = (function () {
     var nomCourt = globals.nomCourt,
@@ -53,7 +61,7 @@ globals.active = (function () {
         utils.cache.set(globals.nomCourt, "active", value);
     }
     return value;
-})();
+})() && globals.admin; // Pas actif si on n'est pas connecté à Lodel.
 
 if (globals.active) {
     $("body").addClass("screlo-active"); // TODO: harmoniser l'ajout de classes

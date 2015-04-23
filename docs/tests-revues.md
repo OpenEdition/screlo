@@ -35,12 +35,22 @@ La pagination de la version papier est absente des métadonnées ou n'est pas co
 * [Pagination](http://maisondesrevues.org/86)
 
 
+## Test #4 - Absence de la date de publication électronique
+
+Type : danger
+
+Ce numéro n'a pas de date de publication électronique. Il est indispensable d'ajouter cette information dans le formulaire d'édition des métadonnées du numéro.
+
+**À lire dans la documentation**
+
+* [Dates de publication](http://maisondesrevues.org/84)
+
 
 ## Test #5 - Absence de référence de l'œuvre commentée
 
 Type : danger
 
-La date de publication électronique est absente des métadonnées du numéro ou n'est pas correctement stylée. Il est impératif de renseigner cette métadonnée dans le formulaire d'édition du numéro ou de la rubrique.
+Il est conseillé de mentionner la référence des œuvres commentées dans les comptes rendus et les notes de lecture en utilisant la métadonnée appropriée.
 
 **À lire dans la documentation**
 
@@ -241,7 +251,7 @@ Les intertitres du document ne se suivent pas hiérarchiquement. Par exemple, il
 * [Stylage des intertitres](http://maisondesrevues.org/90)
 
 
-## Test #25 - Vérifier les doublons
+## Test #25 - Vérifier les doublons d'index
 
 Type : warning
 
@@ -370,4 +380,27 @@ Ce document contient un ou plusieurs liens qui semblent incorrects et qui doiven
 Type : danger
 
 L'ISBN de ce numéro n'est pas valide et doit être vérifié. Remarque : il ne faut pas confondre ISBN (associé à un livre ou un numéro de revue) et ISSN (associé à une l'intégralité d'une collection). L'ISSN ne doit pas être indiqué au niveau du numéro. Un numéro de revue ne possède pas nécessairement d'ISBN, auquel cas rien ne doit être renseigné dans le formulaire d'édition du numéro.
+
+
+## Test #38 - Absence de la métadonnée de langue
+
+Type : danger
+
+La langue de ce document ou de cette publication n'est pas correctement définie dans les métadonnées. Dans le cas d'une publication, la langue doit être sélectionnée dans le formulaire d'édition des métadonnées. Dans le cas d'un document, il faut styler la métadonnée “Langue” dans le document source.
+
+**À lire dans la documentation**
+
+* [Composition de la métadonnée “Langue”](http://maisondesrevues.org/85)
+* [Ordre des métadonnées](http://maisondesrevues.org/108)
+
+
+## Test #39 - Fac-similé non PDF
+
+Type : danger
+
+Le fichier attaché en tant que fac-similé n'est pas un document PDF. Le fac-similé doit obligatoirement être au format PDF.
+
+**À lire dans la documentation**
+
+* [Fac-similés PDF issus de la version papier](http://maisondesrevues.org/612)
 

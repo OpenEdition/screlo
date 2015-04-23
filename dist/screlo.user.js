@@ -4,7 +4,7 @@
 // @namespace   http://revues.org/
 // @include     /http:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/(?!(lodel))/
 // @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z0-9-]+\/(?!(lodel))/
-// @version     15.3.1
+// @version     15.4.0
 // @updateURL	https://github.com/brrd/screlo/raw/master/dist/screlo.user.js
 // @grant       none
 // ==/UserScript==
@@ -12,13 +12,15 @@
 /*
     Screlo - Checker
     ==========
-    Cet objet est associé à un document unique (ie il faut créer un Checker par document à vérifier). 
+    Cet objet est associé à un document unique (ie il faut créer un checker par document à vérifier). 
     Il peut être généré de plusieurs façons :
         1. new Checker() : calcul automatique au chargement du document.
-        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document. Utiliser la méthode .ready(callback) pour afficher le Checker après l'initialisation.
-        3. new Checker(notifications) : où notifications est un Array contenant des Notification (notamment tirées du localStorage). Dans ce cas les attributs root et context ne sont pas définis.    
-    La méthode this.show() permet l'affichage dans l'élément ciblé par le sélecteur this.target.
-    La méthode this.toCache() permet l'enregistrement dans le localStorage.
+        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document ou une url.     
+        3. new Checker(notifications) : où notifications est un array contenant des notifications. Dans ce cas les attributs root et context ne sont pas définis et les tests ne sont pas exécutés. C'est cette construction qui est utilisée pour afficher des notifications depuis le cache (localStorage).
+    La méthode checker.ready(callback) permet d'appeler une fonction quand le checker a terminé le chargement des sources et l'exécution des tests. Linstance de Checker est passé en unique paramètre du callback. Les deux méthodes suivantes peuvent alors être appelées :
+        * La méthode checker.show() permet l'affichage dans l'élément ciblé par le sélecteur checker.target
+        * La méthode checker.toCache() permet l'enregistrement du checker dans le localStorage.
+    Deux méthodes checker.setLoading() et checker.unsetLoading() affichent/masquent l'indicateur de progression dans l'élément checker.target. NOTE: pas implémenté pour la relecture de la ToC où un seul indicateur s'affiche pour tous les checkers de la page.
 */
 
 var tests = require("./tests-revues.js"),
@@ -27,78 +29,51 @@ var tests = require("./tests-revues.js"),
     globals = require("./globals.js");
 
 function Checker (arg) {
+    this.isDisplayedDocument = (typeof arg === "undefined");
+    this.id = arg || globals.page;
     this.isReady = false;
     this.notifications = [];
     this.target = "#screlo-notifications";
-    this.context = { classes: [] };
-    this.idPage = location.pathname.match(/(\d+)$/g);
+    this.context = { classes: {} };
+    this.sources = [];
     this.numberOfTests = 0;
+    this.exceptions = [];
     
-    // Trouver root et context
-    if (utils.isNumber(arg)) {
-        this.initFromAjax(arg);
-    } else if (typeof arg === "object" && arg.numberOfTests !== "undefined" && utils.isNumber(arg.numberOfTests) && arg.notifications && typeof arg.notifications === "object") {
-        this.numberOfTests = arg.numberOfTests;
+    // Si arg est un Array, il s'agit de notifications à charger (généralement depuis le cache). On ne procède alors à aucun test.
+    if (typeof arg === "object" && arg.numberOfTests !== "undefined" && utils.isNumber(arg.numberOfTests) && arg.notifications && typeof arg.notifications === "object") {
+        this.numberOfTests = arg.numberOfTests || 0;
+        this.exceptions = arg.exceptions || [];
         this.pushNotifications(arg.notifications);
-    } else if (typeof arg === "undefined") {
-        this.initFromPage();
-    } else {
-        console.error("Bad parameters in Checker's constructor");
-    }
-}
-
-Checker.prototype.initFromPage = function () {
-    var classes = document.body.className.split(/\s+/);
-    this.root = document;
-    this.setContext(classes);
-    this.process();
-};
-
-Checker.prototype.initFromAjax = function (id) {
-    function ajaxFail(id) {      
-        var failMessage = new Notification({
-            name: "Impossible de charger ce document",
-            type: "screlo-exception"
+        return;
+    }         
+    
+    // Sinon on lance les tests
+    // 1. On charge le document
+    var that = this;
+    Loader.load(this.id, function (mainCheckerSource) {
+        // 2. On récupère le contexte qui déterminera les tests à exécuter
+        var classes = mainCheckerSource.bodyClasses;
+        that.setContext(classes);
+        // 3. On charge les sources supplémentaires nécessaires à ce Checker
+        var sourceId,
+            source;
+        for (var i = 0; i < tests.length; i++) {
+            thisTest = tests[i];
+            if (thisTest.condition(that.context)) {
+                sourceId = that.getSourceId(thisTest);
+                source = Loader.load(sourceId);
+                that.addSource(source);
+            }
+        }
+        // 4. Quand les sources sont toutes chargées on exécute les tests
+        Loader.onSourcesReady(that.sources, function (infos) {
+            that.process (function () {
+                // Et voilà !
+                that.isReady = true;
+            });
         });
-        this.notifications.push(failMessage);
-    }
-    var url =  utils.getUrl("site") + id,
-        chkr = this;
-    this.idPage = id;
-    // NOTE: Comme Lodel utilise une vieille version de jquery (1.4) on ne peut pas utiliser $.get().done().fail().always(). On utilise donc $.ajax()
-    $.ajax({
-        url: url,
-        timeout: 20000,
-        success: function(data) {
-            if (data && data.match(/\n.*(<body.*)\n/i) !== null) {
-                var body = data.match(/\n.*(<body.*)\n/i)[1].replace("body", "div"),
-                    classes = $(body).get(0).className.split(/\s+/),
-                    container = $("<div></div>").append($(data).find("#main"));                
-                chkr.root = container;
-                chkr.setContext(classes);
-                chkr.process();
-            } else {
-                ajaxFail();
-            }
-        },
-        error: function() {
-            ajaxFail();
-        },
-        complete: function() {
-            chkr.isReady = true;
-        }                
-    });
-};
-
-Checker.prototype.ready = function (callback) {   
-    var chkr = this,
-        interval = setInterval(function () {
-            if (chkr.isReady) {
-                callback(chkr);
-                clearInterval(interval);
-            }
-        }, 1000);
-};
+    });  
+}
 
 Checker.prototype.pushNotifications = function (notif) {
     // Récursif si tableau
@@ -115,42 +90,87 @@ Checker.prototype.pushNotifications = function (notif) {
     }
 };
 
+Checker.prototype.addSource = function (source) {
+    if (!source) { return false; }
+    this.sources.push(source);
+    return true;
+};
+
 Checker.prototype.setContext = function (classes) {       
     for ( var i=0; i < classes.length; i++ ) {
         this.context.classes[classes[i]] = true;
     }
-    this.context.admin = ($('#lodel-container').length !== 0);
     this.context.isMotscles = $("body").hasClass("indexes") && $("body").is("[class*='motscles']");
     this.context.paper = globals.paper;
 };
 
-// Applique les tests
-Checker.prototype.process = function () {
-    function injectMarker(marker) {
-        marker.inject();
+Checker.prototype.getSourceId = function (test) {
+    var site = utils.getUrl("site");
+    if (test.source && typeof test.source === "function") {
+        return test.source(site, this.id);
+    } else if (test.source && typeof test.source === "string") {
+        return test.source;
     }
+    return this.id || globals.page;
+};
+
+Checker.prototype.process = function (callback) {
     var thisTest,
-        notif,
-        res;
-    this.numberOfTests = 0;
-    if (!(this.root && this.context)) {
-        console.log("Erreur lors du process(): attributs manquants dans Checker");
+        sourceId,
+        source,
+        root,
+        notif, 
+        res,
+        injectMarker = function (marker) {
+            marker.inject();
+        };
+    if (!this.context) {
+        console.error("Erreur lors de l'exécution des tests : le contexte n'est pas défini");
         return;
     }
-    for (var i = 0; i < tests.length; i++) {
+    for (var i=0; i<tests.length; i++) {
         thisTest = tests[i];
-        if (thisTest.condition(this.context)) {
-            notif = new Notification(thisTest, this.root);
-            res = thisTest.action(notif, this.context, this.root);
-            if (res.active) {
-                if (res.markers.length > 0) {
-                    res.markers.forEach( injectMarker );
-                }
-                this.notifications.push(res);
-            }
-            this.numberOfTests++;
+        if (!thisTest.condition(this.context)) {
+            continue;
         }
+        sourceId = this.getSourceId(thisTest);
+        source = Loader.getSource(sourceId);
+        if (source.isError) {
+            this.exceptions.push("Source " + sourceId);
+            continue;
+        } 
+        root = source.root;
+        notif = new Notification(thisTest, root);
+        res = thisTest.action(notif, this.context, root); // NOTE: les deux derniers arguments sont déjà dans notif (je crois). Il serait mieux de ne pas les repasser encore.
+        if (!res || !res instanceof Notification) { // Si le test ne renvoit pas une notification alors il est ignoré et l'utilisateur en est averti. Permet de notifier des anomalies en renvoyant false, par exemple quand un élément n'est pas trouvé dans la page alors qu'il devrait y être.
+            this.exceptions.push("Test #" + notif.id);
+            continue;
+        }
+        if (res.active) {
+            if (res.markers.length > 0) {
+                res.markers.forEach( injectMarker );
+            }
+            this.notifications.push(res);
+        }
+        this.numberOfTests++;
     }
+    if (callback && typeof callback === "function") {
+        callback();
+    }
+};
+
+Checker.prototype.ready = function (callback) { 
+    var that = this,
+        checkIfReady = function () {
+            if (that.isReady) {
+                callback(that);
+                return;
+            } else {    
+                setTimeout(checkIfReady, 1000);
+            }
+        };
+    checkIfReady();
+    return this;
 };
 
 // Ordonner this.notifications.
@@ -165,50 +185,79 @@ Checker.prototype.sortNotifications = function () {
     });
 };
 
-Checker.prototype.show = function () {
-    // Filter les notifications qui seront affichées. N'affecte pas this.notifications.
-    function filterNotifications (notifications) {
-        function filterPrint (notifications) {
-            var res = [];
-            for (var i=0; i<notifications.length; i++) {
-                if (notifications[i].type !== "print") {
-                    res.push(notifications[i]);
-                }
+// Filter les notifications qui seront affichées. N'affecte pas this.notifications.
+Checker.prototype.filterNotifications = function () {
+    function filterPrint (notifications) {
+        var res = [];
+        for (var i=0; i<notifications.length; i++) {
+            if (notifications[i].type !== "print") {
+                res.push(notifications[i]);
             }
-            return res;
         }
-        var notificationsToShow = globals.paper ? notifications : filterPrint(notifications);
-        if (notificationsToShow.length === 0 && that.numberOfTests > 0 && (that.context.classes.textes || that.root !== document)) {
-            var successMessage = new Notification({
-                name: 'Aucune erreur détectée <span class="count">' + that.numberOfTests + ' tests</span>',
-                type: "succes"
+        return res;
+    }
+    var notifications = this.notifications, 
+        notificationsToShow = globals.paper ? notifications : filterPrint(notifications);
+    if (notificationsToShow.length === 0 && this.numberOfTests > 0 && (this.context.classes.textes || !this.isDisplayedDocument)) { // NOTE: On n'affiche pas le message de succès sur la table des matières pour éviter la confusion entre relecture des métadonnées de la publication et relecture de ses documents.
+        var successMessage = new Notification({
+            name: 'Aucune erreur détectée <span class="count">' + this.numberOfTests + ' tests</span>',
+            type: "succes"
+        });
+        notificationsToShow.push(successMessage);
+    }
+    if (this.exceptions.length > 0) {
+        var notifName = this.exceptions.length === 1 ? "Un test qui n'a pas pu aboutir a été ignoré <span class='count'>" + this.exceptions.length + " test</span>" : "Des tests qui n'ont pas pu aboutir ont été ignorés <span class='count'>" + this.exceptions.length + " tests</span>",
+            errorMessage = new Notification({
+                name: notifName,
+                type: "screlo-exception"
             });
-            notificationsToShow.push(successMessage);
-        }
-        return notificationsToShow;
+        notificationsToShow.push(errorMessage);
     }
+    return notificationsToShow;
+};
+
+Checker.prototype.hasTarget = function () {
     if (!this.target || (this.target && $(this.target).length === 0)) {
-        console.log("Erreur: 'target' n'est pas défini ou n'existe pas.");
-        return;
+        console.error("Erreur: 'target' n'est pas défini ou n'existe pas.");
+        return false;
     }
-    if (!this.notifications || this.notifications && this.notifications.length === 0) {
-        return;
-    }
+    return true;
+};
+
+Checker.prototype.setLoading = function () {
+    if (!this.hasTarget()) { return; }
+    $(this.target).addClass("screlo-loading");
+    return this;
+};
+
+Checker.prototype.unsetLoading = function () {
+    if (!this.hasTarget()) { return; }
+    $(this.target).removeClass("screlo-loading");
+    return this;
+};
+
+Checker.prototype.show = function () {
+    if (!this.hasTarget()) { return; }
     this.sortNotifications();
-    var that = this,
-        notifs = filterNotifications(this.notifications),
-        notif;
+    var notifs = this.filterNotifications(),
+        notif,
+        $element;
     for (var i=0; i < notifs.length; i++) {
         notif = notifs[i];
-        $(notif.getHtml()).appendTo(this.target);
+        $element = $(notif.getHtml()).appendTo(this.target);
+        if (notif.type === "screlo-exception") {
+            $element.attr("title", "Anomalies rencontrées : " +  this.exceptions.join(", "));
+        }
     }
+    return this;
 };
 
 Checker.prototype.toCache = function () {
     var nomCourt = globals.nomCourt,
-        id = this.idPage,
+        id = this.id,
         value = {};
         value.numberOfTests = this.numberOfTests;
+        value.exceptions = this.exceptions;
         value.notifications = this.notifications.map(function (notification) {
             return notification.export();
         });
@@ -217,7 +266,83 @@ Checker.prototype.toCache = function () {
 };
 
 module.exports = Checker;
-},{"./Notification.js":3,"./globals.js":5,"./tests-revues.js":8,"./utils.js":10}],2:[function(require,module,exports){
+},{"./Notification.js":4,"./globals.js":7,"./tests-revues.js":10,"./utils.js":12}],2:[function(require,module,exports){
+/*
+    Screlo - Loader
+    ==========
+    Gère l'import des documents dans lesquels sont effectués les tests.
+    Loader a notamment pour fonction d'éviter de charger deux fois la même source.
+*/
+
+var Source = require("./Source.js");
+
+// TODO: ici Loader est volontairement attaché au contexte global. Il faudrait placer dans un namespace 'screlo'.
+Loader = {
+    sources: {},
+    getSource: function (id) {
+        return id.constructor === Source ? id : this.sources[id];
+    },
+    // Same as above with an array of sources
+    getSources: function (urls) {
+        var that = this,
+            mapFunc = (function () {
+                return that.getSource;
+            })();
+        return urls.map(mapFunc);
+    },
+    load: function (id, callback) {
+        if (this.sources[id]) {
+            return false;
+        }
+        this.sources[id] = true; // NOTE: valeur temporaire pour bloquer les requêtes suivantes avec le même id. Si on attend la construction de Source plusieurs requêtes ont le temps de passer.
+        var source = new Source(id, callback);
+        this.sources[id] = source; // TODO: il faudrait normaliser les id pour éviter les doublons
+        return source;
+    },
+    infos: function (sourcesArray) {
+        var res = {
+                all: sourcesArray,
+                ready: [],
+                error: [],
+                success: [],
+                allReady: undefined
+            },
+            thisSource;
+        for (var i=0; i<sourcesArray.length; i++) {
+            thisSource = sourcesArray[i];
+            if (thisSource.isReady) {
+                res.ready.push(thisSource);
+            } else {
+                continue;
+            }
+            if (thisSource.isError) {
+                res.error.push(thisSource);
+            }
+            if (thisSource.isSuccess) {
+                res.success.push(thisSource);
+            }
+        }
+        res.allReady = (res.ready.length === res.all.length);
+        return res;
+    },
+    onSourcesReady: function (sourcesArray, callback) {
+        var that = this,
+            checkIfReady = function () {
+                var infos = that.infos(sourcesArray),
+                    flag = infos.allReady;
+                if (flag) {
+                    callback(infos);
+                    return;
+                } else {    
+                    setTimeout(checkIfReady, 1000);
+                }
+            };
+        checkIfReady();
+    }
+};
+
+module.exports = Loader;
+},{"./Source.js":5}],3:[function(require,module,exports){
 /*
     Screlo - Marker
     ==========
@@ -251,7 +376,7 @@ Marker.prototype.inject = function () {
 };
 
 module.exports = Marker;
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /*
     Screlo - Notification
     ==========
@@ -274,13 +399,14 @@ function Notification (test, root) {
     this.count = test.count || 0; // NOTE: always use count instead of markers.length
     this.active = false;
     this.infoExists = globals.infos[this.id] ? true : false;
-    this.root = root;
+    this.root = root instanceof jQuery ? root.get(0) : root;
+    this.isCurrentLocation = this.root ? $.contains(document, this.root) : false;
 }
 
 Notification.prototype.getHtml = function () {
     // TODO: revoir les css (noms de classes de l'ensemble)
     var count = this.count > 0 ? " <span class='count'>" + this.count + "</span>" : "",
-        cycle = this.root === document && this.count > 0 ? "<a data-screlo-button='cycle'>Rechercher dans le document</a>" : "",
+        cycle = this.isCurrentLocation && this.count > 0 ? "<a data-screlo-button='cycle'>Rechercher dans le document</a>" : "",
         info = this.infoExists ? "<a data-screlo-button='info'>Aide</a>" : "",
         ignore = "<a data-screlo-button='ignore'>Ignorer</a>",
         actions = cycle || info ? "<div class='screlo-notification-actions'>" + cycle + info + "</div>" : "", // TODO: ajouter ignore
@@ -289,7 +415,7 @@ Notification.prototype.getHtml = function () {
 };
 
 Notification.prototype.addMarker = function (element) {
-    if (this.root === document) {
+    if (this.isCurrentLocation) {
         this.markers.push(
             new Marker ({
                 id: this.id,
@@ -316,9 +442,14 @@ Notification.prototype.countMatches = function (regex, $parent) {
 };
 
 Notification.prototype.addMarkersFromRegex = function (regex, $parent) {
-    $parent = $parent || $(this.root);
+    $parent = $parent || this.root;
+    $parent = !($parent instanceof jQuery) ? $($parent) : $parent;
+    if (!$parent) {
+        console.error("Notification.root n'existe pas");   
+        return false;
+    }
     // En cas d'exécution Ajax seul le nombre d'erreurs nous intéresse
-    if (this.root !== document) {
+    if (!this.isCurrentLocation) {
         this.countMatches(regex, $parent);
         return this;
     }
@@ -349,7 +480,73 @@ Notification.prototype.activate = function () {
 };
 
 module.exports = Notification;
-},{"./Marker.js":2,"./globals.js":5}],4:[function(require,module,exports){
+},{"./Marker.js":3,"./globals.js":7}],5:[function(require,module,exports){
+/*
+    Screlo - Source
+    ==========
+    Représente une source chargée avant l'exécution des tests.
+    Le HTML chargé est contenu dans source.root. C'est cet élément qui sera passé en argument 'root' lors de l'exécution de chaque test pour lequel test.source === source.id.
+*/
+
+var globals = require("./globals.js");
+
+function Source (id, callback) {
+    callback = typeof callback === "function" ? callback : undefined;
+    var split = id.split(/\s+/);
+    this.id = id;
+    this.url = split[0];
+    this.isCurrentLocation = this.url === globals.page;
+    this.selector = split.length === 2 ? split[1] : "#main";
+    this.bodyClasses = this.root = this.bodyClasses = null;
+    this.isReady = this.isSuccess = this.isError = false;
+    if (this.isCurrentLocation) {
+        this.bodyClasses = document.body.className.split(/\s+/);
+        this.root = $(this.selector).get(0);
+        this.isReady = this.isSuccess = true;
+        if (callback) {
+            callback(this);
+        }
+    } else {
+        this.load(callback);
+    }
+}
+
+Source.prototype.load = function (callback) {
+    var that = this,
+        url = this.url;
+    $.ajax({
+        url: url,
+        timeout: 20000,
+        success: function(data) {
+            var body, bodyClasses, container, root;
+            if (data && data.match(/\n.*(<body.*)\n/i) !== null) {
+                body = data.match(/\n.*(<body.*)\n/i)[1].replace("body", "div");
+                bodyClasses = $(body).get(0).className.split(/\s+/);
+                container = $("<div>" + data + "</div>").find(that.selector);
+                root = container.get(0);
+            } 
+            if (root) {
+                that.root = root;
+                that.bodyClasses = bodyClasses;
+                that.isSuccess = true;
+            } else {
+                that.isError = true;
+            }
+        },
+        error: function() {
+            that.isError = true;
+        },
+        complete: function() {
+            that.isReady = true;
+            if (callback) {
+                callback(that);
+            }
+        }                
+    });
+};
+
+module.exports = Source;
+},{"./globals.js":7}],6:[function(require,module,exports){
 /*
     Screlo - commands
     ==========
@@ -381,23 +578,20 @@ cmd.about = function () {
 };
 
 cmd.ajax = function () {
-    
     function ajaxStart () {      
         $("#screlo-notifications #screlo-infocache").remove();
         $(".screlo-ajax-notifications").empty();
         $("body").addClass("loading");
-        $("#screlo-infocache").remove();   
-    }
-    
+        $("#screlo-infocache").remove();
+        $("[data-screlo-button='ajax']").hide();
+    } 
     function isDone (count) {
         return (count === toc.length);
-    }
-    
+    } 
     function ajaxEnd () {
         $("body").removeClass("loading");
         $(".complete").removeClass("complete");
     }
-    
     function doChecker (id) {
         var chkr = new Checker(id);
         chkr.target = "ul#relecture" + id;   
@@ -409,7 +603,6 @@ cmd.ajax = function () {
             }
         });   
     }
-
     var toc = globals.toc,
         doneCheckers = 0,
         id;  
@@ -451,6 +644,14 @@ cmd.cycle = function (id) {
     }
 };
 
+cmd.askForLogin = function () {
+    var gotoLogin = confirm("Il est nécessaire d'être connecté à Lodel pour utiliser les outils de relecture. Souhaitez-vous vous connecter ?");
+    if (gotoLogin) {
+        utils.cache.set(globals.nomCourt, "active", true);
+        location.href = utils.getUrl("site") + "lodel/edition/login.php?url_retour=" + location.pathname;
+    }
+};
+
 cmd.toggleCache = function (id) {
     var currentState = utils.cache.get(globals.nomCourt, id),
         toggleState = !currentState;
@@ -480,7 +681,7 @@ cmd.showInfo = function ($clickElement) {
 };
 
 module.exports = cmd;
-},{"./Checker.js":1,"./globals.js":5,"./tests-revues.js":8,"./utils.js":10}],5:[function(require,module,exports){
+},{"./Checker.js":1,"./globals.js":7,"./tests-revues.js":10,"./utils.js":12}],7:[function(require,module,exports){
 /*
     Screlo - globals
     ==========
@@ -491,9 +692,9 @@ var globals = {},
     utils = require("./utils.js"),
     tests = require("./tests-revues.js"); 
 
-globals.version = "15.3.1";
+globals.version = "15.4.0";
 
-globals.schema =  "15.3.2"; // NOTE: Valeur à modifier quand l'architecture de l'objet Notification change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
+globals.schema =  "15.4.0d"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
 globals.appUrls = {
     base: "https://rawgit.com/brrd/screlo/master/",
@@ -513,7 +714,15 @@ globals.nomCourt = (function () {
     }
 })();
 
+globals.page = (function () {
+    var url = location.pathname,
+        match = url.match(/(\d+)$/g);
+    return match ? match[0] : url;
+})();
+
 globals.hash = window.location.hash.substring(1);
+
+globals.admin = ($('#lodel-container').length !== 0);
 
 globals.cacheIsValid = (function () {
     var nomCourt = globals.nomCourt,
@@ -536,7 +745,7 @@ globals.active = (function () {
         utils.cache.set(globals.nomCourt, "active", value);
     }
     return value;
-})();
+})() && globals.admin; // Pas actif si on n'est pas connecté à Lodel.
 
 if (globals.active) {
     $("body").addClass("screlo-active"); // TODO: harmoniser l'ajout de classes
@@ -604,7 +813,7 @@ globals.infos = (function () {
 })();
 
 module.exports = globals;
-},{"./tests-revues.js":8,"./utils.js":10}],6:[function(require,module,exports){
+},{"./tests-revues.js":10,"./utils.js":12}],8:[function(require,module,exports){
 /*
     SCRELO - Script de relecture pour Lodel
     Thomas Brouard - OpenEdition
@@ -630,7 +839,7 @@ if (!window.jQuery) {
         console.info("Screlo v." + globals.version + " loaded"); // TODO: preciser quelle version (user ou remote)
     });
 }
-},{"./globals.js":5,"./screlo-plus.js":7,"./ui.js":9,"./vendor/highlightRegex.js":11,"./vendor/picoModal.js":12}],7:[function(require,module,exports){
+},{"./globals.js":7,"./screlo-plus.js":9,"./ui.js":11,"./vendor/highlightRegex.js":13,"./vendor/picoModal.js":14}],9:[function(require,module,exports){
 /*
     ScreloPlus
     ==========
@@ -734,21 +943,25 @@ function init () {
 }
 
 module.exports = { init: init };
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /*    
     Screlo - tests-revues
     ==========
-    name: (string) Nom du test affiché dans la Notification.
-    id: (string) Identifiant numérique unique du test.
-    description: (string) Message d'aide.
-    links: (array) Tableau contenant les liens vers la documentation de la maison des revues de la forme : ["Texte du lien 1", "URL 1", "Texte du lien 2", "URL 2", etc.]
-    type: (string) Le type de la Notification qui sera retournée ("danger", "warning", "print", "success").
-    label: (string) Nom du test affiché par les Marker générés par le test.
-    labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
-    condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
-    action: (function(notif, root)) La fonction qui exécute le test. Retourne notif.
-        Le paramètre notif est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
-        Le paramètre root est l'élément du DOM qui sert de contexte au test. On utilise $(selecteur, root) dans la fonction action(). Attention : seul le contenu de #content est importé lors du test en ajax. Il faut donc appliquer les tests sur $("#main", root) ou tout simplement $(root), mais pas plus haut dans le DOM sinon le test ne fonctionnera pas avec Ajax.
+    Définition des tests pour les revues. 
+    Les attributs disponibles sont :
+        * name: (string) Nom du test affiché dans la Notification.
+        * id: (string) Identifiant numérique unique du test.
+        * description: (string) Message d'aide.
+        * links: (array) Tableau contenant les liens vers la documentation de la maison des revues de la forme : ["Texte du lien 1", "URL 1", "Texte du lien 2", "URL 2", etc.]
+        * type: (string) Le type de la Notification qui sera retournée ("danger", "warning", "print", "success").
+        * label: (string) Nom du test affiché par les Marker générés par le test.
+        * labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
+        * source: (string ou function) l'url de la source des tests, qui est soit une string, soit une function(urlDuSite, idDuChecker) qui renvoit une string. Il est possible (et recommandé) de préciser un sélecteur à la fin de l'url, séparé par une espace, de la forme : "http://exemple.revues.org/lodel/edition/index.php?do=view&id=123 #mon-selecteur". Le sélecteur par défaut est "#main". 
+        Remarque importante : deux sources avec la même url mais deux sélecteurs différents produiront deux requêtes, il faut donc veiller à toujours employer le même sélecteur pour chaque url afin d'éviter les requêtes inutiles, quitte à utiliser un même sélecteur de plus haut niveau dans le DOM pour tous les tests. Par exemple pour l'espace d'édition on utilisera TOUJOURS "#lodel-container".
+        * condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
+        * action: (function(notif, root)) La fonction qui exécute le test. Retourne notif quand le test s'est correctement passé ou false pour notifier l'utilisateur d'une anomalie (par exemple des éléments qui n'ont pas été retrouvés dans la maquette alors qu'il auraient dû).
+            * Le paramètre 'notif' est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
+            * Le paramètre 'root' est l'élément du DOM qui sert de contexte au test. On utilise TOUJOURS $(selecteur, root) dans le corps de la fonction action(). Par défaut root = $("#main").
 */
 
 var utils = require("./utils.js");
@@ -762,7 +975,7 @@ module.exports = [
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
             var champAuteur = $('#docAuthor', root);
-            if(champAuteur.length === 0){
+            if (champAuteur.length === 0) {
                 notif.activate();
             }
             return notif;
@@ -774,9 +987,9 @@ module.exports = [
         description: "Aucun fac-similé n'est associé à ce document. Il est fortement recommandé de joindre aux documents un fac-similé PDF issu de la version imprimée lorsque c'est possible.",
         links: ["Fac-similés PDF issus de la version papier", "http://maisondesrevues.org/612"],
         type: "print",
-        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations },
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
-            if($('#wDownload.facsimile', root).length === 0){
+            if($('#wDownload.facsimile, #text > .text.facsimile > a', root).length === 0){
                 notif.activate();
             }
             return notif;
@@ -788,7 +1001,7 @@ module.exports = [
         description: "La pagination de la version papier est absente des métadonnées ou n'est pas correctement stylée. Si le document existe en version imprimée il est fortement recommandé d'en préciser la pagination au format attendu.",
         links: ["Pagination", "http://maisondesrevues.org/86"],
         type: "print",
-        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations },
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
             if($('#docPagination', root).length === 0){
                 notif.name = "Pas de pagination";
@@ -800,7 +1013,25 @@ module.exports = [
             return notif;
         }
     },
-    // NOTE: Test #4 "Pas de date de publication électronique" supprimé. Ce test doit être recodé.
+    {
+        // TODO: Checker aussi le format de la date + étendre aux deux types de dates + étendre aux textes
+        name: "Absence de la date de publication électronique",
+        id: 4,
+        description: "Ce numéro n'a pas de date de publication électronique. Il est indispensable d'ajouter cette information dans le formulaire d'édition des métadonnées du numéro.",
+        links: ["Dates de publication", "http://maisondesrevues.org/84"],
+        source: function (site, id) { return site + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
+        condition: function(context) { return context.classes.numero; },
+        action: function (notif, context, root) {
+            var $element = $("input#datepubli", root);
+            if ($element.length === 0) {
+                return false;
+            }
+            if ($element.val().trim() === "") {
+                notif.activate();
+            }
+            return notif;
+        }
+    },
     {	
         name: "Absence de référence de l'œuvre commentée",
         id: 5,
@@ -815,7 +1046,7 @@ module.exports = [
         }
     },
     {
-        // NOTE: test obsolète (Lodel 0.9) à supprimer depuis OTX.
+        // NOTE: test obsolète (Lodel 0.9)
         name: "Utilisation de police(s) non Unicode",
         id: 6,
         description: "Ce document contient des polices non Unicode qui ne sont pas compatibles avec un affichage sur Internet. Il est nécessaire d'utiliser des polices respectant la norme Unicode dans ce document.",
@@ -826,7 +1057,7 @@ module.exports = [
         label: "Police",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            var el = $('#main [style*="Symbol"], #main [style*="symbol"], #main [style*="Wingdings"], #main [style*="wingdings"], #main [style*="Webdings"], #main [style*="webdings"]', root);
+            var el = $('[style*="Symbol"], [style*="symbol"], [style*="Wingdings"], [style*="wingdings"], [style*="Webdings"], [style*="webdings"]', root);
             el.each(function() {
                 notif.addMarker(this).activate();
             });
@@ -1100,7 +1331,7 @@ module.exports = [
         description: "Un ou plusieurs intertitres du document sont contenus dans une liste. Cela est souvent dû à une correction automatique de Word lors de l'insertion d'intertitres numérotés. Il faut désactiver la mise en forme “Liste” sur les intertitres concernés.",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            $("#main ol :header, #main ul :header, #main li:header", root).each( function() {
+            $("ol :header, ul :header, li:header", root).each( function() {
                 notif.addMarker(this).activate();
             });
             return notif;
@@ -1122,7 +1353,7 @@ module.exports = [
                 }
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Mises en formes locales sur le titre",
@@ -1132,7 +1363,11 @@ module.exports = [
         type: "warning",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            $('#docTitle, #docTitle *', root).each( function() {
+            var $element = $('#docTitle, #docTitle *', root);
+            if ($element.length === 0) {
+                return false;
+            }
+            $element.each( function() {
                 if ($(this).attr("style")) {
                     notif.activate();
                     return false;
@@ -1268,7 +1503,7 @@ module.exports = [
         }			
     },
     {
-        name: "Vérifier les doublons",
+        name: "Vérifier les doublons d'index",
         id: 25,
         description: "Certaines entrées d'index sont peut-être des doublons. ",
         links: [
@@ -1322,11 +1557,9 @@ module.exports = [
             $('span.familyName', root).each( function () {
                 text = utils.latinize($(this).text().trim());
                 if (text === text.toUpperCase() || text.match(/[&!?)(*\/]/)) {
-
                     if (!context.classes.textes || $(this).is('#docAuthor *, #docTranslator *')) {
                         notif.addMarker(this).activate();
                     }
-
                 }
             });
             return notif;
@@ -1470,9 +1703,13 @@ module.exports = [
         links: ["L'ordre des métadonnées", "http://maisondesrevues.org/108"],
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            var element = $("#docTitle", root),
-                text = element.text().trim();
-            if (element.length === 0 || text === "" || text === "Document sans titre") {
+            var $element = $("#docTitle", root),
+                text;
+            if ($element.length === 0) {
+                return false;
+            }
+            text = $element.text().trim();
+            if (text === "" || text === "Document sans titre") {
                 notif.activate();
             }
             return notif;
@@ -1488,12 +1725,10 @@ module.exports = [
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
             $("a[href*='wikipedia']", root).each( function () {
-                
                 // Ne pas compter les notes marginales pour éviter les doublons.
                 if ($(this).parents(".sidenotes").length !== 0) {
                     return; // continue
                 }
-                
                 if ($(this).text().trim() !== decodeURIComponent($(this).attr("href").trim())) {
                     notif.addMarker(this).activate();
                 }
@@ -1511,7 +1746,7 @@ module.exports = [
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
             var url = "";
-            $("#main p a[href]:not(.footnotecall, .FootnoteSymbol, [href^=mailto])", root).each( function () {
+            $("p a[href]:not(.footnotecall, .FootnoteSymbol, [href^=mailto])", root).each( function () {
                 url = $(this).attr("href");
                 if (!utils.isValidUrl(url)) { 
                     notif.addMarker(this).activate();
@@ -1528,7 +1763,7 @@ module.exports = [
         labelPos: "after",
         condition: function(context) { return context.classes.numero; },
         action: function (notif, context, root) {
-            var element = $("#publiISBN").eq(0), 
+            var element = $("#publiISBN", root).eq(0), 
                 isbn;
             if (element.length !== 0) {
                 isbn = element.text().replace("ISBN", "");
@@ -1538,10 +1773,50 @@ module.exports = [
             }
             return notif;
         }			
+    },
+    {
+        name: "Absence de la métadonnée de langue",
+        id: 38,
+        description: "La langue de ce document ou de cette publication n'est pas correctement définie dans les métadonnées. Dans le cas d'une publication, la langue doit être sélectionnée dans le formulaire d'édition des métadonnées. Dans le cas d'un document, il faut styler la métadonnée “Langue” dans le document source.",
+        links: [
+            "Composition de la métadonnée “Langue”", "http://maisondesrevues.org/85",
+            "Ordre des métadonnées", "http://maisondesrevues.org/108"
+        ],
+        source: function (site, id) { return site + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
+        condition: function(context) { return context.classes.numero || context.classes.textes; },
+        action: function (notif, context, root) {
+            var $element = $("select#langue", root);
+            if ($element.length === 0) { // TODO: ça va bloquer quand on va passer au nouveau ME
+                return false;
+            }
+            if ($element.eq(0).val().trim() === "") {
+                notif.activate();
+            }
+            return notif;
+        }
+    },
+    {
+        name: "Fac-similé non PDF",
+        id: 39,
+        type: "danger",
+        description: "Le fichier attaché en tant que fac-similé n'est pas un document PDF. Le fac-similé doit obligatoirement être au format PDF.",
+        links: [
+            "Fac-similés PDF issus de la version papier", "http://maisondesrevues.org/612"
+        ],
+        source: function (site, id) { return site + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
+        action: function (notif, context, root) {
+            var $element = $("label[for='alterfichier'] ~ .oneItem > .imageKeepDelete > strong:eq(0)", root),
+                fileName = $element.length === 0 ? $element.eq(0).text() : undefined;
+            if ($element.length > 0 && typeof fileName === "string" && /\.pdf$/i.test(fileName) === false) {
+                notif.activate();
+            }
+            return notif;
+        }
     }//,
 
 ]; 
-},{"./utils.js":10}],9:[function(require,module,exports){
+},{"./utils.js":12}],11:[function(require,module,exports){
 /*
     Screlo - ui
     ==========
@@ -1552,6 +1827,7 @@ var ui = {},
     cmd = require("./commands.js"),
     globals = require("./globals.js"),
     utils = require("./utils.js"),
+    Loader = require("./Loader.js"),
     Checker = require("./Checker.js");
 
 function manageCss () {
@@ -1582,6 +1858,10 @@ function manageDom () {
 function manageEvents () {
     $( "[data-screlo-button='switch']" ).click(function( event ) {
         event.preventDefault();
+        if (!globals.admin) {
+            cmd.askForLogin();
+            return;
+        }
         cmd.toggleCache("active");
     });
     if (!globals.active) {
@@ -1672,13 +1952,16 @@ function manageToc () {
         somethingLoaded = fromCache(toc[i], $target);   
     }
     if (somethingLoaded) {
-        $("<li id='screlo-infocache' class='screlo-info'>Notifications chargées à partir du cache du navigateur. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-infos");
+        $("<li id='screlo-infocache' class='screlo-info'>Les notifications affichées dans la table des matières ont été chargées à partir du cache du navigateur. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-infos");
     }
 }
 
 function checkThisPage () {
     var chkr = new Checker();
-    chkr.toCache().show();
+    chkr.setLoading();
+    chkr.ready( function (chkr) {
+        chkr.toCache().unsetLoading().show();     
+    });
 }
 
 // Bookmarklet debugger (version light)
@@ -1714,7 +1997,7 @@ ui.init = function () {
 };
 
 module.exports = ui;
-},{"./Checker.js":1,"./commands.js":4,"./globals.js":5,"./utils.js":10}],10:[function(require,module,exports){
+},{"./Checker.js":1,"./Loader.js":2,"./commands.js":6,"./globals.js":7,"./utils.js":12}],12:[function(require,module,exports){
 /*
     Screlo - utils
     ==========
@@ -1723,14 +2006,11 @@ module.exports = ui;
 
 var utils = {};
 
-utils.pageId = function () {
-    return location.pathname.match(/(\d+)$/g);
-};
-
 utils.isNumber = function (n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
 };
 
+// TODO: il faudrait calculer ça une bonne fois pour toutes
 utils.getUrl = function (quoi) {
     var h = location.href,
         p = location.pathname,
@@ -1844,7 +2124,7 @@ utils.cache.clear = function (nomCourt) {
 };
 
 module.exports = utils;
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*
  * jQuery Highlight Regex Plugin v0.1.2
  *
@@ -1973,7 +2253,7 @@ module.exports = utils;
   }
 })( jQuery );
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /**
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2392,4 +2672,4 @@ module.exports = utils;
 
 }(window, document));
 
-},{}]},{},[6]);
+},{}]},{},[8]);

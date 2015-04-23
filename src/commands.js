@@ -29,23 +29,20 @@ cmd.about = function () {
 };
 
 cmd.ajax = function () {
-    
     function ajaxStart () {      
         $("#screlo-notifications #screlo-infocache").remove();
         $(".screlo-ajax-notifications").empty();
         $("body").addClass("loading");
-        $("#screlo-infocache").remove();   
-    }
-    
+        $("#screlo-infocache").remove();
+        $("[data-screlo-button='ajax']").hide();
+    } 
     function isDone (count) {
         return (count === toc.length);
-    }
-    
+    } 
     function ajaxEnd () {
         $("body").removeClass("loading");
         $(".complete").removeClass("complete");
     }
-    
     function doChecker (id) {
         var chkr = new Checker(id);
         chkr.target = "ul#relecture" + id;   
@@ -57,7 +54,6 @@ cmd.ajax = function () {
             }
         });   
     }
-
     var toc = globals.toc,
         doneCheckers = 0,
         id;  
@@ -96,6 +92,14 @@ cmd.cycle = function (id) {
             $(window).scrollTop(marqueurs[i]);
             break;
         }
+    }
+};
+
+cmd.askForLogin = function () {
+    var gotoLogin = confirm("Il est nécessaire d'être connecté à Lodel pour utiliser les outils de relecture. Souhaitez-vous vous connecter ?");
+    if (gotoLogin) {
+        utils.cache.set(globals.nomCourt, "active", true);
+        location.href = utils.getUrl("site") + "lodel/edition/login.php?url_retour=" + location.pathname;
     }
 };
 

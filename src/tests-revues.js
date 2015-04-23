@@ -1,17 +1,21 @@
 /*    
     Screlo - tests-revues
     ==========
-    name: (string) Nom du test affiché dans la Notification.
-    id: (string) Identifiant numérique unique du test.
-    description: (string) Message d'aide.
-    links: (array) Tableau contenant les liens vers la documentation de la maison des revues de la forme : ["Texte du lien 1", "URL 1", "Texte du lien 2", "URL 2", etc.]
-    type: (string) Le type de la Notification qui sera retournée ("danger", "warning", "print", "success").
-    label: (string) Nom du test affiché par les Marker générés par le test.
-    labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
-    condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
-    action: (function(notif, root)) La fonction qui exécute le test. Retourne notif.
-        Le paramètre notif est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
-        Le paramètre root est l'élément du DOM qui sert de contexte au test. On utilise $(selecteur, root) dans la fonction action(). Attention : seul le contenu de #content est importé lors du test en ajax. Il faut donc appliquer les tests sur $("#main", root) ou tout simplement $(root), mais pas plus haut dans le DOM sinon le test ne fonctionnera pas avec Ajax.
+    Définition des tests pour les revues. 
+    Les attributs disponibles sont :
+        * name: (string) Nom du test affiché dans la Notification.
+        * id: (string) Identifiant numérique unique du test.
+        * description: (string) Message d'aide.
+        * links: (array) Tableau contenant les liens vers la documentation de la maison des revues de la forme : ["Texte du lien 1", "URL 1", "Texte du lien 2", "URL 2", etc.]
+        * type: (string) Le type de la Notification qui sera retournée ("danger", "warning", "print", "success").
+        * label: (string) Nom du test affiché par les Marker générés par le test.
+        * labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
+        * source: (string ou function) l'url de la source des tests, qui est soit une string, soit une function(urlDuSite, idDuChecker) qui renvoit une string. Il est possible (et recommandé) de préciser un sélecteur à la fin de l'url, séparé par une espace, de la forme : "http://exemple.revues.org/lodel/edition/index.php?do=view&id=123 #mon-selecteur". Le sélecteur par défaut est "#main". 
+        Remarque importante : deux sources avec la même url mais deux sélecteurs différents produiront deux requêtes, il faut donc veiller à toujours employer le même sélecteur pour chaque url afin d'éviter les requêtes inutiles, quitte à utiliser un même sélecteur de plus haut niveau dans le DOM pour tous les tests. Par exemple pour l'espace d'édition on utilisera TOUJOURS "#lodel-container".
+        * condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
+        * action: (function(notif, root)) La fonction qui exécute le test. Retourne notif quand le test s'est correctement passé ou false pour notifier l'utilisateur d'une anomalie (par exemple des éléments qui n'ont pas été retrouvés dans la maquette alors qu'il auraient dû).
+            * Le paramètre 'notif' est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
+            * Le paramètre 'root' est l'élément du DOM qui sert de contexte au test. On utilise TOUJOURS $(selecteur, root) dans le corps de la fonction action(). Par défaut root = $("#main").
 */
 
 var utils = require("./utils.js");
@@ -25,7 +29,7 @@ module.exports = [
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
             var champAuteur = $('#docAuthor', root);
-            if(champAuteur.length === 0){
+            if (champAuteur.length === 0) {
                 notif.activate();
             }
             return notif;
@@ -37,9 +41,9 @@ module.exports = [
         description: "Aucun fac-similé n'est associé à ce document. Il est fortement recommandé de joindre aux documents un fac-similé PDF issu de la version imprimée lorsque c'est possible.",
         links: ["Fac-similés PDF issus de la version papier", "http://maisondesrevues.org/612"],
         type: "print",
-        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations },
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
-            if($('#wDownload.facsimile', root).length === 0){
+            if($('#wDownload.facsimile, #text > .text.facsimile > a', root).length === 0){
                 notif.activate();
             }
             return notif;
@@ -51,7 +55,7 @@ module.exports = [
         description: "La pagination de la version papier est absente des métadonnées ou n'est pas correctement stylée. Si le document existe en version imprimée il est fortement recommandé d'en préciser la pagination au format attendu.",
         links: ["Pagination", "http://maisondesrevues.org/86"],
         type: "print",
-        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations },
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
             if($('#docPagination', root).length === 0){
                 notif.name = "Pas de pagination";
@@ -63,7 +67,25 @@ module.exports = [
             return notif;
         }
     },
-    // NOTE: Test #4 "Pas de date de publication électronique" supprimé. Ce test doit être recodé.
+    {
+        // TODO: Checker aussi le format de la date + étendre aux deux types de dates + étendre aux textes
+        name: "Absence de la date de publication électronique",
+        id: 4,
+        description: "Ce numéro n'a pas de date de publication électronique. Il est indispensable d'ajouter cette information dans le formulaire d'édition des métadonnées du numéro.",
+        links: ["Dates de publication", "http://maisondesrevues.org/84"],
+        source: function (site, id) { return site + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
+        condition: function(context) { return context.classes.numero; },
+        action: function (notif, context, root) {
+            var $element = $("input#datepubli", root);
+            if ($element.length === 0) {
+                return false;
+            }
+            if ($element.val().trim() === "") {
+                notif.activate();
+            }
+            return notif;
+        }
+    },
     {	
         name: "Absence de référence de l'œuvre commentée",
         id: 5,
@@ -78,7 +100,7 @@ module.exports = [
         }
     },
     {
-        // NOTE: test obsolète (Lodel 0.9) à supprimer depuis OTX.
+        // NOTE: test obsolète (Lodel 0.9)
         name: "Utilisation de police(s) non Unicode",
         id: 6,
         description: "Ce document contient des polices non Unicode qui ne sont pas compatibles avec un affichage sur Internet. Il est nécessaire d'utiliser des polices respectant la norme Unicode dans ce document.",
@@ -89,7 +111,7 @@ module.exports = [
         label: "Police",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            var el = $('#main [style*="Symbol"], #main [style*="symbol"], #main [style*="Wingdings"], #main [style*="wingdings"], #main [style*="Webdings"], #main [style*="webdings"]', root);
+            var el = $('[style*="Symbol"], [style*="symbol"], [style*="Wingdings"], [style*="wingdings"], [style*="Webdings"], [style*="webdings"]', root);
             el.each(function() {
                 notif.addMarker(this).activate();
             });
@@ -363,7 +385,7 @@ module.exports = [
         description: "Un ou plusieurs intertitres du document sont contenus dans une liste. Cela est souvent dû à une correction automatique de Word lors de l'insertion d'intertitres numérotés. Il faut désactiver la mise en forme “Liste” sur les intertitres concernés.",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            $("#main ol :header, #main ul :header, #main li:header", root).each( function() {
+            $("ol :header, ul :header, li:header", root).each( function() {
                 notif.addMarker(this).activate();
             });
             return notif;
@@ -385,7 +407,7 @@ module.exports = [
                 }
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Mises en formes locales sur le titre",
@@ -395,7 +417,11 @@ module.exports = [
         type: "warning",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            $('#docTitle, #docTitle *', root).each( function() {
+            var $element = $('#docTitle, #docTitle *', root);
+            if ($element.length === 0) {
+                return false;
+            }
+            $element.each( function() {
                 if ($(this).attr("style")) {
                     notif.activate();
                     return false;
@@ -531,7 +557,7 @@ module.exports = [
         }			
     },
     {
-        name: "Vérifier les doublons",
+        name: "Vérifier les doublons d'index",
         id: 25,
         description: "Certaines entrées d'index sont peut-être des doublons. ",
         links: [
@@ -585,11 +611,9 @@ module.exports = [
             $('span.familyName', root).each( function () {
                 text = utils.latinize($(this).text().trim());
                 if (text === text.toUpperCase() || text.match(/[&!?)(*\/]/)) {
-
                     if (!context.classes.textes || $(this).is('#docAuthor *, #docTranslator *')) {
                         notif.addMarker(this).activate();
                     }
-
                 }
             });
             return notif;
@@ -733,9 +757,13 @@ module.exports = [
         links: ["L'ordre des métadonnées", "http://maisondesrevues.org/108"],
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            var element = $("#docTitle", root),
-                text = element.text().trim();
-            if (element.length === 0 || text === "" || text === "Document sans titre") {
+            var $element = $("#docTitle", root),
+                text;
+            if ($element.length === 0) {
+                return false;
+            }
+            text = $element.text().trim();
+            if (text === "" || text === "Document sans titre") {
                 notif.activate();
             }
             return notif;
@@ -751,12 +779,10 @@ module.exports = [
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
             $("a[href*='wikipedia']", root).each( function () {
-                
                 // Ne pas compter les notes marginales pour éviter les doublons.
                 if ($(this).parents(".sidenotes").length !== 0) {
                     return; // continue
                 }
-                
                 if ($(this).text().trim() !== decodeURIComponent($(this).attr("href").trim())) {
                     notif.addMarker(this).activate();
                 }
@@ -774,7 +800,7 @@ module.exports = [
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
             var url = "";
-            $("#main p a[href]:not(.footnotecall, .FootnoteSymbol, [href^=mailto])", root).each( function () {
+            $("p a[href]:not(.footnotecall, .FootnoteSymbol, [href^=mailto])", root).each( function () {
                 url = $(this).attr("href");
                 if (!utils.isValidUrl(url)) { 
                     notif.addMarker(this).activate();
@@ -791,7 +817,7 @@ module.exports = [
         labelPos: "after",
         condition: function(context) { return context.classes.numero; },
         action: function (notif, context, root) {
-            var element = $("#publiISBN").eq(0), 
+            var element = $("#publiISBN", root).eq(0), 
                 isbn;
             if (element.length !== 0) {
                 isbn = element.text().replace("ISBN", "");
@@ -801,6 +827,46 @@ module.exports = [
             }
             return notif;
         }			
+    },
+    {
+        name: "Absence de la métadonnée de langue",
+        id: 38,
+        description: "La langue de ce document ou de cette publication n'est pas correctement définie dans les métadonnées. Dans le cas d'une publication, la langue doit être sélectionnée dans le formulaire d'édition des métadonnées. Dans le cas d'un document, il faut styler la métadonnée “Langue” dans le document source.",
+        links: [
+            "Composition de la métadonnée “Langue”", "http://maisondesrevues.org/85",
+            "Ordre des métadonnées", "http://maisondesrevues.org/108"
+        ],
+        source: function (site, id) { return site + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
+        condition: function(context) { return context.classes.numero || context.classes.textes; },
+        action: function (notif, context, root) {
+            var $element = $("select#langue", root);
+            if ($element.length === 0) { // TODO: ça va bloquer quand on va passer au nouveau ME
+                return false;
+            }
+            if ($element.eq(0).val().trim() === "") {
+                notif.activate();
+            }
+            return notif;
+        }
+    },
+    {
+        name: "Fac-similé non PDF",
+        id: 39,
+        type: "danger",
+        description: "Le fichier attaché en tant que fac-similé n'est pas un document PDF. Le fac-similé doit obligatoirement être au format PDF.",
+        links: [
+            "Fac-similés PDF issus de la version papier", "http://maisondesrevues.org/612"
+        ],
+        source: function (site, id) { return site + "lodel/edition/index.php?do=view&id=" + id + " #lodel-container";},
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
+        action: function (notif, context, root) {
+            var $element = $("label[for='alterfichier'] ~ .oneItem > .imageKeepDelete > strong:eq(0)", root),
+                fileName = $element.length === 0 ? $element.eq(0).text() : undefined;
+            if ($element.length > 0 && typeof fileName === "string" && /\.pdf$/i.test(fileName) === false) {
+                notif.activate();
+            }
+            return notif;
+        }
     }//,
 
 ]; 

@@ -133,6 +133,11 @@ module.exports = function(grunt) {
             }
         },
         browserify: {
+            options: {
+                browserifyOptions: {
+                    debug: false // Impossible pour l'instant
+                }
+            },
             main: {
                 src: '.tmp/main.js',
                 dest: '.tmp/bundle.js'

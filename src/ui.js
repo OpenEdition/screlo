@@ -8,6 +8,7 @@ var ui = {},
     cmd = require("./commands.js"),
     globals = require("./globals.js"),
     utils = require("./utils.js"),
+    Loader = require("./Loader.js"),
     Checker = require("./Checker.js");
 
 function manageCss () {
@@ -38,6 +39,10 @@ function manageDom () {
 function manageEvents () {
     $( "[data-screlo-button='switch']" ).click(function( event ) {
         event.preventDefault();
+        if (!globals.admin) {
+            cmd.askForLogin();
+            return;
+        }
         cmd.toggleCache("active");
     });
     if (!globals.active) {
@@ -128,13 +133,16 @@ function manageToc () {
         somethingLoaded = fromCache(toc[i], $target);   
     }
     if (somethingLoaded) {
-        $("<li id='screlo-infocache' class='screlo-info'>Notifications chargées à partir du cache du navigateur. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-infos");
+        $("<li id='screlo-infocache' class='screlo-info'>Les notifications affichées dans la table des matières ont été chargées à partir du cache du navigateur. <a href='#'>Mettre à jour.</a></li>").appendTo("#screlo-infos");
     }
 }
 
 function checkThisPage () {
     var chkr = new Checker();
-    chkr.toCache().show();
+    chkr.setLoading();
+    chkr.ready( function (chkr) {
+        chkr.toCache().unsetLoading().show();     
+    });
 }
 
 // Bookmarklet debugger (version light)
