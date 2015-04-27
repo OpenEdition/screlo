@@ -697,8 +697,8 @@ globals.version = "15.4.0";
 globals.schema =  "15.4.0d"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
 globals.appUrls = {
-    base: "https://rawgit.com/brrd/screlo/master/",
-    stylesheet: "https://rawgit.com/brrd/screlo/master/" + "dist/screlo.css",
+    base: "http://localhost/screlo/",
+    stylesheet: "http://localhost/screlo/" + "dist/screlo.css",
     update: "https://github.com/brrd/screlo/raw/master/dist/screlo.user.js",
     homepage: "https://github.com/brrd/screlo",
     doc: "https://github.com/brrd/screlo" + "/tree/master/docs"
@@ -1809,6 +1809,19 @@ module.exports = [
             var $element = $("label[for='alterfichier'] ~ .oneItem > .imageKeepDelete > strong:eq(0)", root),
                 fileName = $element.length === 0 ? $element.eq(0).text() : undefined;
             if ($element.length > 0 && typeof fileName === "string" && /\.pdf$/i.test(fileName) === false) {
+                notif.activate();
+            }
+            return notif;
+        }
+    }, 
+    {
+        name: "Absence de la numérotation",
+        id: 40,
+        description: "La numérotation du numéro n'est pas définie. Il faut compléter cette métadonnée dans le formulaire d'édition du numéro.",
+        condition: function(context) { return context.classes.numero; },
+        action: function (notif, context, root) {
+            var champNumero = $('#publiTitle .number', root);
+            if (champNumero.length === 0) {
                 notif.activate();
             }
             return notif;

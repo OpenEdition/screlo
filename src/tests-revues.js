@@ -867,6 +867,19 @@ module.exports = [
             }
             return notif;
         }
+    }, 
+    {
+        name: "Absence de la numérotation",
+        id: 40,
+        description: "La numérotation du numéro n'est pas définie. Il faut compléter cette métadonnée dans le formulaire d'édition du numéro.",
+        condition: function(context) { return context.classes.numero; },
+        action: function (notif, context, root) {
+            var champNumero = $('#publiTitle .number', root);
+            if (champNumero.length === 0) {
+                notif.activate();
+            }
+            return notif;
+        }
     }//,
 
 ]; 
