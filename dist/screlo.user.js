@@ -12,10 +12,10 @@
 /*
     Screlo - Checker
     ==========
-    Cet objet est associé à un document unique (ie il faut créer un checker par document à vérifier). 
+    Cet objet est associé à un document unique (ie il faut créer un checker par document à vérifier).
     Il peut être généré de plusieurs façons :
         1. new Checker() : calcul automatique au chargement du document.
-        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document ou une url.     
+        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document ou une url.
         3. new Checker(notifications) : où notifications est un array contenant des notifications. Dans ce cas les attributs root et context ne sont pas définis et les tests ne sont pas exécutés. C'est cette construction qui est utilisée pour afficher des notifications depuis le cache (localStorage).
     La méthode checker.ready(callback) permet d'appeler une fonction quand le checker a terminé le chargement des sources et l'exécution des tests. Linstance de Checker est passé en unique paramètre du callback. Les deux méthodes suivantes peuvent alors être appelées :
         * La méthode checker.show() permet l'affichage dans l'élément ciblé par le sélecteur checker.target
@@ -38,19 +38,23 @@ function Checker (arg) {
     this.sources = [];
     this.numberOfTests = 0;
     this.exceptions = [];
-    
+
     // Si arg est un Array, il s'agit de notifications à charger (généralement depuis le cache). On ne procède alors à aucun test.
     if (typeof arg === "object" && arg.numberOfTests !== "undefined" && utils.isNumber(arg.numberOfTests) && arg.notifications && typeof arg.notifications === "object") {
         this.numberOfTests = arg.numberOfTests || 0;
         this.exceptions = arg.exceptions || [];
         this.pushNotifications(arg.notifications);
         return;
-    }         
-    
+    }
+
     // Sinon on lance les tests
     // 1. On charge le document
     var that = this;
     Loader.load(this.id, function (mainCheckerSource) {
+        if (mainCheckerSource.isError) {
+            that.isReady = true;
+            return;
+        }
         // 2. On récupère le contexte qui déterminera les tests à exécuter
         var classes = mainCheckerSource.bodyClasses;
         that.setContext(classes);
@@ -72,7 +76,7 @@ function Checker (arg) {
                 that.isReady = true;
             });
         });
-    });  
+    });
 }
 
 Checker.prototype.pushNotifications = function (notif) {
@@ -96,7 +100,7 @@ Checker.prototype.addSource = function (source) {
     return true;
 };
 
-Checker.prototype.setContext = function (classes) {       
+Checker.prototype.setContext = function (classes) {
     for ( var i=0; i < classes.length; i++ ) {
         this.context.classes[classes[i]] = true;
     }
@@ -119,7 +123,7 @@ Checker.prototype.process = function (callback) {
         sourceId,
         source,
         root,
-        notif, 
+        notif,
         res,
         injectMarker = function (marker) {
             marker.inject();
@@ -138,11 +142,11 @@ Checker.prototype.process = function (callback) {
         if (source.isError) {
             this.exceptions.push("Source " + sourceId);
             continue;
-        } 
+        }
         root = source.root;
         notif = new Notification(thisTest, root);
         res = thisTest.action(notif, this.context, root); // NOTE: les deux derniers arguments sont déjà dans notif (je crois). Il serait mieux de ne pas les repasser encore.
-        if (!res || !res instanceof Notification) { // Si le test ne renvoit pas une notification alors il est ignoré et l'utilisateur en est averti. Permet de notifier des anomalies en renvoyant false, par exemple quand un élément n'est pas trouvé dans la page alors qu'il devrait y être.
+        if (!res || !(res instanceof Notification)) { // Si le test ne renvoit pas une notification alors il est ignoré et l'utilisateur en est averti. Permet de notifier des anomalies en renvoyant false, par exemple quand un élément n'est pas trouvé dans la page alors qu'il devrait y être.
             this.exceptions.push("Test #" + notif.id);
             continue;
         }
@@ -159,13 +163,13 @@ Checker.prototype.process = function (callback) {
     }
 };
 
-Checker.prototype.ready = function (callback) { 
+Checker.prototype.ready = function (callback) {
     var that = this,
         checkIfReady = function () {
             if (that.isReady) {
                 callback(that);
                 return;
-            } else {    
+            } else {
                 setTimeout(checkIfReady, 1000);
             }
         };
@@ -196,7 +200,7 @@ Checker.prototype.filterNotifications = function () {
         }
         return res;
     }
-    var notifications = this.notifications, 
+    var notifications = this.notifications,
         notificationsToShow = globals.paper ? notifications : filterPrint(notifications);
     if (notificationsToShow.length === 0 && this.numberOfTests > 0 && (this.context.classes.textes || !this.isDisplayedDocument)) { // NOTE: On n'affiche pas le message de succès sur la table des matières pour éviter la confusion entre relecture des métadonnées de la publication et relecture de ses documents.
         var successMessage = new Notification({
@@ -261,11 +265,12 @@ Checker.prototype.toCache = function () {
         value.notifications = this.notifications.map(function (notification) {
             return notification.export();
         });
-    utils.cache.set(nomCourt, id, value);  
+    utils.cache.set(nomCourt, id, value);
     return this;
 };
 
 module.exports = Checker;
+
 },{"./Notification.js":4,"./globals.js":7,"./tests-revues.js":10,"./utils.js":12}],2:[function(require,module,exports){
 /*
     Screlo - Loader
