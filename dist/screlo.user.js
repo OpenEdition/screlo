@@ -2,12 +2,13 @@
 // @name        screlo
 // @description Script de relecture pour Lodel
 // @namespace   http://revues.org/
-// @include     /http:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/(?!(lodel))/
-// @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z0-9-]+\/(?!(lodel))/
+// @include     /http:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/+(?!(\/*lodel))/
+// @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/+[0-9]{2}\/+[a-z0-9-]+\/+(?!(\/*lodel))/
 // @version     15.4.0
 // @updateURL	https://github.com/brrd/screlo/raw/master/dist/screlo.user.js
 // @grant       none
 // ==/UserScript==
+
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /*
     Screlo - Checker
@@ -919,7 +920,7 @@ function setHotkeys () {
                 location.href = screloPlus.nav.goContents;
             } else if (e.which === plusChar && screloPlus.nav.randomPage) {
                 e.preventDefault();
-                location.href = screloPlus.nav.randomPage ;
+                location.href = screloPlus.nav.randomPage;
             } else if (e.which >= 97 && e.which <= 105) {
                 $('#screlo-plus').show();
                 $('#screlo-plus-goto').focus();

@@ -2,8 +2,8 @@
 // @name        screlo
 // @description <!-- @echo DESCRIPTION -->
 // @namespace   http://revues.org/
-// @include     /http:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/(?!(lodel))/
-// @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z0-9-]+\/(?!(lodel))/
+// @include     /http:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/+(?!(\/*lodel))/
+// @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/+[0-9]{2}\/+[a-z0-9-]+\/+(?!(\/*lodel))/
 // @version     <!-- @echo VERSION -->
 // @updateURL	<!-- @echo UPDATE -->
 // @grant       none
