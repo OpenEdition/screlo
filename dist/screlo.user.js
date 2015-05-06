@@ -2,20 +2,21 @@
 // @name        screlo
 // @description Script de relecture pour Lodel
 // @namespace   http://revues.org/
-// @include     /http:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/(?!(lodel))/
-// @include     /http:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/[0-9]{2}\/[a-z0-9-]+\/(?!(lodel))/
-// @version     15.4.0
+// @include     /https?:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/+(?!(\/*lodel))/
+// @include     /https?:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/+[0-9]{2}\/+[a-z0-9-]+\/+(?!(\/*lodel))/
+// @version     15.5.0
 // @updateURL	https://github.com/brrd/screlo/raw/master/dist/screlo.user.js
 // @grant       none
 // ==/UserScript==
+
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /*
     Screlo - Checker
     ==========
-    Cet objet est associé à un document unique (ie il faut créer un checker par document à vérifier). 
+    Cet objet est associé à un document unique (ie il faut créer un checker par document à vérifier).
     Il peut être généré de plusieurs façons :
         1. new Checker() : calcul automatique au chargement du document.
-        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document ou une url.     
+        2. new Checker(id) : requête ajax où id est l'identifiant numérique du document ou une url.
         3. new Checker(notifications) : où notifications est un array contenant des notifications. Dans ce cas les attributs root et context ne sont pas définis et les tests ne sont pas exécutés. C'est cette construction qui est utilisée pour afficher des notifications depuis le cache (localStorage).
     La méthode checker.ready(callback) permet d'appeler une fonction quand le checker a terminé le chargement des sources et l'exécution des tests. Linstance de Checker est passé en unique paramètre du callback. Les deux méthodes suivantes peuvent alors être appelées :
         * La méthode checker.show() permet l'affichage dans l'élément ciblé par le sélecteur checker.target
@@ -38,19 +39,23 @@ function Checker (arg) {
     this.sources = [];
     this.numberOfTests = 0;
     this.exceptions = [];
-    
+
     // Si arg est un Array, il s'agit de notifications à charger (généralement depuis le cache). On ne procède alors à aucun test.
     if (typeof arg === "object" && arg.numberOfTests !== "undefined" && utils.isNumber(arg.numberOfTests) && arg.notifications && typeof arg.notifications === "object") {
         this.numberOfTests = arg.numberOfTests || 0;
         this.exceptions = arg.exceptions || [];
         this.pushNotifications(arg.notifications);
         return;
-    }         
-    
+    }
+
     // Sinon on lance les tests
     // 1. On charge le document
     var that = this;
     Loader.load(this.id, function (mainCheckerSource) {
+        if (mainCheckerSource.isError) {
+            that.isReady = true;
+            return;
+        }
         // 2. On récupère le contexte qui déterminera les tests à exécuter
         var classes = mainCheckerSource.bodyClasses;
         that.setContext(classes);
@@ -72,7 +77,7 @@ function Checker (arg) {
                 that.isReady = true;
             });
         });
-    });  
+    });
 }
 
 Checker.prototype.pushNotifications = function (notif) {
@@ -96,7 +101,7 @@ Checker.prototype.addSource = function (source) {
     return true;
 };
 
-Checker.prototype.setContext = function (classes) {       
+Checker.prototype.setContext = function (classes) {
     for ( var i=0; i < classes.length; i++ ) {
         this.context.classes[classes[i]] = true;
     }
@@ -119,7 +124,7 @@ Checker.prototype.process = function (callback) {
         sourceId,
         source,
         root,
-        notif, 
+        notif,
         res,
         injectMarker = function (marker) {
             marker.inject();
@@ -138,11 +143,11 @@ Checker.prototype.process = function (callback) {
         if (source.isError) {
             this.exceptions.push("Source " + sourceId);
             continue;
-        } 
+        }
         root = source.root;
         notif = new Notification(thisTest, root);
         res = thisTest.action(notif, this.context, root); // NOTE: les deux derniers arguments sont déjà dans notif (je crois). Il serait mieux de ne pas les repasser encore.
-        if (!res || !res instanceof Notification) { // Si le test ne renvoit pas une notification alors il est ignoré et l'utilisateur en est averti. Permet de notifier des anomalies en renvoyant false, par exemple quand un élément n'est pas trouvé dans la page alors qu'il devrait y être.
+        if (!res || !(res instanceof Notification)) { // Si le test ne renvoit pas une notification alors il est ignoré et l'utilisateur en est averti. Permet de notifier des anomalies en renvoyant false, par exemple quand un élément n'est pas trouvé dans la page alors qu'il devrait y être.
             this.exceptions.push("Test #" + notif.id);
             continue;
         }
@@ -159,13 +164,13 @@ Checker.prototype.process = function (callback) {
     }
 };
 
-Checker.prototype.ready = function (callback) { 
+Checker.prototype.ready = function (callback) {
     var that = this,
         checkIfReady = function () {
             if (that.isReady) {
                 callback(that);
                 return;
-            } else {    
+            } else {
                 setTimeout(checkIfReady, 1000);
             }
         };
@@ -196,7 +201,7 @@ Checker.prototype.filterNotifications = function () {
         }
         return res;
     }
-    var notifications = this.notifications, 
+    var notifications = this.notifications,
         notificationsToShow = globals.paper ? notifications : filterPrint(notifications);
     if (notificationsToShow.length === 0 && this.numberOfTests > 0 && (this.context.classes.textes || !this.isDisplayedDocument)) { // NOTE: On n'affiche pas le message de succès sur la table des matières pour éviter la confusion entre relecture des métadonnées de la publication et relecture de ses documents.
         var successMessage = new Notification({
@@ -261,11 +266,12 @@ Checker.prototype.toCache = function () {
         value.notifications = this.notifications.map(function (notification) {
             return notification.export();
         });
-    utils.cache.set(nomCourt, id, value);  
+    utils.cache.set(nomCourt, id, value);
     return this;
 };
 
 module.exports = Checker;
+
 },{"./Notification.js":4,"./globals.js":7,"./tests-revues.js":10,"./utils.js":12}],2:[function(require,module,exports){
 /*
     Screlo - Loader
@@ -692,7 +698,7 @@ var globals = {},
     utils = require("./utils.js"),
     tests = require("./tests-revues.js"); 
 
-globals.version = "15.4.0";
+globals.version = "15.5.0";
 
 globals.schema =  "15.4.0d"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
@@ -843,7 +849,7 @@ if (!window.jQuery) {
 /*
     ScreloPlus
     ==========
-    Améliorations diverses de la Lodelia et outils supplémentaires. 
+    Améliorations diverses de la Lodelia et outils supplémentaires.
     Fonctions indépendantes disponibles uniquement dans l'userscript.
 */
 
@@ -867,11 +873,13 @@ function fixNav () {
                     $('.navEntities a.goPrev, .navEntities a.goNext').remove();
                     if (i !== 0) {
                         addNav('goPrev', toc[i-1]);
-                    } 
+                    }
                     if (i+1 !== toc.length) {
                         addNav('goNext', toc[i+1]);
                     }
                     $('<span></span>').css({'float': 'left', 'margin': '2px 5px'}).text(Number(i+1) + '/' + Number(toc.length)).prependTo('.navEntities');
+                    // Sélectionner une entrée au hasard (pour les sondages)
+                    screloPlus.nav.randomPage = toc[Math.floor(Math.random()*toc.length)];
                 }
             });
     }
@@ -885,7 +893,7 @@ function sourceDepuisToc () {
         if (id !== undefined) {
             $(this).append('<a href="' + href + '"> Ⓦ</a>');
         }
-    });    
+    });
 }
 
 // Raccourcis clavier
@@ -898,6 +906,7 @@ function setHotkeys () {
         var slashChar = 111,
             starChar = 106,
             minusChar = 109,
+            plusChar = 107,
             escChar = 27;
         if (document.activeElement === null || document.activeElement === document.body) {
             if (e.which === starChar && screloPlus.nav.goPrev) {
@@ -909,6 +918,9 @@ function setHotkeys () {
             } else if (e.which === slashChar && screloPlus.nav.goContents) {
                 e.preventDefault();
                 location.href = screloPlus.nav.goContents;
+            } else if (e.which === plusChar && screloPlus.nav.randomPage) {
+                e.preventDefault();
+                location.href = screloPlus.nav.randomPage;
             } else if (e.which >= 97 && e.which <= 105) {
                 $('#screlo-plus').show();
                 $('#screlo-plus-goto').focus();
@@ -943,6 +955,7 @@ function init () {
 }
 
 module.exports = { init: init };
+
 },{}],10:[function(require,module,exports){
 /*    
     Screlo - tests-revues
@@ -1809,6 +1822,19 @@ module.exports = [
             var $element = $("label[for='alterfichier'] ~ .oneItem > .imageKeepDelete > strong:eq(0)", root),
                 fileName = $element.length === 0 ? $element.eq(0).text() : undefined;
             if ($element.length > 0 && typeof fileName === "string" && /\.pdf$/i.test(fileName) === false) {
+                notif.activate();
+            }
+            return notif;
+        }
+    }, 
+    {
+        name: "Absence de la numérotation",
+        id: 40,
+        description: "La numérotation du numéro n'est pas définie. Il faut compléter cette métadonnée dans le formulaire d'édition du numéro.",
+        condition: function(context) { return context.classes.numero; },
+        action: function (notif, context, root) {
+            var champNumero = $('#publiTitle .number', root);
+            if (champNumero.length === 0) {
                 notif.activate();
             }
             return notif;

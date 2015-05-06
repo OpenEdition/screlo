@@ -1,7 +1,7 @@
 /*
     ScreloPlus
     ==========
-    Améliorations diverses de la Lodelia et outils supplémentaires. 
+    Améliorations diverses de la Lodelia et outils supplémentaires.
     Fonctions indépendantes disponibles uniquement dans l'userscript.
 */
 
@@ -25,11 +25,13 @@ function fixNav () {
                     $('.navEntities a.goPrev, .navEntities a.goNext').remove();
                     if (i !== 0) {
                         addNav('goPrev', toc[i-1]);
-                    } 
+                    }
                     if (i+1 !== toc.length) {
                         addNav('goNext', toc[i+1]);
                     }
                     $('<span></span>').css({'float': 'left', 'margin': '2px 5px'}).text(Number(i+1) + '/' + Number(toc.length)).prependTo('.navEntities');
+                    // Sélectionner une entrée au hasard (pour les sondages)
+                    screloPlus.nav.randomPage = toc[Math.floor(Math.random()*toc.length)];
                 }
             });
     }
@@ -43,7 +45,7 @@ function sourceDepuisToc () {
         if (id !== undefined) {
             $(this).append('<a href="' + href + '"> Ⓦ</a>');
         }
-    });    
+    });
 }
 
 // Raccourcis clavier
@@ -56,6 +58,7 @@ function setHotkeys () {
         var slashChar = 111,
             starChar = 106,
             minusChar = 109,
+            plusChar = 107,
             escChar = 27;
         if (document.activeElement === null || document.activeElement === document.body) {
             if (e.which === starChar && screloPlus.nav.goPrev) {
@@ -67,6 +70,9 @@ function setHotkeys () {
             } else if (e.which === slashChar && screloPlus.nav.goContents) {
                 e.preventDefault();
                 location.href = screloPlus.nav.goContents;
+            } else if (e.which === plusChar && screloPlus.nav.randomPage) {
+                e.preventDefault();
+                location.href = screloPlus.nav.randomPage;
             } else if (e.which >= 97 && e.which <= 105) {
                 $('#screlo-plus').show();
                 $('#screlo-plus-goto').focus();
