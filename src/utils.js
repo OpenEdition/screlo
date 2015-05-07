@@ -18,17 +18,17 @@ utils.getUrl = function (quoi) {
         b = p.match(/(\d+)$/g),
         parent = $("#breadcrumb #crumbs a:last").attr('href');
     if (quoi === "doc") {
-        h = 'http://' + window.location.host + a + 'lodel/edition/index.php?do=download&type=source&id=' + b;
+        h = window.location.protocol + '//' + window.location.host + a + 'lodel/edition/index.php?do=download&type=source&id=' + b;
     } else if (quoi === "otx") {
-        h = 'http://' + window.location.host + a + 'lodel/edition/oochargement.php?identity=' + b + '&idparent=' + parent + '&reload=1';
+        h = window.location.protocol + '//' + window.location.host + a + 'lodel/edition/oochargement.php?identity=' + b + '&idparent=' + parent + '&reload=1';
     } else if (quoi === "editer") {
-        h = 'http://' + window.location.host + a + 'lodel/edition/index.php?do=view&id=' + b;
+        h = window.location.protocol + '//' + window.location.host + a + 'lodel/edition/index.php?do=view&id=' + b;
     } else if (quoi === "site") {
-        h = 'http://' + window.location.host + a;
+        h = window.location.protocol + '//' + window.location.host + a;
     } else if (typeof quoi === 'string') {
-        h = 'http://' + window.location.host + a + quoi;   
+        h = window.location.protocol + '//' + window.location.host + a + quoi;   
     }
-    return h;   
+    return h;
 };
 
 // Suppression des accents pour trouver les doublons de mots-clés
@@ -80,7 +80,7 @@ utils.getPText = function ($p) {
 
 // Récupérer la toc (retourne un tableau d'objets à deux attributs .id et .$element)
 utils.getToc = function () {
-    var urls = [],                
+    var urls = [],
         tocElements = $('ul.summary li.textes .title'), // TODO: selecteur egalement utilise dans globals.isPublication. Il faudrait que tous ces sélecteurs soient définis dans globals pour une adaptation plus simple à Books par la suite.
         toc = [];
     tocElements.each( function() {
@@ -104,7 +104,7 @@ utils.cache.get = function (nomCourt, id) {
     }
     var key = "screlo-" + nomCourt + "-" + id;
     return JSON.parse(localStorage.getItem(key));
-};          
+};
 
 utils.cache.set = function (nomCourt, id, value) {
     if (!id || !nomCourt) {
@@ -112,7 +112,7 @@ utils.cache.set = function (nomCourt, id, value) {
     }
     var key = "screlo-" + nomCourt + "-" + id;
     localStorage.setItem(key, JSON.stringify(value));
-};      
+};
 
 utils.cache.clear = function (nomCourt) {
     var regex = new RegExp("^screlo-" + nomCourt + "-");
