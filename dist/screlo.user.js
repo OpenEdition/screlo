@@ -4,7 +4,7 @@
 // @namespace   http://revues.org/
 // @include     /https?:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/+(?!(\/*lodel))/
 // @include     /https?:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/+[0-9]{2}\/+[a-z0-9-]+\/+(?!(\/*lodel))/
-// @version     15.5.0
+// @version     15.5.1
 // @updateURL	https://github.com/brrd/screlo/raw/master/dist/screlo.user.js
 // @grant       none
 // ==/UserScript==
@@ -698,7 +698,7 @@ var globals = {},
     utils = require("./utils.js"),
     tests = require("./tests-revues.js"); 
 
-globals.version = "15.5.0";
+globals.version = "15.5.1";
 
 globals.schema =  "15.4.0d"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
@@ -2044,17 +2044,17 @@ utils.getUrl = function (quoi) {
         b = p.match(/(\d+)$/g),
         parent = $("#breadcrumb #crumbs a:last").attr('href');
     if (quoi === "doc") {
-        h = 'http://' + window.location.host + a + 'lodel/edition/index.php?do=download&type=source&id=' + b;
+        h = window.location.protocol + '//' + window.location.host + a + 'lodel/edition/index.php?do=download&type=source&id=' + b;
     } else if (quoi === "otx") {
-        h = 'http://' + window.location.host + a + 'lodel/edition/oochargement.php?identity=' + b + '&idparent=' + parent + '&reload=1';
+        h = window.location.protocol + '//' + window.location.host + a + 'lodel/edition/oochargement.php?identity=' + b + '&idparent=' + parent + '&reload=1';
     } else if (quoi === "editer") {
-        h = 'http://' + window.location.host + a + 'lodel/edition/index.php?do=view&id=' + b;
+        h = window.location.protocol + '//' + window.location.host + a + 'lodel/edition/index.php?do=view&id=' + b;
     } else if (quoi === "site") {
-        h = 'http://' + window.location.host + a;
+        h = window.location.protocol + '//' + window.location.host + a;
     } else if (typeof quoi === 'string') {
-        h = 'http://' + window.location.host + a + quoi;   
+        h = window.location.protocol + '//' + window.location.host + a + quoi;   
     }
-    return h;   
+    return h;
 };
 
 // Suppression des accents pour trouver les doublons de mots-clés
@@ -2106,7 +2106,7 @@ utils.getPText = function ($p) {
 
 // Récupérer la toc (retourne un tableau d'objets à deux attributs .id et .$element)
 utils.getToc = function () {
-    var urls = [],                
+    var urls = [],
         tocElements = $('ul.summary li.textes .title'), // TODO: selecteur egalement utilise dans globals.isPublication. Il faudrait que tous ces sélecteurs soient définis dans globals pour une adaptation plus simple à Books par la suite.
         toc = [];
     tocElements.each( function() {
@@ -2130,7 +2130,7 @@ utils.cache.get = function (nomCourt, id) {
     }
     var key = "screlo-" + nomCourt + "-" + id;
     return JSON.parse(localStorage.getItem(key));
-};          
+};
 
 utils.cache.set = function (nomCourt, id, value) {
     if (!id || !nomCourt) {
@@ -2138,7 +2138,7 @@ utils.cache.set = function (nomCourt, id, value) {
     }
     var key = "screlo-" + nomCourt + "-" + id;
     localStorage.setItem(key, JSON.stringify(value));
-};      
+};
 
 utils.cache.clear = function (nomCourt) {
     var regex = new RegExp("^screlo-" + nomCourt + "-");
@@ -2150,6 +2150,7 @@ utils.cache.clear = function (nomCourt) {
 };
 
 module.exports = utils;
+
 },{}],13:[function(require,module,exports){
 /*
  * jQuery Highlight Regex Plugin v0.1.2
