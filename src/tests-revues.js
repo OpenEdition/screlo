@@ -28,7 +28,7 @@ module.exports = [
         links: ["Utilisation de la métadonnée auteur", "http://maisondesrevues.org/80"],
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
-            var flag = $('#docTitle .footnotecall', root).length !== 0;
+            var flag = $('#docAuthor', root).length !== 0;
             return notif.activate(flag);
         }
     },
