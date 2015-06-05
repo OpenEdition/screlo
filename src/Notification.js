@@ -4,7 +4,7 @@
     Cet objet est passé en paramètre pour chaque test, avec des propriétés héritées de la définition du test. On peut alors utiliser les méthodes suivantes :
     * Notification.addMarker(element) permet d'ajouter un Marker à "element". Le Marker prend les propriétés de la Notification.
     * Notification.addMarkersFromRegex(element, $parent) ajoute un Marker à chaque string qui correspond à "regex" dans l'élément $parent.
-    * Notification.activate() permet d'activer la Notification (elle sera affichée). Il est nécessaire d'activer la Notification (même quand elle possède des Markers). On peut faire : Notification.addMarker(element).activate()
+    * Notification.activate(?flag) permet d'activer la Notification (elle sera affichée). Il est nécessaire d'activer la Notification (même quand elle possède des Markers). On peut faire : Notification.addMarker(element).activate(). La parametre flag est optionnel, c'est un bool qui détermine l'activation.
 */
 
 var Marker = require("./Marker.js"),
@@ -66,7 +66,7 @@ Notification.prototype.addMarkersFromRegex = function (regex, $parent) {
     $parent = $parent || this.root;
     $parent = !($parent instanceof jQuery) ? $($parent) : $parent;
     if (!$parent) {
-        console.error("Notification.root n'existe pas");   
+        console.error("Notification.root n'existe pas");
         return false;
     }
     // En cas d'exécution Ajax seul le nombre d'erreurs nous intéresse
@@ -80,7 +80,7 @@ Notification.prototype.addMarkersFromRegex = function (regex, $parent) {
         className: 'screlo-regexmarker'
     });
     $("span.screlo-regexmarker").each( function() {
-        _this.addMarker(this);  
+        _this.addMarker(this);
     });
     return this;
 };
@@ -95,8 +95,8 @@ Notification.prototype.export = function () {
     };
 };
 
-Notification.prototype.activate = function () {
-    this.active = true;
+Notification.prototype.activate = function (flag) {
+    this.active = flag !== undefined ? flag : true;
     return this;
 };
 

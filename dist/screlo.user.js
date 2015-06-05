@@ -389,7 +389,7 @@ module.exports = Marker;
     Cet objet est passé en paramètre pour chaque test, avec des propriétés héritées de la définition du test. On peut alors utiliser les méthodes suivantes :
     * Notification.addMarker(element) permet d'ajouter un Marker à "element". Le Marker prend les propriétés de la Notification.
     * Notification.addMarkersFromRegex(element, $parent) ajoute un Marker à chaque string qui correspond à "regex" dans l'élément $parent.
-    * Notification.activate() permet d'activer la Notification (elle sera affichée). Il est nécessaire d'activer la Notification (même quand elle possède des Markers). On peut faire : Notification.addMarker(element).activate()
+    * Notification.activate(?flag) permet d'activer la Notification (elle sera affichée). Il est nécessaire d'activer la Notification (même quand elle possède des Markers). On peut faire : Notification.addMarker(element).activate(). La parametre flag est optionnel, c'est un bool qui détermine l'activation.
 */
 
 var Marker = require("./Marker.js"),
@@ -451,7 +451,7 @@ Notification.prototype.addMarkersFromRegex = function (regex, $parent) {
     $parent = $parent || this.root;
     $parent = !($parent instanceof jQuery) ? $($parent) : $parent;
     if (!$parent) {
-        console.error("Notification.root n'existe pas");   
+        console.error("Notification.root n'existe pas");
         return false;
     }
     // En cas d'exécution Ajax seul le nombre d'erreurs nous intéresse
@@ -465,7 +465,7 @@ Notification.prototype.addMarkersFromRegex = function (regex, $parent) {
         className: 'screlo-regexmarker'
     });
     $("span.screlo-regexmarker").each( function() {
-        _this.addMarker(this);  
+        _this.addMarker(this);
     });
     return this;
 };
@@ -480,12 +480,13 @@ Notification.prototype.export = function () {
     };
 };
 
-Notification.prototype.activate = function () {
-    this.active = true;
+Notification.prototype.activate = function (flag) {
+    this.active = flag !== undefined ? flag : true;
     return this;
 };
 
 module.exports = Notification;
+
 },{"./Marker.js":3,"./globals.js":7}],5:[function(require,module,exports){
 /*
     Screlo - Source
@@ -703,8 +704,8 @@ globals.version = "15.5.1";
 globals.schema =  "15.4.0d"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
 globals.appUrls = {
-    base: "https://rawgit.com/brrd/screlo/master/",
-    stylesheet: "https://rawgit.com/brrd/screlo/master/" + "dist/screlo.css",
+    base: "http://localhost/screlo/",
+    stylesheet: "http://localhost/screlo/" + "dist/screlo.css",
     update: "https://github.com/brrd/screlo/raw/master/dist/screlo.user.js",
     homepage: "https://github.com/brrd/screlo",
     doc: "https://github.com/brrd/screlo" + "/tree/master/docs"
@@ -957,10 +958,10 @@ function init () {
 module.exports = { init: init };
 
 },{}],10:[function(require,module,exports){
-/*    
+/*
     Screlo - tests-revues
     ==========
-    Définition des tests pour les revues. 
+    Définition des tests pour les revues.
     Les attributs disponibles sont :
         * name: (string) Nom du test affiché dans la Notification.
         * id: (string) Identifiant numérique unique du test.
@@ -969,11 +970,11 @@ module.exports = { init: init };
         * type: (string) Le type de la Notification qui sera retournée ("danger", "warning", "print", "success").
         * label: (string) Nom du test affiché par les Marker générés par le test.
         * labelPos: (string) Position du Marker par rapport à l'élément cible ("before", "after").
-        * source: (string ou function) l'url de la source des tests, qui est soit une string, soit une function(urlDuSite, idDuChecker) qui renvoit une string. Il est possible (et recommandé) de préciser un sélecteur à la fin de l'url, séparé par une espace, de la forme : "http://exemple.revues.org/lodel/edition/index.php?do=view&id=123 #mon-selecteur". Le sélecteur par défaut est "#main". 
+        * source: (string ou function) l'url de la source des tests, qui est soit une string, soit une function(urlDuSite, idDuChecker) qui renvoit une string. Il est possible (et recommandé) de préciser un sélecteur à la fin de l'url, séparé par une espace, de la forme : "http://exemple.revues.org/lodel/edition/index.php?do=view&id=123 #mon-selecteur". Le sélecteur par défaut est "#main".
         Remarque importante : deux sources avec la même url mais deux sélecteurs différents produiront deux requêtes, il faut donc veiller à toujours employer le même sélecteur pour chaque url afin d'éviter les requêtes inutiles, quitte à utiliser un même sélecteur de plus haut niveau dans le DOM pour tous les tests. Par exemple pour l'espace d'édition on utilisera TOUJOURS "#lodel-container".
         * condition: (function(context)) Détermine l'exécution (ou non) du test en fonction du contexte. Retourne un booléen.
         * action: (function(notif, root)) La fonction qui exécute le test. Retourne notif quand le test s'est correctement passé ou false pour notifier l'utilisateur d'une anomalie (par exemple des éléments qui n'ont pas été retrouvés dans la maquette alors qu'il auraient dû).
-            * Le paramètre 'notif' est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction. 
+            * Le paramètre 'notif' est une Notification vierge qui doit être modifiée en cas de test positif puis retournée par la fonction.
             * Le paramètre 'root' est l'élément du DOM qui sert de contexte au test. On utilise TOUJOURS $(selecteur, root) dans le corps de la fonction action(). Par défaut root = $("#main").
 */
 
@@ -987,11 +988,8 @@ module.exports = [
         links: ["Utilisation de la métadonnée auteur", "http://maisondesrevues.org/80"],
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
-            var champAuteur = $('#docAuthor', root);
-            if (champAuteur.length === 0) {
-                notif.activate();
-            }
-            return notif;
+            var flag = $('#docTitle .footnotecall', root).length !== 0;
+            return notif.activate(flag);
         }
     },
     {
@@ -1002,10 +1000,8 @@ module.exports = [
         type: "print",
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
-            if($('#wDownload.facsimile, #text > .text.facsimile > a', root).length === 0){
-                notif.activate();
-            }
-            return notif;
+            var flag = $('#wDownload.facsimile, #text > .text.facsimile > a', root).length === 0;
+            return notif.activate(flag);
         }
     },
     {
@@ -1039,23 +1035,19 @@ module.exports = [
             if ($element.length === 0) {
                 return false;
             }
-            if ($element.val().trim() === "") {
-                notif.activate();
-            }
-            return notif;
+            var flag = $element.val().trim() === "";
+            return notif.activate(flag);
         }
     },
-    {	
+    {
         name: "Absence de référence de l'œuvre commentée",
         id: 5,
         description: "Il est conseillé de mentionner la référence des œuvres commentées dans les comptes rendus et les notes de lecture en utilisant la métadonnée appropriée.",
         links: ["Stylage des œuvres commentées", "http://maisondesrevues.org/88"],
         condition: function(context) { return context.classes.textes && (context.classes.compterendu || context.classes.notedelecture); },
         action: function (notif, context, root) {
-            if ($("#docReference", root).length === 0) {
-                notif.activate();
-            }
-            return notif;
+            var flag = $("#docReference", root).length === 0;
+            return notif.activate(flag);
         }
     },
     {
@@ -1074,7 +1066,7 @@ module.exports = [
             el.each(function() {
                 notif.addMarker(this).activate();
             });
-            return notif;                        
+            return notif;
         }
     },
     {
@@ -1167,7 +1159,7 @@ module.exports = [
         }
     },
     {
-        // NOTE: Test "Listes mal formatées" amelioré pour éviter les faux positifs sur les initiales de noms propres. Ne matchent que les intiales de la forme /^[A-Z]\.\s/ qui s'inscrivent dans une suite qui commence par "A.", "B.", etc. ou "A:", B:"... 
+        // NOTE: Test "Listes mal formatées" amelioré pour éviter les faux positifs sur les initiales de noms propres. Ne matchent que les intiales de la forme /^[A-Z]\.\s/ qui s'inscrivent dans une suite qui commence par "A.", "B.", etc. ou "A:", B:"...
         // TODO: Ce test est une vraie usine à gaz patchée et repatchée qu'il faudrait réécrire un jour.
         name: "Listes mal formatées",
         id: 12,
@@ -1182,7 +1174,7 @@ module.exports = [
                 var ulTest = string.match(/^([•●∙◊–—>-])\s/),
                     olTest = string.match(/^([0-9a-z]{1,3})[\/.):–—-]\s/i),
                     ALPHATest = string.match(/[A-Z][.:]\s/),
-                    res = { 
+                    res = {
                         "type": false,
                         "symbol": "",
                     };
@@ -1197,37 +1189,37 @@ module.exports = [
                         res.type = "alpha";
                     } else {
                         res.type = "ol";
-                    }                        
+                    }
                     res.symbol = olTest[1];
                 }
-                return res;                          
+                return res;
             }
 
             function getLetter (start, dir) {
                 var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 return alphabet[alphabet.indexOf(start) + dir];
             }
-            
+
             function onlyKeepSiblings (e) {
-                
+
                 function getIndex(el) {
                     var $el = $(el);
-                    
+
                     if ($el.parent(".text").length !== 0) {
                         return $el.index();
                     } else {
                         return $el.parents(".text > *").eq(0).index();
                     }
                 }
-                
+
                 var res = [],
                     currentIndex,
                     prevIndex;
-                
-                for (var i=1; i<e.length; i++) {  
+
+                for (var i=1; i<e.length; i++) {
                     currentIndex = getIndex(e[i]);
                     prevIndex = getIndex(e[i-1]);
-                    
+
                     if (currentIndex === prevIndex + 1) {
                         if (i === 1) {
                             res.push(e[0]);
@@ -1244,7 +1236,7 @@ module.exports = [
                 i,
                 prevLetter,
                 lastRecordedLetter;
-        
+
             collection.each( function(index) {
                 var string = utils.getPText($(this)),
                     infos = listInfos(string);
@@ -1252,11 +1244,11 @@ module.exports = [
                 if (infos.type === "ul" | infos.type === "ol") {
                     err.push(this);
                 } else if (infos.type === "alpha") {
-                    alphaCollection[index] = { 
-                        "symbol": infos.symbol, 
-                        "element": this 
+                    alphaCollection[index] = {
+                        "symbol": infos.symbol,
+                        "element": this
                     };
-                }                            
+                }
             });
             for (i=0; i<collection.length; i++) {
                 if (alphaCollection[i]) {
@@ -1271,7 +1263,7 @@ module.exports = [
                 }
             }
             err = onlyKeepSiblings(err);
-            for (i=0; i<err.length; i++) {                
+            for (i=0; i<err.length; i++) {
                 notif.addMarker(err[i]).activate();
             }
             return notif;
@@ -1336,7 +1328,7 @@ module.exports = [
                 notif.addMarker(this).activate();
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Intertitre dans une liste",
@@ -1348,7 +1340,7 @@ module.exports = [
                 notif.addMarker(this).activate();
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Ponctuation à la fin du titre ou d'un intertitre",
@@ -1387,7 +1379,7 @@ module.exports = [
                 }
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Appel de note dans le titre",
@@ -1396,10 +1388,8 @@ module.exports = [
         type: "warning",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            if ($('#docTitle .footnotecall', root).length !== 0) {
-                notif.activate();
-            }
-            return notif;
+            var flag = $('#docTitle .footnotecall', root).length !== 0;
+            return notif.activate(flag);
         }
     },
     {
@@ -1417,7 +1407,7 @@ module.exports = [
                 }
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Champs d'index Word",
@@ -1430,7 +1420,7 @@ module.exports = [
                 notif.addMarker(this).activate();
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Remerciement en note 1",
@@ -1448,7 +1438,7 @@ module.exports = [
                 notif.addMarker($el.get(0)).activate();
             }
             return notif;
-        }			
+        }
     },
     {
         name: "Composition des index",
@@ -1473,11 +1463,11 @@ module.exports = [
                     }
                     // Point final
                     if (motCle.slice(-1) === '.') {
-                        alertes.push('Point final');   
+                        alertes.push('Point final');
                     }
                     // Mauvais séparateurs
                     if (motCle.match(/[\-/;–—][\u0030-\u0039\u0040-\u005A\u0061-\u007A\u00C0-\u00FF\u0100-\u017F\u0180-\u024F \s]*[\-/;–—]/) && motCle.length > 20 ) {
-                        alertes.push('Vérifier les séparateurs');   
+                        alertes.push('Vérifier les séparateurs');
                     }
                     if (alertes.length !== 0){
                         notif.label = alertes.join(' | ');
@@ -1513,7 +1503,7 @@ module.exports = [
                 precedent = niveau;
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Vérifier les doublons d'index",
@@ -1551,7 +1541,7 @@ module.exports = [
                 }
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Format de nom d'auteur",
@@ -1576,7 +1566,7 @@ module.exports = [
                 }
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Auteur sans prénom",
@@ -1602,7 +1592,7 @@ module.exports = [
                 }
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Format d'image non supporté",
@@ -1621,7 +1611,7 @@ module.exports = [
                 notif.addMarker(this).activate();
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Intertitre sur plusieurs paragraphes",
@@ -1634,11 +1624,11 @@ module.exports = [
         action: function (notif, context, root) {
             $(".texte:header + .texte:header", root).each( function () {
                 if ($(this).prev('.texte:header')[0].nodeName === this.nodeName) {
-                    notif.addMarker(this).activate();  
+                    notif.addMarker(this).activate();
                 }
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Caractères Symbol",
@@ -1654,10 +1644,7 @@ module.exports = [
         action: function (notif, context, root) {
             var symbolsRegex = 	/[]/g;
             notif.addMarkersFromRegex(symbolsRegex);
-            if (notif.count > 0) {
-                notif.activate();
-            }
-            return notif;
+            return notif.activate(notif.count > 0);
         }
     },
     {
@@ -1670,12 +1657,10 @@ module.exports = [
             var nbMots = $("#entries .index h3", root).filter( function(i,e) {
                 return !$(e).text().match(/(Index|Índice|Indice|Personnes citées|Géographique|Thématique)/);
             }).length,
-                nbResumes = $("#abstract .tabContent", root).length;
-            if (nbMots !== 0 && nbResumes !== 0 && nbMots !== nbResumes) {
-                notif.activate(); 
-            }
-            return notif;
-        }			
+                nbResumes = $("#abstract .tabContent", root).length,
+                flag = nbMots !== 0 && nbResumes !== 0 && nbMots !== nbResumes;
+            return notif.activate(flag);
+        }
     },
     {
         name: "Numéro sans couverture",
@@ -1688,11 +1673,9 @@ module.exports = [
         condition: function(context) { return context.classes.numero; },
         type: "print",
         action: function (notif, context, root) {
-            if ($("#publiInformation img", root).length === 0) {
-                notif.activate();
-            }
-            return notif;
-        }			
+            var flag = $("#publiInformation img", root).length === 0;
+            return notif.activate(flag);
+        }
     },
     {
         name: "Pas de texte dans le document",
@@ -1702,11 +1685,9 @@ module.exports = [
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
             var element = $("#docBody #text", root),
-                text = element.text().trim();
-            if (element.length === 0 || text === "") {
-                notif.activate();
-            }
-            return notif;
+                text = element.text().trim(),
+                flag = element.length === 0 || text === "";
+            return notif.activate(flag);
         }
     },
     {
@@ -1717,16 +1698,15 @@ module.exports = [
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
             var $element = $("#docTitle", root),
-                text;
+                text,
+                flag;
             if ($element.length === 0) {
                 return false;
             }
             text = $element.text().trim();
-            if (text === "" || text === "Document sans titre") {
-                notif.activate();
-            }
-            return notif;
-        }			
+            flag = text === "" || text === "Document sans titre";
+            return notif.activate(flag);
+        }
     },
     {
         name: "Lien(s) caché(s) vers Wikipedia",
@@ -1747,7 +1727,7 @@ module.exports = [
                 }
             });
             return notif;
-        }			
+        }
     },
     {
         name: "Lien(s) à vérifier",
@@ -1761,13 +1741,13 @@ module.exports = [
             var url = "";
             $("p a[href]:not(.footnotecall, .FootnoteSymbol, [href^=mailto])", root).each( function () {
                 url = $(this).attr("href");
-                if (!utils.isValidUrl(url)) { 
+                if (!utils.isValidUrl(url)) {
                     notif.addMarker(this).activate();
                 }
             });
             return notif;
 
-        }			
+        }
     },
     {
         name: "ISBN invalide",
@@ -1776,7 +1756,7 @@ module.exports = [
         labelPos: "after",
         condition: function(context) { return context.classes.numero; },
         action: function (notif, context, root) {
-            var element = $("#publiISBN", root).eq(0), 
+            var element = $("#publiISBN", root).eq(0),
                 isbn;
             if (element.length !== 0) {
                 isbn = element.text().replace("ISBN", "");
@@ -1785,7 +1765,7 @@ module.exports = [
                 }
             }
             return notif;
-        }			
+        }
     },
     {
         name: "Absence de la métadonnée de langue",
@@ -1802,10 +1782,7 @@ module.exports = [
             if ($element.length === 0) { // TODO: ça va bloquer quand on va passer au nouveau ME
                 return false;
             }
-            if ($element.eq(0).val().trim() === "") {
-                notif.activate();
-            }
-            return notif;
+            return notif.activate($element.eq(0).val().trim() === "");
         }
     },
     {
@@ -1820,28 +1797,23 @@ module.exports = [
         condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations; },
         action: function (notif, context, root) {
             var $element = $("label[for='alterfichier'] ~ .oneItem > .imageKeepDelete > strong:eq(0)", root),
-                fileName = $element.length === 0 ? $element.eq(0).text() : undefined;
-            if ($element.length > 0 && typeof fileName === "string" && /\.pdf$/i.test(fileName) === false) {
-                notif.activate();
-            }
-            return notif;
+                fileName = $element.length === 0 ? $element.eq(0).text() : undefined,
+                flag = $element.length > 0 && typeof fileName === "string" && /\.pdf$/i.test(fileName) === false;
+            return notif.activate(flag);
         }
-    }, 
+    },
     {
         name: "Absence de la numérotation",
         id: 40,
         description: "La numérotation du numéro n'est pas définie. Il faut compléter cette métadonnée dans le formulaire d'édition du numéro.",
         condition: function(context) { return context.classes.numero; },
         action: function (notif, context, root) {
-            var champNumero = $('#publiTitle .number', root);
-            if (champNumero.length === 0) {
-                notif.activate();
-            }
-            return notif;
+            var flag = $('#publiTitle .number', root).length === 0;
+            return notif.activate(flag);
         }
     }//,
+];
 
-]; 
 },{"./utils.js":12}],11:[function(require,module,exports){
 /*
     Screlo - ui
