@@ -851,5 +851,56 @@ module.exports = [
             var flag = $('#publiTitle .number', root).length === 0;
             return notif.activate(flag);
         }
+    },
+    {
+        name: "Vérifier le type du document (éditorial)",
+        id: 41,
+        type: "warning",
+        description: "Le type du document n'est peut-être pas correct. L'introduction ou l'avant-propos d'un numéro doivent être importés en tant qu'“éditorial”.",
+        links: [
+            "Les types de documents", "http://maisondesrevues.org/700",
+            "Modifier le type d'un document", "https://maisondesrevues.org/700#tocto1n4"
+        ],
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations && !context.classes.editorial; },
+        action: function (notif, context, root) {
+            var regex = /((e|é)ditorial|avant[- ]?propos|introducti(on|f|ve)|pr(e|é)sentation)/i,
+                str = $("#docTitle", root).text() + " " + $("#docSubtitle", root).text() + "" + $("#docAltertitle", root).text(),
+                flag = regex.test(str);
+            return notif.activate(flag);
+        }
+    },
+    {
+        name: "Vérifier le type du document (chronique)",
+        id: 42,
+        type: "warning",
+        description: "Le type du document n'est peut-être pas correct. Le type “chronique” est généralement utilisé pour les hommages, bibliographies, etc.",
+        links: [
+            "Les types de documents", "http://maisondesrevues.org/700",
+            "Modifier le type d'un document", "https://maisondesrevues.org/700#tocto1n4"
+        ],
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations && !context.classes.chronique; },
+        action: function (notif, context, root) {
+            var regex = /bibliographie|hommage|conclusion/i,
+                str = $("#docTitle", root).text() + " " + $("#docSubtitle", root).text() + "" + $("#docAltertitle", root).text(),
+                flag = regex.test(str);
+            return notif.activate(flag);
+        }
+    },
+    {
+        name: "Vérifier le type du document (compte rendu)",
+        id: 43,
+        type: "warning",
+        description: "Ce document présente une œuvre commentée, il s'agit donc probalement d'un compte rendu ou d'une note de lecture. Le cas échéant il faut lui appliquer le type adéquat.",
+        links: [
+            "Les types de documents", "http://maisondesrevues.org/700",
+            "Modifier le type d'un document", "https://maisondesrevues.org/700#tocto1n4",
+            "Fichiers particuliers : notes de lecture et comptes rendus d’ouvrages", "https://maisondesrevues.org/88"
+        ],
+        condition: function(context) { return context.classes.textes && !context.classes.actualite && !context.classes.informations && !context.classes.notedelecture && !context.classes.compterendu; },
+        action: function (notif, context, root) {
+            var flag = $("#docReference", root).length !== 0;
+            return notif.activate(flag);
+        }
     }//,
+
 ];
