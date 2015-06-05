@@ -404,3 +404,47 @@ Le fichier attaché en tant que fac-similé n'est pas un document PDF. Le fac-si
 
 * [Fac-similés PDF issus de la version papier](http://maisondesrevues.org/612)
 
+
+## Test #40 - Absence de la numérotation
+
+Type : danger
+
+La numérotation du numéro n'est pas définie. Il faut compléter cette métadonnée dans le formulaire d'édition du numéro.
+
+
+## Test #41 - Vérifier le type du document (éditorial)
+
+Type : warning
+
+Le type du document n'est peut-être pas correct. L'introduction ou l'avant-propos d'un numéro doivent être importés en tant qu'“éditorial”.
+
+**À lire dans la documentation**
+
+* [Les types de documents](http://maisondesrevues.org/700)
+* [Modifier le type d'un document](https://maisondesrevues.org/700#tocto1n4)
+
+
+## Test #42 - Vérifier le type du document (chronique)
+
+Type : warning
+
+Le type du document n'est peut-être pas correct. Le type “chronique” est généralement utilisé pour les hommages, bibliographies, etc.
+
+**À lire dans la documentation**
+
+* [Les types de documents](http://maisondesrevues.org/700)
+* [Modifier le type d'un document](https://maisondesrevues.org/700#tocto1n4)
+
+
+## Test #43 - Vérifier le type du document (compte rendu)
+
+Type : warning
+
+Ce document présente une œuvre commentée, il s'agit donc probalement d'un compte rendu ou d'une note de lecture. Le cas échéant il faut lui appliquer le type adéquat.
+
+**À lire dans la documentation**
+
+* [Les types de documents](http://maisondesrevues.org/700)
+* [Modifier le type d'un document](https://maisondesrevues.org/700#tocto1n4)
+* [Fichiers particuliers : notes de lecture et comptes rendus d’ouvrages](https://maisondesrevues.org/88)
+
