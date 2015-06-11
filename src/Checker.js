@@ -40,6 +40,7 @@ function Checker (arg) {
     // 1. On charge le document
     var that = this;
     Loader.load(this.id, function (mainCheckerSource) {
+        that.addSource(mainCheckerSource);
         if (mainCheckerSource.isError) {
             that.isReady = true;
             return;

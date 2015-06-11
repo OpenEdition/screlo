@@ -4,7 +4,7 @@
 // @namespace   http://revues.org/
 // @include     /https?:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/+(?!(\/*lodel))/
 // @include     /https?:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/+[0-9]{2}\/+[a-z0-9-]+\/+(?!(\/*lodel))/
-// @version     15.6.2
+// @version     15.6.3
 // @updateURL	https://github.com/brrd/screlo/raw/master/dist/screlo.user.js
 // @grant       none
 // ==/UserScript==
@@ -52,6 +52,7 @@ function Checker (arg) {
     // 1. On charge le document
     var that = this;
     Loader.load(this.id, function (mainCheckerSource) {
+        that.addSource(mainCheckerSource);
         if (mainCheckerSource.isError) {
             that.isReady = true;
             return;
@@ -285,8 +286,10 @@ var Source = require("./Source.js");
 // TODO: ici Loader est volontairement attaché au contexte global. Il faudrait placer dans un namespace 'screlo'.
 Loader = {
     sources: {},
+    handledSources: {},
     getSource: function (id) {
-        return id.constructor === Source ? id : this.sources[id];
+        var res = id.constructor === Source ? id : this.sources[id];
+        return res;
     },
     // Same as above with an array of sources
     getSources: function (urls) {
@@ -297,13 +300,16 @@ Loader = {
         return urls.map(mapFunc);
     },
     load: function (id, callback) {
-        if (this.sources[id]) {
+        // handledSources stocke les identifiants des sources qui ont été traitées pour éviter la redondance
+        if (this.handledSources[id]) {
             return false;
         }
-        this.sources[id] = true; // NOTE: valeur temporaire pour bloquer les requêtes suivantes avec le même id. Si on attend la construction de Source plusieurs requêtes ont le temps de passer.
-        var source = new Source(id, callback);
-        this.sources[id] = source; // TODO: il faudrait normaliser les id pour éviter les doublons
-        return source;
+        this.handledSources[id] = true;
+        new Source(id, callback);
+        return this.sources[id];
+    },
+    pushSource: function (source) {
+        this.sources[source.id] = source;
     },
     infos: function (sourcesArray) {
         var res = {
@@ -339,7 +345,7 @@ Loader = {
                 if (flag) {
                     callback(infos);
                     return;
-                } else {    
+                } else {
                     setTimeout(checkIfReady, 1000);
                 }
             };
@@ -348,6 +354,7 @@ Loader = {
 };
 
 module.exports = Loader;
+
 },{"./Source.js":5}],3:[function(require,module,exports){
 /*
     Screlo - Marker
@@ -500,12 +507,13 @@ var globals = require("./globals.js");
 function Source (id, callback) {
     callback = typeof callback === "function" ? callback : undefined;
     var split = id.split(/\s+/);
-    this.id = id;
+    this.id = id; // TODO: il faudrait normaliser les id pour éviter les doublons
     this.url = split[0];
     this.isCurrentLocation = this.url === globals.page;
     this.selector = split.length === 2 ? split[1] : "#main";
     this.bodyClasses = this.root = this.bodyClasses = null;
     this.isReady = this.isSuccess = this.isError = false;
+    Loader.pushSource(this); // La source est référencée dans le Loader dès maintenant pour qu'on puisse la tester dans la suite du traitement asynchrone
     if (this.isCurrentLocation) {
         this.bodyClasses = document.body.className.split(/\s+/);
         this.root = $(this.selector).get(0);
@@ -531,7 +539,7 @@ Source.prototype.load = function (callback) {
                 bodyClasses = $(body).get(0).className.split(/\s+/);
                 container = $("<div>" + data + "</div>").find(that.selector);
                 root = container.get(0);
-            } 
+            }
             if (root) {
                 that.root = root;
                 that.bodyClasses = bodyClasses;
@@ -548,11 +556,12 @@ Source.prototype.load = function (callback) {
             if (callback) {
                 callback(that);
             }
-        }                
+        }
     });
 };
 
 module.exports = Source;
+
 },{"./globals.js":7}],6:[function(require,module,exports){
 /*
     Screlo - commands
@@ -699,7 +708,7 @@ var globals = {},
     utils = require("./utils.js"),
     tests = require("./tests-revues.js"); 
 
-globals.version = "15.6.2";
+globals.version = "15.6.3";
 
 globals.schema =  "15.4.0d"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 

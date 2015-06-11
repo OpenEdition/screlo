@@ -10,12 +10,13 @@ var globals = require("./globals.js");
 function Source (id, callback) {
     callback = typeof callback === "function" ? callback : undefined;
     var split = id.split(/\s+/);
-    this.id = id;
+    this.id = id; // TODO: il faudrait normaliser les id pour éviter les doublons
     this.url = split[0];
     this.isCurrentLocation = this.url === globals.page;
     this.selector = split.length === 2 ? split[1] : "#main";
     this.bodyClasses = this.root = this.bodyClasses = null;
     this.isReady = this.isSuccess = this.isError = false;
+    Loader.pushSource(this); // La source est référencée dans le Loader dès maintenant pour qu'on puisse la tester dans la suite du traitement asynchrone
     if (this.isCurrentLocation) {
         this.bodyClasses = document.body.className.split(/\s+/);
         this.root = $(this.selector).get(0);
@@ -41,7 +42,7 @@ Source.prototype.load = function (callback) {
                 bodyClasses = $(body).get(0).className.split(/\s+/);
                 container = $("<div>" + data + "</div>").find(that.selector);
                 root = container.get(0);
-            } 
+            }
             if (root) {
                 that.root = root;
                 that.bodyClasses = bodyClasses;
@@ -58,7 +59,7 @@ Source.prototype.load = function (callback) {
             if (callback) {
                 callback(that);
             }
-        }                
+        }
     });
 };
 

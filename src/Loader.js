@@ -10,8 +10,10 @@ var Source = require("./Source.js");
 // TODO: ici Loader est volontairement attaché au contexte global. Il faudrait placer dans un namespace 'screlo'.
 Loader = {
     sources: {},
+    handledSources: {},
     getSource: function (id) {
-        return id.constructor === Source ? id : this.sources[id];
+        var res = id.constructor === Source ? id : this.sources[id];
+        return res;
     },
     // Same as above with an array of sources
     getSources: function (urls) {
@@ -22,13 +24,16 @@ Loader = {
         return urls.map(mapFunc);
     },
     load: function (id, callback) {
-        if (this.sources[id]) {
+        // handledSources stocke les identifiants des sources qui ont été traitées pour éviter la redondance
+        if (this.handledSources[id]) {
             return false;
         }
-        this.sources[id] = true; // NOTE: valeur temporaire pour bloquer les requêtes suivantes avec le même id. Si on attend la construction de Source plusieurs requêtes ont le temps de passer.
-        var source = new Source(id, callback);
-        this.sources[id] = source; // TODO: il faudrait normaliser les id pour éviter les doublons
-        return source;
+        this.handledSources[id] = true;
+        new Source(id, callback);
+        return this.sources[id];
+    },
+    pushSource: function (source) {
+        this.sources[source.id] = source;
     },
     infos: function (sourcesArray) {
         var res = {
@@ -64,7 +69,7 @@ Loader = {
                 if (flag) {
                     callback(infos);
                     return;
-                } else {    
+                } else {
                     setTimeout(checkIfReady, 1000);
                 }
             };
