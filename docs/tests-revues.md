@@ -448,3 +448,15 @@ Ce document présente une œuvre commentée, il s'agit donc probalement d'un com
 * [Modifier le type d'un document](https://maisondesrevues.org/700#tocto1n4)
 * [Fichiers particuliers : notes de lecture et comptes rendus d’ouvrages](https://maisondesrevues.org/88)
 
+
+## Test #44 - Lien hypertexte dans le titre ou dans un intertitre
+
+Type : danger
+
+Des liens hypertextes se trouvent dans le titre et/ou les intertitres du document. Ces liens peuvent créer des interférences avec Lodel et nuire à la consultation du document. Le titre et les intertitres ne doivent donc pas contenir de liens hypertextes.
+
+**À lire dans la documentation**
+
+* [Gestion des liens hypertextes dans Word](http://maisondesrevues.org/96)
+* [Le titre d’un document n’est pas cliquable dans le sommaire](https://maisondesrevues.org/113)
+

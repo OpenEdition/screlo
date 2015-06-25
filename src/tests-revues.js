@@ -901,6 +901,24 @@ module.exports = [
             var flag = $("#docReference", root).length !== 0;
             return notif.activate(flag);
         }
+    },
+    {
+        name: "Lien hypertexte dans le titre ou dans un intertitre",
+        id: 44,
+        type: "danger",
+        description: "Des liens hypertextes se trouvent dans le titre et/ou les intertitres du document. Ces liens peuvent créer des interférences avec Lodel et nuire à la consultation du document. Le titre et les intertitres ne doivent donc pas contenir de liens hypertextes.",
+        links: [
+            "Gestion des liens hypertextes dans Word", "http://maisondesrevues.org/96",
+            "Le titre d’un document n’est pas cliquable dans le sommaire", "https://maisondesrevues.org/113"
+        ],
+        label: "Lien hypertexte",
+        labelPos: "after",
+        condition: function(context) { return context.classes.textes; },
+        action: function (notif, context, root) {
+            $(".texte:header a:not([href^='#']), h1#docTitle a", root).each( function() {
+                notif.addMarker(this).activate();
+            });
+            return notif;
+        }
     }//,
-
 ];
