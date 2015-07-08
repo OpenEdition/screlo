@@ -920,5 +920,26 @@ module.exports = [
             });
             return notif;
         }
+    },
+    {
+        name: "Titre de section redondant",
+        id: 45,
+        type: "warning",
+        description: "Les titres des sections “Bibliographie” et “Annexe” sont ajoutés automatiquement par Lodel, ils ne doivent donc pas être présents dans le document source. Vérifiez que ces titres n'apparaissent pas en double dans le document.",
+        label: "Titre redondant",
+        labelPos: "after",
+        condition: function(context) { return context.classes.textes; },
+        action: function (notif, context, root) {
+            function testFirstParagraph (selector, regex, notif) {
+                var $element = $(selector, root),
+                    match = regex.test($element.text());
+                if (match) {
+                    notif.addMarker($element.get(0)).activate();
+                }
+            }
+            testFirstParagraph("#annexe .text *:first-child", /annexe|appendix|anexo/i, notif);
+            testFirstParagraph("#bibliography .text *:first-child", /bibliogra(ph|f)/i, notif);
+            return notif;
+        }
     }//,
 ];

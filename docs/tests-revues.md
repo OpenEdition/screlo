@@ -460,3 +460,10 @@ Des liens hypertextes se trouvent dans le titre et/ou les intertitres du documen
 * [Gestion des liens hypertextes dans Word](http://maisondesrevues.org/96)
 * [Le titre d’un document n’est pas cliquable dans le sommaire](https://maisondesrevues.org/113)
 
+
+## Test #45 - Titre de section redondant
+
+Type : warning
+
+Les titres des sections “Bibliographie” et “Annexe” sont ajoutés automatiquement par Lodel, ils ne doivent donc pas être présents dans le document source. Vérifiez que ces titres n'apparaissent pas en double dans le document.
+

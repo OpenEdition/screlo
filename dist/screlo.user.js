@@ -4,7 +4,7 @@
 // @namespace   http://revues.org/
 // @include     /https?:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/+(?!(\/*lodel))/
 // @include     /https?:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/+[0-9]{2}\/+[a-z0-9-]+\/+(?!(\/*lodel))/
-// @version     15.6.4
+// @version     15.7.0
 // @updateURL	https://github.com/brrd/screlo/raw/master/dist/screlo.user.js
 // @grant       none
 // ==/UserScript==
@@ -708,7 +708,7 @@ var globals = {},
     utils = require("./utils.js"),
     tests = require("./tests-revues.js"); 
 
-globals.version = "15.6.4";
+globals.version = "15.7.0";
 
 globals.schema =  "15.4.0d"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
@@ -1887,6 +1887,27 @@ module.exports = [
             $(".texte:header a:not([href^='#']), h1#docTitle a", root).each( function() {
                 notif.addMarker(this).activate();
             });
+            return notif;
+        }
+    },
+    {
+        name: "Titre de section redondant",
+        id: 45,
+        type: "warning",
+        description: "Les titres des sections “Bibliographie” et “Annexe” sont ajoutés automatiquement par Lodel, ils ne doivent donc pas être présents dans le document source. Vérifiez que ces titres n'apparaissent pas en double dans le document.",
+        label: "Titre redondant",
+        labelPos: "after",
+        condition: function(context) { return context.classes.textes; },
+        action: function (notif, context, root) {
+            function testFirstParagraph (selector, regex, notif) {
+                var $element = $(selector, root),
+                    match = regex.test($element.text());
+                if (match) {
+                    notif.addMarker($element.get(0)).activate();
+                }
+            }
+            testFirstParagraph("#annexe .text *:first-child", /annexe|appendix|anexo/i, notif);
+            testFirstParagraph("#bibliography .text *:first-child", /bibliogra(ph|f)/i, notif);
             return notif;
         }
     }//,

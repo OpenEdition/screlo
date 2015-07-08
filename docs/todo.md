@@ -52,6 +52,7 @@ Pistes de développement et idées de nouveaux tests pour screlo.
 
 ## Bugs et améliorations des tests
 
+* Plusieurs tests reposent sur des tests de mots. Ils sont généralement effectués en français et parfois en anglais. Il est possible d'étendre ces tests à d'autres langues. 
 * Signaler les appels de notes hors du texte (plutôt qu'uniquement dans le titre)
 * Test "Citations" : on peut éliminer la plupart des faux positifs en 1) testant également les guillemets fermants, 2) testant également la présence d'autres guillemets ouvrants dans le paragraphe, 3) ne testant que les p.texte
 * Ajouter des marqueurs au test "Incohérence dans la numérotation des notes"
