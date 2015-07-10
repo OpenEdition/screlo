@@ -2,11 +2,11 @@
 
 # Tests Revues
 
-## Test #1 - Absence d'auteur
+## Test #1 - Absence d’auteur
 
 Type : danger
 
-Aucun auteur n'est associé à ce document. Ce type de document doit normalement être associé à un auteur grace à la métadonnée <em>Auteur</em>.
+Aucun auteur n’est associé à ce document. Ce type de document doit normalement être associé à un auteur grâce à la métadonnée “Auteur”.
 
 **À lire dans la documentation**
 
@@ -17,7 +17,7 @@ Aucun auteur n'est associé à ce document. Ce type de document doit normalement
 
 Type : print
 
-Aucun fac-similé n'est associé à ce document. Il est fortement recommandé de joindre aux documents un fac-similé PDF issu de la version imprimée lorsque c'est possible.
+Aucun fac-similé n’est associé à ce document. Il est fortement recommandé de joindre aux documents un fac-similé PDF issu de la version imprimée lorsque c’est possible.
 
 **À lire dans la documentation**
 
@@ -28,7 +28,7 @@ Aucun fac-similé n'est associé à ce document. Il est fortement recommandé de
 
 Type : print
 
-La pagination de la version papier est absente des métadonnées ou n'est pas correctement stylée. Si le document existe en version imprimée il est fortement recommandé d'en préciser la pagination au format attendu.
+La pagination de la version papier est absente des métadonnées ou n’est pas correctement stylée. Si le document existe en version imprimée il est fortement recommandé d’en préciser la pagination au format attendu.
 
 **À lire dans la documentation**
 
@@ -39,14 +39,14 @@ La pagination de la version papier est absente des métadonnées ou n'est pas co
 
 Type : danger
 
-Ce numéro n'a pas de date de publication électronique. Il est indispensable d'ajouter cette information dans le formulaire d'édition des métadonnées du numéro.
+Ce numéro n’a pas de date de publication électronique. Il est indispensable d’ajouter cette information dans le formulaire d’édition des métadonnées du numéro.
 
 **À lire dans la documentation**
 
 * [Dates de publication](http://maisondesrevues.org/84)
 
 
-## Test #5 - Absence de référence de l'œuvre commentée
+## Test #5 - Absence de référence de l’œuvre commentée
 
 Type : danger
 
@@ -61,7 +61,7 @@ Il est conseillé de mentionner la référence des œuvres commentées dans les 
 
 Type : danger
 
-Ce document contient des polices non Unicode qui ne sont pas compatibles avec un affichage sur Internet. Il est nécessaire d'utiliser des polices respectant la norme Unicode dans ce document.
+Ce document contient des polices non Unicode qui ne sont pas compatibles avec un affichage sur Internet. Il est nécessaire d’utiliser des polices respectant la norme Unicode dans ce document.
 
 **À lire dans la documentation**
 
@@ -81,22 +81,22 @@ Des retours chariot (ou sauts de ligne forcés) sont utilisés dans le titre et/
 * [Stylage des intertitres](http://maisondesrevues.org/90)
 
 
-## Test #8 - Titre d'illustration mal placé
+## Test #8 - Titre d’illustration mal placé
 
 Type : warning
 
-Ce document contient des titres d'illustrations placés après les éléments qu'ils décrivent. Le titre d'une illustration doit toujours être placé avant celle-ci.
+Ce document contient des titres d’illustrations placés après les éléments qu’ils décrivent. Le titre d’une illustration doit toujours être placé avant celle-ci.
 
 **À lire dans la documentation**
 
 * [Stylage des illustrations](http://maisondesrevues.org/98)
 
 
-## Test #9 - Légende d'illustration mal placée
+## Test #9 - Légende d’illustration mal placée
 
 Type : warning
 
-Ce document contient des légendes d'illustrations mal positionnées. La légende d'une illustration doit toujours être placé après celle-ci.
+Ce document contient des légendes d’illustrations mal positionnées. La légende d’une illustration doit toujours être placée après celle-ci.
 
 **À lire dans la documentation**
 
@@ -107,7 +107,7 @@ Ce document contient des légendes d'illustrations mal positionnées. La légend
 
 Type : warning
 
-Ce document contient des paragraphes dont le premier caractère est un caractère en minuscule. Il peut s'agir d'une liste à puces ou d'une citation mal stylées ou d'un paragraphe involontairement fractionné (par exemple si le document source a été obtenu à partir de l'export d'un document PDF).
+Ce document contient des paragraphes dont le premier caractère est un caractère en minuscule. Il peut s’agir d’une liste à puces ou d’une citation mal stylées ou d’un paragraphe involontairement fractionné (par exemple si le document source a été obtenu à partir de l’export d’un document PDF).
 
 **À lire dans la documentation**
 
@@ -119,7 +119,7 @@ Ce document contient des paragraphes dont le premier caractère est un caractèr
 
 Type : warning
 
-Ce document des paragraphes qui sont peut-être des citations stylées en texte “Normal” et qui doivent être vérifiés.
+Ce document contient des paragraphes qui sont peut-être des citations stylées en texte “Normal” et qui doivent être vérifiés.
 
 **À lire dans la documentation**
 
@@ -130,7 +130,7 @@ Ce document des paragraphes qui sont peut-être des citations stylées en texte 
 
 Type : warning
 
-Ce document des paragraphes qui sont peut-être des citations et qui doivent être vérifiés.
+Ce document contient des paragraphes qui sont peut-être des citations et qui doivent être vérifiés.
 
 **À lire dans la documentation**
 
@@ -154,7 +154,7 @@ Ce document utilise des styles qui ne sont pas reconnus par Lodel.
 
 Type : warning
 
-La numérotation des notes de bas de page du document ne suit pas un ordre logique. Ce problème peut provenir de l'insertion d'un appel de note ailleurs que dans le corps de texte (métadonnées, remerciements, note de la rédaction, note de l'auteur, etc.), ce qui n'est pas supporté par Lodel, ou d'une mauvaise numérotation dans le document source
+La numérotation des notes de bas de page du document ne suit pas un ordre logique. Ce problème peut provenir de l’insertion d’un appel de note ailleurs que dans le corps de texte (métadonnées, remerciements, note de la rédaction, note de l’auteur, etc.), ce qui n’est pas supporté par Lodel, ou d’une mauvaise numérotation dans le document source
 
 **À lire dans la documentation**
 
@@ -172,14 +172,14 @@ Les notes de bas de page de ce document utilisent un style inconnu. Les notes de
 
 Type : danger
 
-Un ou plusieurs intertitres du document sont contenus dans une liste. Cela est souvent dû à une correction automatique de Word lors de l'insertion d'intertitres numérotés. Il faut désactiver la mise en forme “Liste” sur les intertitres concernés.
+Un ou plusieurs intertitres du document sont contenus dans une liste. Cela est souvent dû à une correction automatique de Word lors de l’insertion d’intertitres numérotés. Il faut désactiver la mise en forme “Liste” sur les intertitres concernés.
 
 
-## Test #17 - Ponctuation à la fin du titre ou d'un intertitre
+## Test #17 - Ponctuation à la fin du titre ou d’un intertitre
 
 Type : warning
 
-Un ou plusieurs intertitres du document se terminent par un signe de ponctuation, ce qui n'est typographiquement correct.
+Un ou plusieurs intertitres du document se terminent par un signe de ponctuation, ce qui n’est typographiquement correct.
 
 
 ## Test #18 - Mises en formes locales sur le titre
@@ -197,25 +197,25 @@ Le titre de ce document contient des mises en forme locales. Il faut vérifier q
 
 Type : warning
 
-Le titre du document contient un ou plusieurs appels de notes, or il est incorrect d'inserer des appels de notes hors du corps de texte. Cette note peut généralement être remplacée par une autre métadonnée (Remerciements, Note de l'auteur, Note de la rédaction, etc.).
+Le titre du document contient un ou plusieurs appels de notes, or il est incorrect d’insérer des appels de notes hors du corps de texte. Cette note peut généralement être remplacée par une autre métadonnée (“Remerciements”, “Note de l’auteur”, “Note de la rédaction”, etc.).
 
 
-## Test #20 - Titre d'illustration stylé en légende
+## Test #20 - Titre d’illustration stylé en légende
 
 Type : warning
 
-Certaines légendes d'illustrations contenues dans le document pourraient être transformées en titres d'illustration (titre commançant par : "Figure 1...", "Image 1...", etc.). Remarque : contrairement à la légende, le titre d'une illustration se place avant l'illustration.
+Certaines légendes d’illustrations contenues dans le document pourraient être transformées en titres d’illustration (titre commançant par : "Figure 1...", "Image 1...", etc.). Remarque : contrairement à la légende, le titre d’une illustration se place avant l’illustration.
 
 **À lire dans la documentation**
 
 * [Titres, légendes et crédits des illustrations et des tableaux](http://maisondesrevues.org/98)
 
 
-## Test #21 - Champs d'index Word
+## Test #21 - Champs d’index Word
 
 Type : danger
 
-Le document source contient des signets ou des champs d'index Word qui doivent être nettoyés.
+Le document source contient des signets ou des champs d’index Word qui doivent être nettoyés.
 
 
 ## Test #22 - Remerciement en note 1
@@ -233,29 +233,29 @@ La première note de bas de page semble contenir des remerciements. Dans certain
 
 Type : warning
 
-Les entrées d'index signalées ne sont peut-être pas correctement composés.
+Les entrées d’index signalées ne sont peut-être pas correctement composés.
 
 **À lire dans la documentation**
 
 * [Règles de stylage des index](http://maisondesrevues.org/83)
 
 
-## Test #24 - Hierarchie du plan incohérente
+## Test #24 - Hiérarchie du plan incohérente
 
 Type : warning
 
-Les intertitres du document ne se suivent pas hiérarchiquement. Par exemple, il n'est pas correct d'utiliser un intertitre de deuxième niveau (“Titre 2”) qui n'aurait pas pour parent un intertitre de premier niveau (“Titre 1”) qui le précède dans le document.
+Les intertitres du document ne se suivent pas hiérarchiquement. Par exemple, il n’est pas correct d’utiliser un intertitre de deuxième niveau (“Titre 2”) qui n’aurait pas pour parent un intertitre de premier niveau (“Titre 1”) qui le précède dans le document.
 
 **À lire dans la documentation**
 
 * [Stylage des intertitres](http://maisondesrevues.org/90)
 
 
-## Test #25 - Vérifier les doublons d'index
+## Test #25 - Vérifier les doublons d’index
 
 Type : warning
 
-Certaines entrées d'index sont peut-être des doublons. 
+Certaines entrées d’index sont peut-être des doublons. 
 
 **À lire dans la documentation**
 
@@ -263,15 +263,15 @@ Certaines entrées d'index sont peut-être des doublons.
 * [Règles de stylage des index](http://maisondesrevues.org/221)
 
 
-## Test #26 - Format de nom d'auteur
+## Test #26 - Format de nom d’auteur
 
 Type : warning
 
-Certains noms d'auteurs ne respectent pas le format attendu ou contiennent des caractères inconnus. Les noms doivent être composés en bas de casse avec capitale initale.
+Certains noms d’auteurs ne respectent pas le format attendu ou contiennent des caractères inconnus. Les noms doivent être composés en bas de casse avec capitale initale.
 
 **À lire dans la documentation**
 
-* [Stylage des noms d'auteurs](http://maisondesrevues.org/80)
+* [Stylage des noms d’auteurs](http://maisondesrevues.org/80)
 * [Règles de stylage des index](http://maisondesrevues.org/221)
 
 
@@ -279,15 +279,15 @@ Certains noms d'auteurs ne respectent pas le format attendu ou contiennent des c
 
 Type : warning
 
-Certains noms d'auteurs n'ont pas de prénom. Le prénom des auteurs doit être mentionné.
+Certains noms d’auteurs n’ont pas de prénom. Le prénom des auteurs doit être mentionné.
 
 **À lire dans la documentation**
 
-* [Stylage des noms d'auteurs](http://maisondesrevues.org/80)
+* [Stylage des noms d’auteurs](http://maisondesrevues.org/80)
 * [Règles de stylage des index](http://maisondesrevues.org/221)
 
 
-## Test #28 - Format d'image non supporté
+## Test #28 - Format d’image non supporté
 
 Type : danger
 
@@ -295,7 +295,7 @@ Certaines images du document ne sont pas enregistrées dans un format supporté 
 
 **À lire dans la documentation**
 
-* [Les formats d'images supportés par Lodel](http://maisondesrevues.org/214)
+* [Les formats d’images supportés par Lodel](http://maisondesrevues.org/214)
 * [Changer la résolution, la taille, le format des images](http://maisondesrevues.org/155)
 * [Figures et graphiques enregistrées dans Word](http://maisondesrevues.org/97)
 * [Taille des images](http://maisondesrevues.org/213)
@@ -312,7 +312,7 @@ Un ou plusieurs intertitres contiennent des sauts de lignes manuels (ou retours 
 
 Type : danger
 
-Ce document utilise un ou plusieurs caractères de la police “Symbol”. Cette police, généralement introduite par Microsoft Word, ne respecte pas la norme Unicode et n'est donc pas compatible avec un affichage sur Internet. Il est nécessaire d'utiliser des polices Unicode dans les documents impoortés dans Lodel.
+Ce document utilise un ou plusieurs caractères de la police “Symbol”. Cette police, généralement introduite par Microsoft Word, ne respecte pas la norme Unicode et n’est donc pas compatible avec un affichage sur Internet. Il est nécessaire d’utiliser des polices Unicode dans les documents importés dans Lodel.
 
 **À lire dans la documentation**
 
@@ -324,18 +324,18 @@ Ce document utilise un ou plusieurs caractères de la police “Symbol”. Cette
 
 Type : warning
 
-Cette notification s'affiche quand le nombre d'index linguistiques utilisés dans le document n'est pas cohérent avec le nombre de traductions du résumé. Vérifiez que tous les résumés et tous les index stylés apparaîssent bien sur la page. En cas d'erreur, corrigez le stylage de ces métadonnées dans le document.
+Cette notification s’affiche quand le nombre d’index linguistiques utilisés dans le document n’est pas cohérent avec le nombre de traductions du résumé. Vérifiez que tous les résumés et tous les index stylés apparaissent bien sur la page. En cas d’erreur, corrigez le stylage de ces métadonnées dans le document.
 
 
 ## Test #32 - Numéro sans couverture
 
 Type : print
 
-Cette notification s'affiche pour les revues qui disposent d'une version imprimée. Aucun couverture n'est associée au numéro. Il est conseillé d'ajouter une couverture aux numéros quand c'est possible.
+Cette notification s’affiche pour les revues qui disposent d’une version imprimée. Aucun couverture n’est associée au numéro. Il est conseillé d’ajouter une couverture aux numéros quand c’est possible.
 
 **À lire dans la documentation**
 
-* [Images des couvertures issues de l'édition papier](http://maisondesrevues.org/512)
+* [Images des couvertures issues de l’édition papier](http://maisondesrevues.org/512)
 * [Attacher une couverture](http://maisondesrevues.org/621)
 
 
@@ -343,7 +343,7 @@ Cette notification s'affiche pour les revues qui disposent d'une version imprim�
 
 Type : danger
 
-Le document ne contient pas de texte. Tous les documents doivent impérativement contenir du texte. Un document qui ne contiendrait des résumés n'est pas valide : pour afficher plusieurs traductions d'un même texte, utilisez les alias de traduction.
+Le document ne contient pas de texte. Tous les documents doivent impérativement contenir du texte. Un document qui ne contiendrait des résumés n’est pas valide : pour afficher plusieurs traductions d’un même texte, utilisez les alias de traduction.
 
 **À lire dans la documentation**
 
@@ -354,11 +354,11 @@ Le document ne contient pas de texte. Tous les documents doivent impérativement
 
 Type : danger
 
-Le titre du document est obligatoire. L'absence de titre peut être dû à une erreur du stylage du document. Vérifiez que vous avez bien respecté l'ordre des métadonnées et que le document est bien enregistré au format .doc (le format .docx n'est pas supporté par Lodel et son utilisation peut être à l'origine d'une erreur d'interprétation de la métadonnée “Titre”).
+Le titre du document est obligatoire. L’absence de titre peut être dû à une erreur du stylage du document. Vérifiez que vous avez bien respecté l’ordre des métadonnées et que le document est bien enregistré au format .doc (le format .docx n’est pas supporté par Lodel et son utilisation peut être à l’origine d’une erreur d’interprétation de la métadonnée “Titre”).
 
 **À lire dans la documentation**
 
-* [L'ordre des métadonnées](http://maisondesrevues.org/108)
+* [L’ordre des métadonnées](http://maisondesrevues.org/108)
 
 
 ## Test #35 - Lien(s) caché(s) vers Wikipedia
@@ -379,14 +379,14 @@ Ce document contient un ou plusieurs liens qui semblent incorrects et qui doiven
 
 Type : danger
 
-L'ISBN de ce numéro n'est pas valide et doit être vérifié. Remarque : il ne faut pas confondre ISBN (associé à un livre ou un numéro de revue) et ISSN (associé à une l'intégralité d'une collection). L'ISSN ne doit pas être indiqué au niveau du numéro. Un numéro de revue ne possède pas nécessairement d'ISBN, auquel cas rien ne doit être renseigné dans le formulaire d'édition du numéro.
+L’ISBN de ce numéro n’est pas valide et doit être vérifié. Remarque : il ne faut pas confondre ISBN (associé à un livre ou un numéro de revue) et ISSN (associé à une l’intégralité d’une collection). L’ISSN ne doit pas être indiqué au niveau du numéro. Un numéro de revue ne possède pas nécessairement d’ISBN, auquel cas rien ne doit être renseigné dans le formulaire d’édition du numéro.
 
 
 ## Test #38 - Absence de la métadonnée de langue
 
 Type : danger
 
-La langue de ce document ou de cette publication n'est pas correctement définie dans les métadonnées. Dans le cas d'une publication, la langue doit être sélectionnée dans le formulaire d'édition des métadonnées. Dans le cas d'un document, il faut styler la métadonnée “Langue” dans le document source.
+La langue de ce document ou de cette publication n’est pas correctement définie dans les métadonnées. Dans le cas d’une publication, la langue doit être sélectionnée dans le formulaire d’édition des métadonnées. Dans le cas d’un document, il faut styler la métadonnée “Langue” dans le document source.
 
 **À lire dans la documentation**
 
@@ -398,7 +398,7 @@ La langue de ce document ou de cette publication n'est pas correctement définie
 
 Type : danger
 
-Le fichier attaché en tant que fac-similé n'est pas un document PDF. Le fac-similé doit obligatoirement être au format PDF.
+Le fichier attaché en tant que fac-similé n’est pas un document PDF. Le fac-similé doit obligatoirement être au format PDF.
 
 **À lire dans la documentation**
 
@@ -409,43 +409,43 @@ Le fichier attaché en tant que fac-similé n'est pas un document PDF. Le fac-si
 
 Type : danger
 
-La numérotation du numéro n'est pas définie. Il faut compléter cette métadonnée dans le formulaire d'édition du numéro.
+La numérotation du numéro n’est pas définie. Il faut compléter cette métadonnée dans le formulaire d’édition du numéro.
 
 
 ## Test #41 - Vérifier le type du document (éditorial)
 
 Type : warning
 
-Le type du document n'est peut-être pas correct. L'introduction ou l'avant-propos d'un numéro doivent être importés en tant qu'“éditorial”.
+Le type du document n’est peut-être pas correct. L’introduction ou l’avant-propos d’un numéro doivent être importés en tant qu’“éditorial”.
 
 **À lire dans la documentation**
 
 * [Les types de documents](http://maisondesrevues.org/700)
-* [Modifier le type d'un document](https://maisondesrevues.org/700#tocto1n4)
+* [Modifier le type d’un document](https://maisondesrevues.org/700#tocto1n4)
 
 
 ## Test #42 - Vérifier le type du document (chronique)
 
 Type : warning
 
-Le type du document n'est peut-être pas correct. Le type “chronique” est généralement utilisé pour les hommages, bibliographies, etc.
+Le type du document n’est peut-être pas correct. Le type “chronique” est généralement utilisé pour les hommages, bibliographies, etc.
 
 **À lire dans la documentation**
 
 * [Les types de documents](http://maisondesrevues.org/700)
-* [Modifier le type d'un document](https://maisondesrevues.org/700#tocto1n4)
+* [Modifier le type d’un document](https://maisondesrevues.org/700#tocto1n4)
 
 
 ## Test #43 - Vérifier le type du document (compte rendu)
 
 Type : warning
 
-Ce document présente une œuvre commentée, il s'agit donc probalement d'un compte rendu ou d'une note de lecture. Le cas échéant il faut lui appliquer le type adéquat.
+Ce document présente une œuvre commentée, il s’agit donc probalement d’un compte rendu ou d’une note de lecture. Le cas échéant il faut lui appliquer le type adéquat.
 
 **À lire dans la documentation**
 
 * [Les types de documents](http://maisondesrevues.org/700)
-* [Modifier le type d'un document](https://maisondesrevues.org/700#tocto1n4)
+* [Modifier le type d’un document](https://maisondesrevues.org/700#tocto1n4)
 * [Fichiers particuliers : notes de lecture et comptes rendus d’ouvrages](https://maisondesrevues.org/88)
 
 
@@ -465,5 +465,5 @@ Des liens hypertextes se trouvent dans le titre et/ou les intertitres du documen
 
 Type : warning
 
-Les titres des sections “Bibliographie” et “Annexe” sont ajoutés automatiquement par Lodel, ils ne doivent donc pas être présents dans le document source. Vérifiez que ces titres n'apparaissent pas en double dans le document.
+Les titres des sections “Bibliographie” et “Annexe” sont ajoutés automatiquement par Lodel, ils ne doivent donc pas être présents dans le texte du document source. Vérifiez que ces titres n’apparaissent pas en double dans le document.
 
