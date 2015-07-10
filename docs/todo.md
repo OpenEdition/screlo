@@ -11,13 +11,13 @@ Pistes de développement et idées de nouveaux tests pour screlo.
 
 ## Typographie des documents
 
-* Signaler les paragraphes (ou notes de bas de page) qui commencent par un retour chariot 
+* Signaler les paragraphes (ou notes de bas de page) qui commencent par un retour chariot
 * Signaler les appel de notes dans des `<sup>` qui provoquent des doubles exposants. Exemple : `<sup><a id="bodyftn19" class="footnotecall" href="#ftn19">19</a></sup>`
 * Signaler les titres (ou autres éléments : description d'auteur, intertitre...) contenus dans des `<sup>` (problème fréquent avec le stylage dans Word). Éventuellement insérer la coloration des balise exposant dans le debugger.
 * Vérifier la typographie dans le document : insécables avant la ponctuation double, utilisation de trois points au lieu des points de suspension, apostrophes/guillemets droits, etc.
 * Signaler les liens hypertexte inactifs
 * Vérifier la capitale initiale du titre/sous-titre/intertitre (test à appliquer aux publications également)
-* Signaler les titres/sous-titres/intertitres en capitales intégrales 
+* Signaler les titres/sous-titres/intertitres en capitales intégrales
 * Signaler les titres/sous-titres/intertitres intégralement en gras, en italiques, etc.
 
 ## Métadonnées du document
@@ -28,8 +28,6 @@ Pistes de développement et idées de nouveaux tests pour screlo.
 ## Stylage du document
 
 * Signaler quand le texte se termine par un intertitre (exemple : "Références bibliographiques")
-* Signaler la présence d'un intertitre "Annexes" au début des annexes
-* Signaler la présence d'un intertitre "Bibliographie" au début de la bibliographie
 * Signaler quand la légende d'illustration commence par "source" ou "credit" etc. : c'est que c'est un crédit. Il y a probablement d'autres variantes.
 * Signaler quand un séparateur est précédé ou suivi par un paragraphe de type autre que "Normal"
 * Signaler quand du texte (autre que *, - etc.) est stylé en "Séparateur"
@@ -37,7 +35,7 @@ Pistes de développement et idées de nouveaux tests pour screlo.
 * Signaler les images dans les intertitres
 * Signaler les images stylées en  "Légende illustration" et "Crédits illustration" (erreur fréquente) (en fait il faudrait plutôt énumérer les styles autorisés pour les images)
 * Signaler les images d'accroche et/ou illustrations insérées en .tif
-* Signaler l'absence d'image ou de tableau lorsque le style "Titre illustration" est utilisé. 
+* Signaler l'absence d'image ou de tableau lorsque le style "Titre illustration" est utilisé.
 * Vérifier que les styles "Question" et "Réponse" sont utilisés conjointement
 * Signaler les URL qui contiennent un zwsp (https://fr.wikipedia.org/wiki/Espace_sans_chasse)
 * Signaler la présence de note dans le titre de l'illustration (il s'agit probablement d'un crédit ou d'une légende)
@@ -52,7 +50,7 @@ Pistes de développement et idées de nouveaux tests pour screlo.
 
 ## Bugs et améliorations des tests
 
-* Plusieurs tests reposent sur des tests de mots. Ils sont généralement effectués en français et parfois en anglais. Il est possible d'étendre ces tests à d'autres langues. 
+* Plusieurs tests reposent sur des tests de mots. Ils sont généralement effectués en français et parfois en anglais. Il est possible d'étendre ces tests à d'autres langues.
 * Signaler les appels de notes hors du texte (plutôt qu'uniquement dans le titre)
 * Test "Citations" : on peut éliminer la plupart des faux positifs en 1) testant également les guillemets fermants, 2) testant également la présence d'autres guillemets ouvrants dans le paragraphe, 3) ne testant que les p.texte
 * Ajouter des marqueurs au test "Incohérence dans la numérotation des notes"
