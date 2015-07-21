@@ -941,5 +941,30 @@ module.exports = [
             testFirstParagraph("#bibliography .text *:first-child", /bibliogra(ph|f)/i, notif);
             return notif;
         }
+    },
+    {
+        name: "Sous-partie vide",
+        id: 46,
+        description: "Le sommaire du numéro contient une ou plusieurs sous-parties dont le titre est vide et/ou qui ne contiennent aucun document, ce qui correspond à une arborescence incorrecte.",
+        condition: function(context) { return context.classes.numero; },
+        type: "danger",
+        labelPos: "after",
+        action: function (notif, context, root) {
+            var except = false;
+            $("li.publications").each( function () {
+                var h2 = $(this).children("h2");
+                if (h2.length === 0) {
+                    except = true;
+                    return false;
+                }
+                if (h2.text().trim() === "" || $(this).children("ul").length === 0) {
+                    notif.addMarker(h2.get(0)).activate();
+                }
+            });
+            if (except) {
+                return false;
+            }
+            return notif;
+        }
     }//,
 ];

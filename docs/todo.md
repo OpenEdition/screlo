@@ -7,7 +7,6 @@ Pistes de développement et idées de nouveaux tests pour screlo.
 * Signaler l'utilisation d'une "Note de la rédaction" à la place de l'"Introduction de la publication"
 * Vérifier le lien "Commander ce numéro"
 * Signaler les documents en double dans le sommaire
-* Signaler les sous-parties vides et les sous-parties sans titre
 
 ## Typographie des documents
 

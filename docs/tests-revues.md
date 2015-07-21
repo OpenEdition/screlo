@@ -467,3 +467,10 @@ Type : warning
 
 Les titres des sections “Bibliographie” et “Annexe” sont ajoutés automatiquement par Lodel, ils ne doivent donc pas être présents dans le texte du document source. Vérifiez que ces titres n’apparaissent pas en double dans le document.
 
+
+## Test #46 - Sous-partie vide
+
+Type : danger
+
+Le sommaire du numéro contient une ou plusieurs sous-parties dont le titre est vide et/ou qui ne contiennent aucun document, ce qui correspond à une arborescence incorrecte.
+
