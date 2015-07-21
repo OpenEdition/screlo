@@ -69,11 +69,11 @@ Ce document contient des polices non Unicode qui ne sont pas compatibles avec un
 * [Outils pour l’encodage et la conversion en Unicode](http://maisondesrevues.org/199)
 
 
-## Test #7 - Retour à la ligne dans le titre ou dans un intertitre
+## Test #7 - Retour à la ligne dans le titre, un intertitre ou un titre d'illustration
 
 Type : warning
 
-Des retours chariot (ou sauts de ligne forcés) sont utilisés dans le titre et/ou les intertitres de ce document. Les titres et intertitres doivent constituer un seul paragraphe sans retour à la ligne.
+Des retours chariot (ou sauts de ligne forcés) sont utilisés dans le titre et/ou les intertitres et/ou les titres d'illustrations de ce document. Les titres, intertitres et titres d'illustrations doivent constituer un seul paragraphe sans retour à la ligne.
 
 **À lire dans la documentation**
 

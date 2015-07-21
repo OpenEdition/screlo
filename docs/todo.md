@@ -55,7 +55,6 @@ Pistes de développement et idées de nouveaux tests pour screlo.
 * Ajouter des marqueurs au test "Incohérence dans la numérotation des notes"
 * Les tests #10 (Caractère minuscule en début de paragraphe)   et #12 (Listes mal formatées) provoquent parfois une redondance. Exemple : http://lodel.revues.org/10/anglophonia/211
 * Test #10 (Caractère minuscule en début de paragraphe) : ne pas signaler les liens hypertextes.
-* Bug test "Retour à la ligne dans le titre ou dans un intertitre" : le marker n'est pas affiché car ajouté dans le `<br>`
 * Bug Test #36 "Lien(s) à vérifier" : le lien dans le "Pour citer" est signalé comme à vérifier, ici par exemple : http://ema.revues.org/811
 * Test #12 (Listes mal formatées) : vérifier également la chaîne `<br>-` utilisée parfois  en combinaison avec le style "Paragraphe sans retrait" par les revues pour simuler des listes à puces
 * Bug Test #42 "Vérifier le type du document (chronique)" : la chaîne "Éléments bibliographiques" ne matche pas.

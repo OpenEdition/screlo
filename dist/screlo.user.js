@@ -1079,19 +1079,20 @@ module.exports = [
         }
     },
     {
-        name: "Retour à la ligne dans le titre ou dans un intertitre",
+        name: "Retour à la ligne dans le titre, un intertitre ou un titre d'illustration",
         id: 7,
-        description: "Des retours chariot (ou sauts de ligne forcés) sont utilisés dans le titre et/ou les intertitres de ce document. Les titres et intertitres doivent constituer un seul paragraphe sans retour à la ligne.",
+        description: "Des retours chariot (ou sauts de ligne forcés) sont utilisés dans le titre et/ou les intertitres et/ou les titres d'illustrations de ce document. Les titres, intertitres et titres d'illustrations doivent constituer un seul paragraphe sans retour à la ligne.",
         links: [
             "Stylage du titre", "http://maisondesrevues.org/79",
             "Stylage des intertitres", "http://maisondesrevues.org/90"
         ],
         type: "warning",
-        label: "Retour à la ligne",
+        label: "Retour ↲",
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
-            $(".texte:header br, h1#docTitle br", root).each( function() {
-                notif.addMarker(this).activate();
+            $(".texte:header br, h1#docTitle br, .titreillustration br", root).each( function() {
+                var $markedElement = $("<span></span>").insertBefore(this);
+                notif.addMarker($markedElement.get(0)).activate();
             });
             return notif;
         }
@@ -1920,7 +1921,7 @@ module.exports = [
         labelPos: "after",
         action: function (notif, context, root) {
             var except = false;
-            $("li.publications").each( function () {
+            $("li.publications", root).each( function () {
                 var h2 = $(this).children("h2");
                 if (h2.length === 0) {
                     except = true;
