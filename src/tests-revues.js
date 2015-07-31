@@ -967,5 +967,23 @@ module.exports = [
             }
             return notif;
         }
+    },
+    {
+        name: "Note précédée par un point",
+        id: 47,
+        description: "Une ou plusieurs notes de bas de page de ce document commencent par un point qui a probablement été inséré automatiquement par Word. Il est recommandé de supprimer ces points.",
+        condition: function(context) { return context.classes.textes; },
+        type: "warning",
+        label: "Point",
+        labelPos: "before",
+        action: function (notif, context, root) {
+            $("#notes p", root).each( function () {
+                var text = $(this).text();
+                if (text && /^\s*\d+\s*\./.test(text)) {
+                    notif.addMarker(this).activate();
+                }
+            });
+            return notif;
+        }
     }//,
 ];

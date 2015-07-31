@@ -474,3 +474,10 @@ Type : danger
 
 Le sommaire du numéro contient une ou plusieurs sous-parties dont le titre est vide et/ou qui ne contiennent aucun document, ce qui correspond à une arborescence incorrecte.
 
+
+## Test #47 - Note précédée par un point
+
+Type : warning
+
+Une ou plusieurs notes de bas de page de ce document commencent par un point qui a probablement été inséré automatiquement par Word. Il est recommandé de supprimer ces points.
+

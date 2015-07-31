@@ -4,7 +4,7 @@
 // @namespace   http://revues.org/
 // @include     /https?:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/+(?!(\/*lodel))/
 // @include     /https?:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/+[0-9]{2}\/+[a-z0-9-]+\/+(?!(\/*lodel))/
-// @version     15.7.1
+// @version     15.7.2
 // @updateURL	https://github.com/brrd/screlo/raw/master/dist/screlo.user.js
 // @grant       none
 // ==/UserScript==
@@ -708,7 +708,7 @@ var globals = {},
     utils = require("./utils.js"),
     tests = require("./tests-revues.js"); 
 
-globals.version = "15.7.1";
+globals.version = "15.7.2";
 
 globals.schema =  "15.4.0d"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
@@ -1934,6 +1934,24 @@ module.exports = [
             if (except) {
                 return false;
             }
+            return notif;
+        }
+    },
+    {
+        name: "Note précédée par un point",
+        id: 47,
+        description: "Une ou plusieurs notes de bas de page de ce document commencent par un point qui a probablement été inséré automatiquement par Word. Il est recommandé de supprimer ces points.",
+        condition: function(context) { return context.classes.textes; },
+        type: "warning",
+        label: "Point",
+        labelPos: "before",
+        action: function (notif, context, root) {
+            $("#notes p", root).each( function () {
+                var text = $(this).text();
+                if (text && /^\s*\d+\s*\./.test(text)) {
+                    notif.addMarker(this).activate();
+                }
+            });
             return notif;
         }
     }//,
