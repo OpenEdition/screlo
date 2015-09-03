@@ -780,7 +780,7 @@ module.exports = [
         condition: function(context) { return context.classes.textes; },
         action: function (notif, context, root) {
             var url = "";
-            $("p a[href]:not(.footnotecall, .FootnoteSymbol, [href^=mailto])", root).each( function () {
+            $("p a[href]:not(.footnotecall, .endnotecall, .FootnoteSymbol, .EndnoteSymbol, [href^=mailto])", root).each( function () {
                 url = $(this).attr("href");
                 if (!utils.isValidUrl(url)) {
                     notif.addMarker(this).activate();
