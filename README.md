@@ -5,10 +5,12 @@ Screlo - Script de relecture pour Lodel
 
 **Attention ! Les ressources sont actuellement récupérées via http://rawgit.com version dev/testing. Ne pas utiliser en production en l'état, sinon risque de blacklisting.**
 
-Étape 1 : installer un plugin permettant d'installer des scripts utilisateur sur le navigateur :
+Étape 1 : installer le plugin Tampermonkey dans le navigateur :
 
-- **Pour Firefox :** GreaseMonkey https://addons.mozilla.org/fr/firefox/addon/greasemonkey/
-- **Pour Chrome :** Tampermonkey https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=fr
+- **Pour Firefox :** https://addons.mozilla.org/fr/firefox/addon/tampermonkey/
+- **Pour Chrome :** https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=fr
+
+Attention : depuis Firefox Quantum, screlo ne fonctionne plus avec Greasemonkey. Il faut utiliser Tampermonkey.
 
 Étape 2 : ouvrir l'URL https://github.com/brrd/screlo/raw/master/dist/screlo.user.js avec le navigateur.
 
@@ -22,7 +24,7 @@ Pour rétablir un affichage normal de la page, désactiver les scripts utilisate
 
 ### Forcer les mises à jour
 
-Les mises à jour sont automatiques sous Firefox mais pas sous Chrome (bug #4). Pour forcer la mise à jour, utiliser le bouton "A propos" > "Mise à jour" puis accepter la réinstallation du script. 
+Les mises à jour sont automatiques sous Firefox mais pas sous Chrome (bug #4). Pour forcer la mise à jour, utiliser le bouton "A propos" > "Mise à jour" puis accepter la réinstallation du script.
 
 ### Documentation
 
@@ -31,7 +33,7 @@ La liste complète des tests effectués par Screlo et des messages d'aide est di
 ## Développement
 
 1. Cloner le projet
-2. Installer Grunt : `$ npm install -g grunt-cli` 
+2. Installer Grunt : `$ npm install -g grunt-cli`
 3. Installer les dépendances de développement dans le répertoire du projet : `$ npm install`
 4. `$ grunt` pour la génération du projet (voir les options ci-dessous)
 
