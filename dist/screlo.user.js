@@ -3,8 +3,9 @@
 // @description Script de relecture pour Lodel
 // @namespace   http://revues.org/
 // @include     /https?:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/+(?!(\/*lodel))/
-// @include     /https?:\/\/(((lodel|devel)\.revues)|formations\.lodel)\.org\/+[0-9]{2}\/+[a-z0-9-]+\/+(?!(\/*lodel))/
-// @version     15.9.0
+// @include     /https?:\/\/(((lodel|devel)\.revues)|formations\.lodel|edt-journals\.openedition)\.org\/+[0-9]{2}\/+[a-z0-9-]+\/+(?!(\/*lodel))/
+// @include     /https?:\/\/journals\.openedition\.org\/+[a-z0-9-]+\/+(?!(\/*lodel))/
+// @version     17.12.0
 // @updateURL	https://github.com/brrd/screlo/raw/master/dist/screlo.user.js
 // @grant       none
 // ==/UserScript==
@@ -706,9 +707,9 @@ module.exports = cmd;
 
 var globals = {},
     utils = require("./utils.js"),
-    tests = require("./tests-revues.js"); 
+    tests = require("./tests-revues.js");
 
-globals.version = "15.9.0";
+globals.version = "17.12.0";
 
 globals.schema =  "15.4.0d"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
@@ -722,8 +723,11 @@ globals.appUrls = {
 
 globals.nomCourt = (function () {
     var host = window.location.host,
-        p = location.pathname.replace(/\/(\d+)\//,'');
-    if (host.indexOf("formations.lodel.org") > -1 || host.indexOf("lodel.revues.org") > -1 || host.indexOf("devel.revues.org") > -1) {
+        p = location.pathname.replace(/\/(\d+\/)?/,'');
+    if (host.indexOf("formations.lodel.org") > -1 || host.indexOf("lodel.revues.org") > -1 ||
+    host.indexOf("devel.revues.org") > -1 ||
+    host.indexOf("edt-journals.openedition.org" > -1) ||
+    host.indexOf("journals.openedition.org") > -1) {
         return p.substr(0, p.indexOf('/'));
     } else {
         return host.substr(0, host.indexOf('.'));
@@ -783,7 +787,7 @@ globals.isPublication = (function () {
 globals.toc = globals.isPublication ? utils.getToc() : false;
 
 globals.infos = (function () {
-    
+
     function getInfo (test) {
         var typeInfos = {
             danger: "Cette notification signale une erreur critique concernant la composition du document. Cette erreur peut entraver le traitement et la mise en valeur des contenus sur la plateforme, il est donc fortement recommandé de la corriger.",
@@ -813,11 +817,11 @@ globals.infos = (function () {
         }
         return info;
     }
-    
+
     var infos = [],
         thisId,
         thisInfo;
-    
+
     for (var i=0; i<tests.length; i++) {
         if (tests[i].id && tests[i].description) {
             thisId = tests[i].id;
@@ -829,6 +833,7 @@ globals.infos = (function () {
 })();
 
 module.exports = globals;
+
 },{"./tests-revues.js":10,"./utils.js":12}],8:[function(require,module,exports){
 /*
     SCRELO - Script de relecture pour Lodel
