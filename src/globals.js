@@ -6,7 +6,7 @@
 
 var globals = {},
     utils = require("./utils.js"),
-    tests = require("./tests-revues.js"); 
+    tests = require("./tests-revues.js");
 
 globals.version = "/* @echo VERSION */";
 
@@ -22,8 +22,11 @@ globals.appUrls = {
 
 globals.nomCourt = (function () {
     var host = window.location.host,
-        p = location.pathname.replace(/\/(\d+)\//,'');
-    if (host.indexOf("formations.lodel.org") > -1 || host.indexOf("lodel.revues.org") > -1 || host.indexOf("devel.revues.org") > -1) {
+        p = location.pathname.replace(/\/(\d+\/)?/,'');
+    if (host.indexOf("formations.lodel.org") > -1 || host.indexOf("lodel.revues.org") > -1 ||
+    host.indexOf("devel.revues.org") > -1 ||
+    host.indexOf("edt-journals.openedition.org" > -1) ||
+    host.indexOf("journals.openedition.org") > -1) {
         return p.substr(0, p.indexOf('/'));
     } else {
         return host.substr(0, host.indexOf('.'));
@@ -83,7 +86,7 @@ globals.isPublication = (function () {
 globals.toc = globals.isPublication ? utils.getToc() : false;
 
 globals.infos = (function () {
-    
+
     function getInfo (test) {
         var typeInfos = {
             danger: "Cette notification signale une erreur critique concernant la composition du document. Cette erreur peut entraver le traitement et la mise en valeur des contenus sur la plateforme, il est donc fortement recommandé de la corriger.",
@@ -113,11 +116,11 @@ globals.infos = (function () {
         }
         return info;
     }
-    
+
     var infos = [],
         thisId,
         thisInfo;
-    
+
     for (var i=0; i<tests.length; i++) {
         if (tests[i].id && tests[i].description) {
             thisId = tests[i].id;
