@@ -3,9 +3,9 @@
 // @description Script de relecture pour Lodel
 // @namespace   http://revues.org/
 // @include     /https?:\/\/(?!(www|lodel|devel))[a-z0-9-]+\.revues.org\/+(?!(\/*lodel))/
-// @include     /https?:\/\/(((lodel|devel)\.revues)|formations\.lodel|edt-journals\.openedition)\.org\/+[0-9]{2}\/+[a-z0-9-]+\/+(?!(\/*lodel))/
+// @include     /https?:\/\/(((lodel|devel)\.revues)|formations\.lodel|edt-journals\.openedition)\.org\/+([0-9]{2}\/+)?[a-z0-9-]+\/+(?!(\/*lodel))/
 // @include     /https?:\/\/journals\.openedition\.org\/+[a-z0-9-]+\/+(?!(\/*lodel))/
-// @version     17.12.0
+// @version     18.5.0
 // @updateURL	https://github.com/brrd/screlo/raw/master/dist/screlo.user.js
 // @grant       none
 // ==/UserScript==
@@ -709,7 +709,7 @@ var globals = {},
     utils = require("./utils.js"),
     tests = require("./tests-revues.js");
 
-globals.version = "17.12.0";
+globals.version = "18.5.0";
 
 globals.schema =  "15.4.0d"; // NOTE: Valeur à incrémenter quand l'architecture des informations stockées dans le cache change. Permet d'éviter les incompatibilités avec les objets obsolètes qui peuvent se trouver dans localStorage.
 
